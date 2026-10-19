@@ -21,6 +21,11 @@
             const rateInput = document.querySelector('#dollarRate');
             if (rateInput) rateInput.value = Number(settings.dollarRate);
         }
+        const rateNote = document.querySelector('#heroExchangeRateNote');
+        if (rateNote && typeof settings.exchangeRateNote === 'string') {
+            rateNote.textContent = settings.exchangeRateNote;
+            rateNote.hidden = !settings.exchangeRateNote.trim();
+        }
         setText('#profileLink', settings.profileLabel);
         setLink('#profileLink', settings.profileUrl);
         setLink('#friendRequestBtn', settings.profileUrl);

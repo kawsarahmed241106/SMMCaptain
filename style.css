@@ -157,6 +157,13 @@ button {
     color: #ffb16e
 }
 
+.hero-pill span {
+    display: block;
+    margin-top: 4px;
+    color: #dbe4f0;
+    font-size: 12px
+}
+
 .container {
     max-width: 1150px;
     margin: 24px auto;

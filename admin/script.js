@@ -11,6 +11,7 @@
     heroTitle: 'আপনার ব্যবসার জন্য বিজ্ঞাপন দিন, সহজ বাংলায়',
     heroDescription: 'পোস্ট বা ভিডিওর লিংক দিন, লক্ষ্য ও অডিয়েন্স বেছে নিন, বাজেট দেখুন—তারপর অর্ডারের তথ্য জমা দিন।',
     dollarRate: 150,
+    exchangeRateNote: 'পেমেন্টের আগে যাচাই করুন',
     profileUrl: 'https://www.facebook.com/',
     profileLabel: 'Facebook Profile — Demo Link',
     instructionVideo: '',
