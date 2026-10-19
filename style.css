@@ -395,6 +395,17 @@ textarea {
     margin: 10px 0
 }
 
+.profile-copy {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 9px
+}
+
+.profile-copy .mini-btn {
+    color: #1877f2;
+    font-weight: 750
+}
+
 .mini-btn {
     border: 1px solid #cbd5e1;
     background: white;
