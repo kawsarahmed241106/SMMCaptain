@@ -1,3 +1,63 @@
+// Load public-site copy and links maintained in Supabase by the admin page.
+(() => {
+    const applySettings = (settings) => {
+      try {
+        const setText = (selector, value) => {
+            if (typeof value !== 'string' || !value.trim()) return;
+            const element = document.querySelector(selector);
+            if (element) element.textContent = value;
+        };
+        const setLink = (selector, value) => {
+            if (typeof value !== 'string' || !/^https?:\/\//i.test(value)) return;
+            const element = document.querySelector(selector);
+            if (element) element.href = value;
+        };
+        setText('.brand > div:last-child', settings.brandName);
+        setText('.topnote', settings.topNote);
+        setText('.eyebrow', settings.heroEyebrow);
+        setText('.hero h1', settings.heroTitle);
+        setText('.hero-inner > div:first-child > p', settings.heroDescription);
+        setText('.hero-pill strong', settings.exchangeRate);
+        setText('#profileLink', settings.profileLabel);
+        setLink('#profileLink', settings.profileUrl);
+        setLink('#friendRequestBtn', settings.profileUrl);
+        if (settings.logoImage && /^https?:\/\//i.test(settings.logoImage)) {
+            const logo = document.querySelector('.logo');
+            if (logo) {
+                logo.textContent = '';
+                logo.style.backgroundImage = `url("${settings.logoImage.replace(/["\\]/g, '')}")`;
+                logo.style.backgroundSize = 'cover';
+                logo.style.backgroundPosition = 'center';
+            }
+        }
+        if (settings.instructionVideo && /^https?:\/\//i.test(settings.instructionVideo)) {
+            const preview = document.querySelector('#videoPreview');
+            if (preview) {
+                const url = settings.instructionVideo;
+                const youtube = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w-]{11})/i);
+                const video = document.createElement(youtube ? 'iframe' : 'video');
+                video.src = youtube ? `https://www.youtube-nocookie.com/embed/${youtube[1]}` : url;
+                video.controls = true;
+                video.title = 'নির্দেশনামূলক ভিডিও';
+                video.style.cssText = 'width:100%;height:100%;min-height:220px;border:0;display:block';
+                if (youtube) video.allowFullscreen = true;
+                preview.replaceChildren(video);
+            }
+        }
+      } catch (error) {
+        console.warn('Site settings could not be applied.', error);
+      }
+    };
+    const client = window.smmSupabaseClient;
+    if (!client) return;
+    client.from('site_settings').select('settings').eq('id', 1).maybeSingle()
+      .then(({ data, error }) => {
+        if (error) throw error;
+        if (data?.settings) applySettings(data.settings);
+      })
+      .catch((error) => console.warn('Supabase site settings unavailable; showing page defaults.', error));
+})();
+
 const $ = id => document.getElementById(id);
 const money = n => '৳' + Math.round(n).toLocaleString('en-US').replace(/,/g, '٬').replace(/٬/g, ',');
 const bn = n => Number(n).toLocaleString('bn-BD');

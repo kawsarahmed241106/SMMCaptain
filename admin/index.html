@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>Site Admin | SMMCaptain</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="../index.html"><span class="brand-mark">S</span><span>SMMCaptain <small>ADMIN</small></span></a>
+      <a class="site-link" href="../index.html" target="_blank" rel="noopener">View website ↗</a>
+    </header>
+
+    <section class="login-card" id="loginCard">
+      <div class="lock-icon">⌑</div>
+      <p class="eyebrow">SITE MANAGEMENT</p>
+      <h1>Admin sign in</h1>
+      <p class="muted">Sign in with the admin account created in Supabase to manage website content.</p>
+      <form id="loginForm">
+        <label for="email">Admin email</label>
+        <input id="email" type="email" autocomplete="username" required autofocus>
+        <label for="password" class="password-label">Password</label>
+        <input id="password" type="password" autocomplete="current-password" required>
+        <p class="error" id="loginError" role="alert"></p>
+        <button class="button primary" type="submit">Sign in <span>→</span></button>
+      </form>
+      <p class="login-foot">Create the admin user in Supabase Authentication, then follow <code>supabase/setup.sql</code> to grant site admin access.</p>
+    </section>
+
+    <section class="dashboard hidden" id="dashboard">
+      <div class="page-heading">
+        <div><p class="eyebrow">WEBSITE CONTENT</p><h1>Site settings</h1><p class="muted">Edit the public page copy, brand image and Facebook/video links.</p></div>
+        <button class="button ghost" type="button" id="logoutButton">Log out</button>
+      </div>
+      <div class="notice"><strong>How saving works</strong><span>Settings are saved in this browser. The public page will show them when opened in this same browser. A static site needs a server or CMS to share edits with every visitor.</span></div>
+      <form id="settingsForm">
+        <section class="panel">
+          <div class="panel-heading"><span class="step">01</span><div><h2>Brand &amp; header</h2><p>Set your site name, header note and optional logo image.</p></div></div>
+          <div class="fields two-col">
+            <div class="field"><label for="brandName">Brand name</label><input id="brandName" name="brandName" maxlength="80" placeholder="SMMCaptain.xyz"></div>
+            <div class="field"><label for="topNote">Header message</label><input id="topNote" name="topNote" maxlength="140" placeholder="আপনার বিজ্ঞাপন, আপনার নিয়ন্ত্রণে"></div>
+            <div class="field full"><label for="logoImage">Logo image URL <span class="optional">optional</span></label><input id="logoImage" name="logoImage" type="url" placeholder="https://example.com/logo.png"><small>Use a publicly accessible image URL. Leave blank to show the S mark.</small></div>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-heading"><span class="step">02</span><div><h2>Homepage hero</h2><p>Update the main heading and supporting copy.</p></div></div>
+          <div class="fields two-col">
+            <div class="field"><label for="heroEyebrow">Small heading</label><input id="heroEyebrow" name="heroEyebrow" maxlength="100"></div>
+            <div class="field"><label for="exchangeRate">Rate badge</label><input id="exchangeRate" name="exchangeRate" maxlength="80" placeholder="৳১৫০ / $১"></div>
+            <div class="field full"><label for="heroTitle">Main heading</label><input id="heroTitle" name="heroTitle" maxlength="180"></div>
+            <div class="field full"><label for="heroDescription">Description</label><textarea id="heroDescription" name="heroDescription" rows="3" maxlength="400"></textarea></div>
+          </div>
+        </section>
+        <section class="panel">
+          <div class="panel-heading"><span class="step">03</span><div><h2>Facebook access &amp; help video</h2><p>Set the profile link and an optional video that explains access steps.</p></div></div>
+          <div class="fields two-col">
+            <div class="field full"><label for="profileUrl">Facebook profile URL</label><input id="profileUrl" name="profileUrl" type="url" placeholder="https://www.facebook.com/your-profile"></div>
+            <div class="field full"><label for="profileLabel">Link text</label><input id="profileLabel" name="profileLabel" maxlength="120" placeholder="Facebook Profile"></div>
+            <div class="field full"><label for="instructionVideo">Instruction video URL <span class="optional">optional</span></label><input id="instructionVideo" name="instructionVideo" type="url" placeholder="YouTube URL or direct MP4 URL"><small>YouTube links and direct video file links are supported.</small></div>
+          </div>
+        </section>
+        <div class="form-actions"><span class="save-status" id="saveStatus" aria-live="polite"></span><button class="button ghost" id="resetButton" type="button">Reset defaults</button><button class="button primary save" type="submit">Save changes <span>→</span></button></div>
+      </form>
+      <footer>Changes apply to this browser's public page after saving.</footer>
+    </section>
+  </main>
+</body>
+</html>
