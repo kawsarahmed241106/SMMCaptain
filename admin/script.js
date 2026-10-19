@@ -1,6 +1,7 @@
 (() => {
   'use strict';
-  const supabase = window.smmSupabaseClient;
+  const bootstrapClient = window.smmSupabaseBootstrap;
+  let supabase = bootstrapClient;
   const table = 'site_settings';
   const defaults = {
     brandName: 'SMMCaptain.xyz',
@@ -12,20 +13,33 @@
     exchangeRate: '৳১৫০ / $১',
     profileUrl: 'https://www.facebook.com/',
     profileLabel: 'Facebook Profile — Demo Link',
-    instructionVideo: ''
+    instructionVideo: '',
+    supabasePublishableKey: window.smmSupabaseBootstrapKey
   };
   const $ = (id) => document.getElementById(id);
   const form = $('settingsForm');
   let loadedSettings = { ...defaults };
+  let keyWarning = '';
 
   function showStatus(message, error = false) {
     $('saveStatus').textContent = message;
     $('saveStatus').style.color = error ? '#c83d37' : '';
   }
   async function loadSettings() {
-    const { data, error } = await supabase.from(table).select('settings').eq('id', 1).maybeSingle();
+    const { data, error } = await bootstrapClient.from(table).select('settings').eq('id', 1).maybeSingle();
     if (error) throw error;
-    return { ...defaults, ...(data?.settings || {}) };
+    const settings = { ...defaults, ...(data?.settings || {}) };
+    const key = settings.supabasePublishableKey || window.smmSupabaseBootstrapKey;
+    supabase = window.createSmmSupabaseClient(key);
+    keyWarning = '';
+    if (key !== window.smmSupabaseBootstrapKey) {
+      const { error: activeError } = await supabase.from(table).select('id').eq('id', 1).maybeSingle();
+      if (activeError) {
+        supabase = bootstrapClient;
+        keyWarning = `Active key failed; using bootstrap key so you can correct it. ${activeError.message}`;
+      }
+    }
+    return settings;
   }
   function showDashboard(settings = loadedSettings) {
     $('loginCard').classList.add('hidden');
@@ -41,13 +55,14 @@
     const button = $('loginForm').querySelector('button[type="submit"]');
     button.disabled = true;
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error } = await bootstrapClient.auth.signInWithPassword({
         email: $('email').value.trim(),
         password: $('password').value
       });
       if (error) throw error;
       loadedSettings = await loadSettings();
       showDashboard();
+      if (keyWarning) showStatus(keyWarning, true);
     } catch (error) {
       $('loginError').textContent = error.message.includes('site_settings')
         ? 'Admin login worked, but the database table or RLS setup is missing. Follow supabase/setup.sql.'
@@ -74,6 +89,12 @@
         return;
       }
     }
+    if (!/^sb_publishable_[A-Za-z0-9_-]+$/.test(data.supabasePublishableKey || '')) {
+      form.elements.namedItem('supabasePublishableKey').setCustomValidity('Use a Supabase publishable key (sb_publishable_…). Secret and service-role keys are not accepted.');
+      form.elements.namedItem('supabasePublishableKey').reportValidity();
+      form.elements.namedItem('supabasePublishableKey').setCustomValidity('');
+      return;
+    }
     const saveButton = form.querySelector('button[type="submit"]');
     saveButton.disabled = true;
     showStatus('Saving…');
@@ -94,11 +115,12 @@
   });
 
   (async () => {
-    const { data: { session } } = await supabase.auth.getSession();
+    const { data: { session } } = await bootstrapClient.auth.getSession();
     if (session) {
       try {
         loadedSettings = await loadSettings();
         showDashboard();
+        if (keyWarning) showStatus(keyWarning, true);
       } catch (error) {
         $('loginError').textContent = `Could not load settings: ${error.message}`;
         await supabase.auth.signOut();

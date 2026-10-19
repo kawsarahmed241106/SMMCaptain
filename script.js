@@ -48,12 +48,26 @@
         console.warn('Site settings could not be applied.', error);
       }
     };
-    const client = window.smmSupabaseClient;
-    if (!client) return;
-    client.from('site_settings').select('settings').eq('id', 1).maybeSingle()
-      .then(({ data, error }) => {
+    const bootstrapClient = window.smmSupabaseBootstrap || window.smmSupabaseClient;
+    if (!bootstrapClient) return;
+    bootstrapClient.from('site_settings').select('settings').eq('id', 1).maybeSingle()
+      .then(async ({ data, error }) => {
         if (error) throw error;
-        if (data?.settings) applySettings(data.settings);
+        if (!data?.settings) return;
+        const key = data.settings.supabasePublishableKey || window.smmSupabaseBootstrapKey;
+        const activeClient = key && key !== window.smmSupabaseBootstrapKey
+          ? window.createSmmSupabaseClient(key)
+          : bootstrapClient;
+        window.smmSupabaseClient = activeClient;
+        const activeResult = activeClient === bootstrapClient
+          ? { data, error: null }
+          : await activeClient.from('site_settings').select('settings').eq('id', 1).maybeSingle();
+        if (activeResult.error) {
+          console.warn('Active publishable key failed; using bootstrap settings.', activeResult.error);
+          applySettings(data.settings);
+          return;
+        }
+        if (activeResult.data?.settings) applySettings(activeResult.data.settings);
       })
       .catch((error) => console.warn('Supabase site settings unavailable; showing page defaults.', error));
 })();

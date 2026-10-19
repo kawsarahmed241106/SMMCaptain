@@ -65,6 +65,12 @@
             <div class="field full"><label for="instructionVideo">Instruction video URL <span class="optional">optional</span></label><input id="instructionVideo" name="instructionVideo" type="url" placeholder="YouTube URL or direct MP4 URL"><small>YouTube links and direct video file links are supported.</small></div>
           </div>
         </section>
+        <section class="panel">
+          <div class="panel-heading"><span class="step">04</span><div><h2>Supabase publishable key</h2><p>Rotate the active browser key for this Supabase project.</p></div></div>
+          <div class="fields">
+            <div class="field"><label for="supabasePublishableKey">Active publishable key</label><input id="supabasePublishableKey" name="supabasePublishableKey" type="password" autocomplete="off" spellcheck="false" maxlength="300" placeholder="sb_publishable_…"><small>Enter a publishable key from this same Supabase project. Keep the current bootstrap key active so the site can retrieve future key changes. Never enter a secret or service-role key.</small></div>
+          </div>
+        </section>
         <div class="form-actions"><span class="save-status" id="saveStatus" aria-live="polite"></span><button class="button ghost" id="resetButton" type="button">Reset defaults</button><button class="button primary save" type="submit">Save changes <span>→</span></button></div>
       </form>
       <footer>Changes apply to this browser's public page after saving.</footer>
