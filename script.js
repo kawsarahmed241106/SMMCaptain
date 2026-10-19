@@ -24,10 +24,16 @@
         if (settings.logoImage && /^https?:\/\//i.test(settings.logoImage)) {
             const logo = document.querySelector('.logo');
             if (logo) {
-                logo.textContent = '';
-                logo.style.backgroundImage = `url("${settings.logoImage.replace(/["\\]/g, '')}")`;
-                logo.style.backgroundSize = 'cover';
-                logo.style.backgroundPosition = 'center';
+                const image = document.createElement('img');
+                image.src = settings.logoImage;
+                image.alt = 'SMMCaptain logo';
+                image.addEventListener('error', () => {
+                    logo.replaceChildren(Object.assign(document.createElement('span'), {
+                        className: 'logo-fallback',
+                        textContent: 'S'
+                    }));
+                }, { once: true });
+                logo.replaceChildren(image);
             }
         }
         if (settings.instructionVideo && /^https?:\/\//i.test(settings.instructionVideo)) {
