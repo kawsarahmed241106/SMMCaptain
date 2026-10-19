@@ -10,7 +10,7 @@
     heroEyebrow: 'সহজ অনলাইন বিজ্ঞাপন',
     heroTitle: 'আপনার ব্যবসার জন্য বিজ্ঞাপন দিন, সহজ বাংলায়',
     heroDescription: 'পোস্ট বা ভিডিওর লিংক দিন, লক্ষ্য ও অডিয়েন্স বেছে নিন, বাজেট দেখুন—তারপর অর্ডারের তথ্য জমা দিন।',
-    exchangeRate: '৳১৫০ / $১',
+    dollarRate: 150,
     profileUrl: 'https://www.facebook.com/',
     profileLabel: 'Facebook Profile — Demo Link',
     instructionVideo: '',

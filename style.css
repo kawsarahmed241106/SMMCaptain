@@ -145,14 +145,15 @@ button {
 .hero-pill {
     border: 1px solid #ffffff2b;
     background: #ffffff10;
-    padding: 14px 18px;
+    padding: 15px 20px;
     border-radius: 16px;
-    min-width: 175px
+    min-width: 0;
+    white-space: nowrap
 }
 
 .hero-pill strong {
     display: block;
-    font-size: 23px;
+    font-size: clamp(21px, 2.4vw, 29px);
     color: #ffb16e
 }
 

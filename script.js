@@ -17,7 +17,10 @@
         setText('.eyebrow', settings.heroEyebrow);
         setText('.hero h1', settings.heroTitle);
         setText('.hero-inner > div:first-child > p', settings.heroDescription);
-        setText('.hero-pill strong', settings.exchangeRate);
+        if (Number(settings.dollarRate) >= 1) {
+            const rateInput = document.querySelector('#dollarRate');
+            if (rateInput) rateInput.value = Number(settings.dollarRate);
+        }
         setText('#profileLink', settings.profileLabel);
         setLink('#profileLink', settings.profileUrl);
         setLink('#friendRequestBtn', settings.profileUrl);
@@ -108,6 +111,7 @@ function updateUpazilas() { if ($('country').value === 'BD') { const us = bdDist
 function updateAge() { let a = Number($('ageMin').value), b = Number($('ageMax').value); if (a > b) { $('ageMax').value = a; toast('সর্বোচ্চ বয়স সর্বনিম্ন বয়সের সমান বা বেশি হতে হবে।') } updateAll() }
 function updateBudget() {
     let daily = getDaily(), days = getDays(), rate = Math.max(1, Number($('dollarRate').value) || 150), total = daily * days;
+    $('heroExchangeRate').textContent = '৳' + rate.toLocaleString('bn-BD') + ' / $১';
     $('dailyDisplay').textContent = '$' + daily.toLocaleString('en-US'); $('dailyTaka').textContent = money(daily * rate); $('totalUsd').textContent = '$' + total.toLocaleString('en-US'); $('totalTaka').textContent = money(total * rate);
     $('sumDaily').textContent = '$' + daily.toLocaleString('en-US'); $('sumTotalUsd').textContent = '$' + total.toLocaleString('en-US'); $('sumTotalTaka').textContent = money(total * rate); $('sumDays').textContent = bn(days) + ' দিন'; if ($('payOrderBtn')) $('payOrderBtn').textContent = money(total * rate) + ' পেমেন্ট করে অর্ডার করুন →'; $('payOrderBtn').textContent = money(total * rate) + ' পেমেন্ট করে অর্ডার করুন →';
     let g = $('goal').value, low = 0, high = 0, unit = 'ফলাফল'; if (g === 'messages') { low = total * 2; high = total * 8; unit = 'মেসেজ' } else if (g === 'views') { low = total * 500; high = total * 2000; unit = 'ভিডিও ভিউ' } else if (g === 'leads') { low = total * .5; high = total * 2; unit = 'লিড' } else if (g === 'sales') { low = total * .2; high = total * 1; unit = 'সম্ভাব্য বিক্রয়' } else if (g === 'engagement') { low = total * 15; high = total * 60; unit = 'এনগেজমেন্ট' } else if (g === 'traffic') { low = total * 5; high = total * 25; unit = 'ক্লিক' } else if (g === 'awareness') { low = total * 500; high = total * 1500; unit = 'সম্ভাব্য রিচ' } else { low = total * 10; high = total * 40; unit = 'অ্যাকশন' }
