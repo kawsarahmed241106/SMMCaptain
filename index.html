@@ -80,8 +80,7 @@
             <div class="hint">ডেমো প্রোফাইল লিংকটি এখন Facebook-এর সাধারণ পেজে যায়। লাইভ করার আগে আসল প্রোফাইল লিংক ও
               ভিডিও বসাতে হবে। পাসওয়ার্ড বা লগইন কোড কখনো শেয়ার করবেন না।</div>
           </div>
-    </div>
-    </section>
+        </section>
     <section class="card">
       <div class="cardhead">
         <div class="num">২</div>
@@ -90,7 +89,54 @@
           <p class="sub">আপনার ব্যবসার লক্ষ্য অনুযায়ী একটি অপশন বেছে নিন।</p>
         </div>
       </div>
-      <div class="field"><label for="goal">লক্ষ্য নির্বাচন করুন</label><select id="goal">
+      <div class="field goal-field"><span class="field-label">লক্ষ্য নির্বাচন করুন</span>
+      <button class="goal-toggle" id="goalToggle" type="button" aria-expanded="false" aria-controls="goalOptions">
+        <span id="goalCurrentIcon" class="goal-icon icon-messages" aria-hidden="true">💬</span>
+        <span class="goal-copy"><strong id="goalCurrentTitle">মেসেজ পান</strong><small id="goalCurrentDescription">Messenger, WhatsApp বা Instagram-এ গ্রাহকদের কাছ থেকে মেসেজ পান।</small></span>
+        <span class="goal-toggle-label" id="goalToggleLabel">লক্ষ্য বেছে নিন⌄</span>
+      </button>
+      <div class="goal-options" id="goalOptions" role="radiogroup" aria-label="বিজ্ঞাপনের লক্ষ্য নির্বাচন" hidden>
+        <label class="goal-option">
+          <span class="goal-icon icon-messages" aria-hidden="true">💬</span>
+          <span class="goal-copy"><strong>মেসেজ পান</strong><small>Messenger, WhatsApp বা Instagram-এ গ্রাহকদের কাছ থেকে মেসেজ পান।</small><span class="goal-good">ভালো: বিক্রয়</span></span>
+          <input type="radio" name="goalChoice" value="messages" checked aria-label="মেসেজ পান">
+        </label>
+        <label class="goal-option">
+          <span class="goal-icon icon-leads" aria-hidden="true">📋</span>
+          <span class="goal-copy"><strong>লিড সংগ্রহ করুন</strong><small>সম্ভাব্য গ্রাহকদের যোগাযোগের তথ্য সংগ্রহ করুন।</small><span class="goal-good">ভালো: বিক্রয়</span></span>
+          <input type="radio" name="goalChoice" value="leads" aria-label="লিড সংগ্রহ করুন">
+        </label>
+        <label class="goal-option">
+          <span class="goal-icon icon-sales" aria-hidden="true">🛍️</span>
+          <span class="goal-copy"><strong>বিক্রয় বাড়ান</strong><small>আপনার পণ্য বা সার্ভিসের জন্য ক্রেতা খুঁজুন।</small><span class="goal-good">ভালো: বিক্রয়</span></span>
+          <input type="radio" name="goalChoice" value="sales" aria-label="বিক্রয় বাড়ান">
+        </label>
+        <label class="goal-option">
+          <span class="goal-icon icon-traffic" aria-hidden="true">➤</span>
+          <span class="goal-copy"><strong>ওয়েবসাইট ভিজিটর পান</strong><small>আপনার ওয়েবসাইট বা নির্দিষ্ট লিংকে আগ্রহী মানুষ পাঠান।</small><span class="goal-good">ভালো: ট্রাফিক</span></span>
+          <input type="radio" name="goalChoice" value="traffic" aria-label="ওয়েবসাইট ভিজিটর পান">
+        </label>
+        <label class="goal-option">
+          <span class="goal-icon icon-engagement" aria-hidden="true">👍</span>
+          <span class="goal-copy"><strong>পোস্টে এনগেজমেন্ট বাড়ান</strong><small>আপনার পোস্টে লাইক, কমেন্ট ও শেয়ার বাড়ান।</small><span class="goal-good">ভালো: এনগেজমেন্ট</span></span>
+          <input type="radio" name="goalChoice" value="engagement" aria-label="পোস্টে এনগেজমেন্ট বাড়ান">
+        </label>
+        <label class="goal-option">
+          <span class="goal-icon icon-awareness" aria-hidden="true">📣</span>
+          <span class="goal-copy"><strong>ব্র্যান্ড পরিচিতি বাড়ান</strong><small>আরও বেশি মানুষের কাছে আপনার ব্যবসার নাম পৌঁছে দিন।</small><span class="goal-good">ভালো: রিচ</span></span>
+          <input type="radio" name="goalChoice" value="awareness" aria-label="ব্র্যান্ড পরিচিতি বাড়ান">
+        </label>
+        <label class="goal-option">
+          <span class="goal-icon icon-views" aria-hidden="true">▶</span>
+          <span class="goal-copy"><strong>ভিডিও ভিউ বাড়ান</strong><small>আপনার ভিডিওটি দেখতে আগ্রহী দর্শক খুঁজুন।</small><span class="goal-good">ভালো: ভিডিও</span></span>
+          <input type="radio" name="goalChoice" value="views" aria-label="ভিডিও ভিউ বাড়ান">
+        </label>
+        <label class="goal-option">
+          <span class="goal-icon icon-app" aria-hidden="true">📱</span>
+          <span class="goal-copy"><strong>অ্যাপ প্রচার করুন</strong><small>আপনার অ্যাপ সম্পর্কে মানুষকে জানান এবং ব্যবহার বাড়ান।</small><span class="goal-good">ভালো: অ্যাপ</span></span>
+          <input type="radio" name="goalChoice" value="app" aria-label="অ্যাপ প্রচার করুন">
+        </label>
+      </div><select id="goal" class="goal-select-bridge" aria-hidden="true" tabindex="-1">
           <option value="messages">মেসেজ</option>
           <option value="leads">লিড / কাস্টমারের তথ্য</option>
           <option value="sales">সেলস ক্যাম্পেইন</option>
@@ -112,8 +158,12 @@
             <label class="choice"><input type="checkbox" name="channel" value="Instagram"><span>📸
                 Instagram</span></label>
           </div>
-          <div class="hint">চাইলে একাধিক চ্যানেল নির্বাচন করতে পারবেন। সব জায়গায় নির্বাচন করলে আলাদা চ্যানেলগুলো
-            স্বয়ংক্রিয়ভাবে একসাথে সিলেক্ট হবে। চ্যানেলগুলোর যোগ্যতা Meta অ্যাকাউন্টের সেটআপের ওপর নির্ভর করে।</div>
+          <div class="hint">একাধিক নির্দিষ্ট চ্যানেল নির্বাচন করতে পারবেন। “সব জায়গায়” বাছলে উপলভ্য সব মেসেজ চ্যানেল ব্যবহৃত হবে। চ্যানেলগুলোর যোগ্যতা Meta অ্যাকাউন্টের সেটআপের ওপর নির্ভর করে।</div>
+          <div id="whatsappNumberField" class="field hidden">
+            <label for="adWhatsappNumber">বিজ্ঞাপনের জন্য WhatsApp নম্বর দিন *</label>
+            <input class="input" id="adWhatsappNumber" type="tel" placeholder="যেমন: +8801XXXXXXXXX" autocomplete="tel">
+            <div class="hint">এই নম্বরটি WhatsApp মেসেজ চ্যানেলের জন্য ব্যবহার হবে।</div>
+          </div>
         </div>
         <div class="field"><label>কাস্টমারকে কী মেসেজ বা Greeting Text দিতে চান? (ঐচ্ছিক)</label><select
             id="messageTemplate">
@@ -122,9 +172,9 @@
             <option>আপনার পণ্যের দাম ও অফার জানতে চাই।</option>
             <option>আমি জার্মান ভাষা শিখতে চাই। কোর্সের বিস্তারিত জানাবেন?</option>
             <option>ডেলিভারি ও পেমেন্ট সম্পর্কে জানতে চাই।</option>
-          </select><textarea id="customMessage"
+          </select><div id="customMessageArea"><textarea id="customMessage"
             placeholder="আপনার Greeting Text বা কাস্টমারের জন্য প্রশ্ন লিখুন (ঐচ্ছিক)"></textarea>
-          <div class="hint">কাস্টমারকে কী কথা বলবেন বা কী প্রশ্ন করতে চান, এখানে লিখতে পারেন।</div>
+          <div class="hint">কাস্টমারকে কী কথা বলবেন বা কী প্রশ্ন করতে চান, এখানে লিখতে পারেন।</div></div>
         </div>
       </div>
       <div id="leadFields" class="hidden">
@@ -247,16 +297,29 @@
           </select></div>
         <div class="hint">নিজে কিলোমিটার লিখুন অথবা সাজেস্টেড অপশন থেকে বেছে নিন।</div>
       </div>
-      <div class="grid2">
-        <div class="field"><label>লিঙ্গ</label><select id="gender">
-            <option value="all">সবাই</option>
-            <option value="men">শুধু পুরুষ</option>
-            <option value="women">শুধু নারী</option>
-          </select></div>
+      <div class="field audience-field">
+        <label class="field-label">লিঙ্গ <span class="info-mark" title="যাদের কাছে বিজ্ঞাপন পৌঁছাবে">ⓘ</span></label>
+        <div class="gender-options" role="radiogroup" aria-label="লিঙ্গ নির্বাচন">
+          <label class="gender-option"><span>সবাই</span><input type="radio" name="genderChoice" value="all" checked aria-label="সবাই"></label>
+          <label class="gender-option"><span>পুরুষ</span><input type="radio" name="genderChoice" value="men" aria-label="পুরুষ"></label>
+          <label class="gender-option"><span>নারী</span><input type="radio" name="genderChoice" value="women" aria-label="নারী"></label>
+        </div>
+        <select id="gender" class="hidden" aria-hidden="true" tabindex="-1">
+          <option value="all">সবাই</option><option value="men">পুরুষ</option><option value="women">নারী</option>
+        </select>
       </div>
-      <div class="grid2">
-        <div class="field"><label for="ageMin">সর্বনিম্ন বয়স</label><select id="ageMin"></select></div>
-        <div class="field"><label for="ageMax">সর্বোচ্চ বয়স</label><select id="ageMax"></select></div>
+      <div class="field audience-field age-field">
+        <label class="field-label" for="ageMinSlider">বয়স <span class="info-mark" title="সর্বনিম্ন ও সর্বোচ্চ বয়স নির্বাচন করুন">ⓘ</span></label>
+        <div class="age-range-row">
+          <span id="ageMinDisplay">১৮</span>
+          <div class="dual-age-slider" id="ageSliderTrack">
+            <div class="dual-age-track"></div><div class="dual-age-fill" id="ageSliderFill"></div>
+            <input class="dual-age-input" type="range" id="ageMinSlider" min="18" max="65" value="18" aria-label="সর্বনিম্ন বয়স">
+            <input class="dual-age-input" type="range" id="ageMaxSlider" min="18" max="65" value="65" aria-label="সর্বোচ্চ বয়স">
+          </div>
+          <span id="ageMaxDisplay">৬৫+</span>
+        </div>
+        <input type="hidden" id="ageMin" value="18"><input type="hidden" id="ageMax" value="65">
       </div>
       <div class="field"><label for="interests">আগ্রহ / অডিয়েন্সের ধরন (ঐচ্ছিক)</label><input class="input"
           id="interests" placeholder="যেমন: অনলাইন শপিং, শিক্ষা, রেস্টুরেন্ট">
@@ -284,7 +347,11 @@
       <div class="field"><label>বিজ্ঞাপন কোন সময় চালাতে চান?</label>
         <div class="pillgrid"><label class="choice"><input type="radio" name="schedule" value="all" checked><span>🌞 ২৪
               ঘণ্টা</span></label><label class="choice"><input type="radio" name="schedule" value="business"><span>🕗
-              বিজনেস আওয়ার (সকাল ৮টা–রাত ১০টা)</span></label></div>
+              বিজনেস আওয়ার (সকাল ৮টা–রাত ১০টা)</span></label><label class="choice"><input type="radio" name="schedule" value="custom"><span>🕒 নিজের সময়</span></label></div>
+        <div id="customScheduleFields" class="grid2 hidden">
+          <div class="field"><label for="scheduleStart">শুরুর সময়</label><input class="input" id="scheduleStart" type="time" value="09:00"></div>
+          <div class="field"><label for="scheduleEnd">শেষের সময়</label><input class="input" id="scheduleEnd" type="time" value="18:00"></div>
+        </div>
         <div class="hint">সময়ভিত্তিক বিজ্ঞাপন চালানোর সুবিধা ক্যাম্পেইনের ধরন ও Meta-এর সেটিংসের ওপর নির্ভর করতে পারে।
         </div>
       </div>
@@ -299,7 +366,7 @@
           <div class="field" style="margin-bottom:5px"><label for="dailyCustom">অথবা ডলার লিখুন ($)</label><input
               class="input" id="dailyCustom" type="number" min="2" max="1000" step="1" value="5"></div>
           <div class="field" style="margin-bottom:5px"><label for="dollarRate">প্রতি ডলারের মূল্য (৳)</label><input
-              class="input" id="dollarRate" type="number" min="1" value="150"></div>
+              class="input rate-display" id="dollarRate" type="number" min="1" value="150" readonly aria-readonly="true"></div>
         </div>
         <div class="moneyline"><span>দৈনিক বাজেট</span><strong id="dailyTaka">৳৭৫০</strong></div>
         <div class="moneyline"><span>মোট বিজ্ঞাপন বাজেট</span><strong id="totalUsd">$50</strong></div>

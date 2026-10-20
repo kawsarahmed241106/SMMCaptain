@@ -19,7 +19,11 @@
         setText('.hero-inner > div:first-child > p', settings.heroDescription);
         if (Number(settings.dollarRate) >= 1) {
             const rateInput = document.querySelector('#dollarRate');
-            if (rateInput) rateInput.value = Number(settings.dollarRate);
+            if (rateInput) {
+                rateInput.value = Number(settings.dollarRate);
+                if (typeof window.refreshCampaignPricing === 'function') window.refreshCampaignPricing();
+                else rateInput.dispatchEvent(new Event('input', { bubbles: true }));
+            }
         }
         const rateNote = document.querySelector('#heroExchangeRateNote');
         if (rateNote && typeof settings.exchangeRateNote === 'string') {
@@ -81,7 +85,7 @@
           applySettings(data.settings);
           return;
         }
-        if (activeResult.data?.settings) applySettings(activeResult.data.settings);
+        applySettings(activeResult.data?.settings || data.settings);
       })
       .catch((error) => console.warn('Supabase site settings unavailable; showing page defaults.', error));
 })();
@@ -113,7 +117,22 @@ function updateRegion() {
     $('sumCountry').textContent = (flags[code] || '🌍') + ' ' + (countryNames[code] || 'অন্যান্য দেশ'); updateAll();
 }
 function updateUpazilas() { if ($('country').value === 'BD') { const us = bdDistricts[$('district').value] || []; $('upazila').innerHTML = '<option value="">উপজেলা নির্বাচন করুন</option>' + us.map(x => `<option>${x}</option>`).join(''); } else { const a = genericAreas[$('district').value] || []; $('upazila').innerHTML = '<option value="">শহর / এলাকা (ঐচ্ছিক)</option>' + a.map(x => `<option>${x}</option>`).join(''); } }
-function updateAge() { let a = Number($('ageMin').value), b = Number($('ageMax').value); if (a > b) { $('ageMax').value = a; toast('সর্বোচ্চ বয়স সর্বনিম্ন বয়সের সমান বা বেশি হতে হবে।') } updateAll() }
+function updateAge(changedSlider) {
+    const minSlider = $('ageMinSlider'), maxSlider = $('ageMaxSlider');
+    let minAge = Number(minSlider.value), maxAge = Number(maxSlider.value);
+    if (minAge >= maxAge) {
+        if (changedSlider === 'ageMinSlider') minSlider.value = maxAge - 1;
+        else maxSlider.value = minAge + 1;
+        minAge = Number(minSlider.value); maxAge = Number(maxSlider.value);
+    }
+    $('ageMin').value = minAge; $('ageMax').value = maxAge;
+    $('ageMinDisplay').textContent = minAge.toLocaleString('bn-BD');
+    $('ageMaxDisplay').textContent = maxAge === 65 ? '৬৫+' : maxAge.toLocaleString('bn-BD');
+    const start = ((minAge - 18) / 47) * 100, end = ((maxAge - 18) / 47) * 100;
+    $('ageSliderTrack').style.setProperty('--age-start', `${start}%`);
+    $('ageSliderTrack').style.setProperty('--age-end', `${end}%`);
+    updateAll();
+}
 function updateBudget() {
     let daily = getDaily(), days = getDays(), rate = Math.max(1, Number($('dollarRate').value) || 150), total = daily * days;
     $('heroExchangeRate').textContent = '৳' + rate.toLocaleString('bn-BD') + ' / $১';
@@ -122,32 +141,59 @@ function updateBudget() {
     let g = $('goal').value, low = 0, high = 0, unit = 'ফলাফল'; if (g === 'messages') { low = total * 2; high = total * 8; unit = 'মেসেজ' } else if (g === 'views') { low = total * 500; high = total * 2000; unit = 'ভিডিও ভিউ' } else if (g === 'leads') { low = total * .5; high = total * 2; unit = 'লিড' } else if (g === 'sales') { low = total * .2; high = total * 1; unit = 'সম্ভাব্য বিক্রয়' } else if (g === 'engagement') { low = total * 15; high = total * 60; unit = 'এনগেজমেন্ট' } else if (g === 'traffic') { low = total * 5; high = total * 25; unit = 'ক্লিক' } else if (g === 'awareness') { low = total * 500; high = total * 1500; unit = 'সম্ভাব্য রিচ' } else { low = total * 10; high = total * 40; unit = 'অ্যাকশন' }
     $('estimate').textContent = `শুধু পরিকল্পনার নমুনা: আনুমানিক ${Math.round(low).toLocaleString('en-US')}–${Math.round(high).toLocaleString('en-US')} ${unit} হতে পারে। এটি কোনো নিশ্চয়তা বা Meta-এর লাইভ পূর্বাভাস নয়। বাস্তব ফলাফল অডিয়েন্স, কনটেন্ট, প্রতিযোগিতা ও অ্যাকাউন্টের ওপর নির্ভর করবে।`;
 }
-function updateGoal() { const g = $('goal').value; $('messagingFields').classList.toggle('hidden', g !== 'messages'); $('leadFields').classList.toggle('hidden', g !== 'leads'); $('salesFields').classList.toggle('hidden', g !== 'sales'); $('urlGoalFields').classList.toggle('hidden', !['traffic', 'awareness', 'engagement', 'views', 'app'].includes(g)); $('sumGoal').textContent = goalNames[g]; $('previewCta').textContent = g === 'messages' ? 'Send Message' : g === 'leads' ? 'Sign Up' : g === 'sales' ? 'Shop Now' : g === 'views' ? 'Watch Video' : g === 'traffic' ? 'Learn More' : 'Learn More'; $('previewButton').textContent = g === 'messages' ? 'মেসেজ পাঠান' : g === 'leads' ? 'নিবন্ধন করুন' : g === 'sales' ? 'কিনুন' : g === 'views' ? 'ভিডিও দেখুন' : 'আরও জানুন'; updateBudget() }
-function updateAll() { updateBudget(); updateGoal(); let msg = $('customMessage').value.trim() || $('messageTemplate').value || 'আপনার পণ্য বা সার্ভিস সম্পর্কে জানতে এখনই মেসেজ করুন!'; $('previewCopy').textContent = msg; let title = $('goal').value === 'sales' ? 'আপনার পণ্য এখনই দেখুন' : $('goal').value === 'views' ? 'আমাদের ভিডিওটি দেখুন' : 'আপনার ব্যবসা আরও এগিয়ে নিন'; $('previewHeadline').textContent = title }
-for (let i = 18; i <= 60; i++) { $('ageMin').add(new Option(i + ' বছর', i)); $('ageMax').add(new Option(i + ' বছর', i)) } $('ageMin').value = '18'; $('ageMax').value = '60';
+function updateGoal() { const g = $('goal').value; const radios = [...document.querySelectorAll('input[name="goalChoice"]')]; radios.forEach(option => option.checked = option.value === g); const selected = radios.find(option => option.checked)?.closest('.goal-option'); if (selected) { const icon = selected.querySelector('.goal-icon'); $('goalCurrentIcon').className = icon.className; $('goalCurrentIcon').textContent = icon.textContent; $('goalCurrentTitle').textContent = selected.querySelector('.goal-copy strong').textContent; $('goalCurrentDescription').textContent = selected.querySelector('.goal-copy small').textContent; $('goalToggleLabel').textContent = 'লক্ষ্য পরিবর্তন করুন⌄' } $('messagingFields').classList.toggle('hidden', g !== 'messages'); $('leadFields').classList.toggle('hidden', g !== 'leads'); $('salesFields').classList.toggle('hidden', g !== 'sales'); $('urlGoalFields').classList.toggle('hidden', !['traffic', 'awareness', 'engagement', 'views', 'app'].includes(g)); $('sumGoal').textContent = goalNames[g]; $('previewCta').textContent = g === 'messages' ? 'Send Message' : g === 'leads' ? 'Sign Up' : g === 'sales' ? 'Shop Now' : g === 'views' ? 'Watch Video' : g === 'traffic' ? 'Learn More' : 'Learn More'; $('previewButton').textContent = g === 'messages' ? 'মেসেজ পাঠান' : g === 'leads' ? 'নিবন্ধন করুন' : g === 'sales' ? 'কিনুন' : g === 'views' ? 'ভিডিও দেখুন' : 'আরও জানুন'; updateBudget() }
+function updateMessageTemplate() { $('customMessageArea').hidden = $('messageTemplate').value !== '' }
+function updateSchedule() {
+    const custom = document.querySelector('input[name="schedule"][value="custom"]').checked;
+    $('customScheduleFields').classList.toggle('hidden', !custom);
+    $('scheduleStart').required = custom; $('scheduleEnd').required = custom;
+}
+function updateWhatsAppField() { const selected = document.querySelector('input[name="channel"][value="WhatsApp"]').checked || document.querySelector('input[name="channel"][value="All"]').checked; $('whatsappNumberField').classList.toggle('hidden', !selected); $('adWhatsappNumber').required = selected }
+function updateAll() { updateWhatsAppField(); updateBudget(); updateGoal(); updateMessageTemplate(); let msg = $('customMessage').value.trim() || $('messageTemplate').value || 'আপনার পণ্য বা সার্ভিস সম্পর্কে জানতে এখনই মেসেজ করুন!'; $('previewCopy').textContent = msg; let title = $('goal').value === 'sales' ? 'আপনার পণ্য এখনই দেখুন' : $('goal').value === 'views' ? 'আমাদের ভিডিওটি দেখুন' : 'আপনার ব্যবসা আরও এগিয়ে নিন'; $('previewHeadline').textContent = title }
+window.refreshCampaignPricing = updateAll;
+$('ageMin').value = '18'; $('ageMax').value = '65';
 $('country').addEventListener('change', updateRegion);
 $('goal').addEventListener('change', updateGoal);
+$('campaignForm').querySelectorAll('input[name="schedule"]').forEach(option => option.addEventListener('change', updateSchedule));
+$('ageMinSlider').addEventListener('input', () => updateAge('ageMinSlider'));
+$('ageMaxSlider').addEventListener('input', () => updateAge('ageMaxSlider'));
+document.querySelectorAll('input[name="genderChoice"]').forEach(option => option.addEventListener('change', () => {
+    if (!option.checked) return;
+    $('gender').value = option.value;
+    updateAll();
+}));
+$('messageTemplate').addEventListener('change', () => { updateMessageTemplate(); updateAll() });
+$('messageTemplate').addEventListener('input', updateMessageTemplate);
+document.querySelectorAll('input[name="goalChoice"]').forEach(option => option.addEventListener('change', () => { if (!option.checked) return; $('goal').value = option.value; $('goal').dispatchEvent(new Event('change', { bubbles: true })) }));
+$('goalToggle').addEventListener('click', () => { const options = $('goalOptions'); options.hidden = !options.hidden; $('goalToggle').setAttribute('aria-expanded', String(!options.hidden)); if (!options.hidden) options.querySelector('input:checked')?.focus() });
+document.querySelectorAll('input[name="goalChoice"]').forEach(option => option.addEventListener('change', () => { if (!option.checked) return; $('goalOptions').hidden = true; $('goalToggle').setAttribute('aria-expanded', 'false') }));
 $('dailyBudget').addEventListener('input', () => { $('dailyCustom').value = $('dailyBudget').value; updateBudget() });
 $('dailyCustom').addEventListener('input', () => { let v = Math.max(2, Math.min(1000, Number($('dailyCustom').value) || 2)); $('dailyBudget').value = v; updateBudget() });
-['dollarRate', 'customDays', 'ageMin', 'ageMax', 'gender', 'radius', 'location', 'interests', 'district', 'upazila', 'messageTemplate', 'customMessage', 'leadOffer', 'salesUrl', 'destinationUrl'].forEach(id => $(id).addEventListener('input', () => { if (id === 'ageMin' || id === 'ageMax') updateAge(); else { if (id === 'district') updateUpazilas(); updateAll() } }));
+['dollarRate', 'customDays', 'gender', 'radius', 'location', 'interests', 'district', 'upazila', 'messageTemplate', 'customMessage', 'leadOffer', 'salesUrl', 'destinationUrl'].forEach(id => $(id).addEventListener('input', () => { if (id === 'district') updateUpazilas(); updateAll() }));
 document.querySelectorAll('.quickday').forEach(b => b.addEventListener('click', () => { $('customDays').value = b.dataset.days; updateAll() }));
 
 document.querySelectorAll('input[name="channel"]').forEach(x => x.addEventListener('change', e => {
     const all = document.querySelector('input[name="channel"][value="All"]');
     const others = [...document.querySelectorAll('input[name="channel"]:not([value="All"])')];
-    if (e.target.value === 'All' && e.target.checked) others.forEach(x => x.checked = true);
-    else if (e.target.value !== 'All' && e.target.checked) { all.checked = false; }
-    else if (e.target.value !== 'All' && others.some(x => x.checked)) all.checked = false;
-    if (!others.some(x => x.checked) && !all.checked) all.checked = true; if (all.checked) others.forEach(x => x.checked = true);
+    if (e.target.value === 'All') {
+        if (all.checked) others.forEach(x => x.checked = false);
+    } else {
+        all.checked = false;
+        if (others.length && others.every(channel => channel.checked)) {
+            others.forEach(channel => channel.checked = false);
+            all.checked = true;
+        }
+    }
+    updateWhatsAppField();
     updateAll()
 }));
 $('copyId').addEventListener('click', async () => { const url = $('friendRequestBtn').href; try { await navigator.clipboard.writeText(url); toast('Facebook আইডি লিংক কপি হয়েছে।') } catch (e) { toast('Facebook ID: ' + url) } });
 $('scrollBudget').addEventListener('click', () => $('dailyBudget').scrollIntoView({ behavior: 'smooth', block: 'center' }));
 document.querySelectorAll('.pay').forEach(b => b.addEventListener('click', () => { document.querySelectorAll('.pay').forEach(x => x.classList.remove('active')); b.classList.add('active'); toast('ডেমো নির্বাচন: ' + b.textContent + ' — পেমেন্ট চালু নেই।') }));
-function orderText() { const c = { name: countryNames[$('country').value] || 'অন্যান্য দেশ', flag: flags[$('country').value] || '🌍' }; const channels = getChannels(); const g = $('goal').value; const days = getDays(), daily = getDaily(), rate = Math.max(1, Number($('dollarRate').value) || 150); return `SMMCaptain.xyz — ডেমো অর্ডার সারাংশ\nWhatsApp নম্বর: ${$('phone').value}\nপ্ল্যাটফর্ম: Facebook\nপোস্ট লিংক: ${$('postLink').value}\nলক্ষ্য: ${goalNames[g]}\nমেসেজ চ্যানেল: ${g === 'messages' ? (channels.includes('All') ? 'সব জায়গায়' : (channels.join(', ') || 'নির্বাচন করা হয়নি')) : 'প্রযোজ্য নয়'}\nদেশ: ${c.flag} ${c.name}\nজেলা/স্টেট/অঞ্চল: ${$('district').value || 'নির্দিষ্ট নয়'}\nউপজেলা: ${$('upazila').value || 'নির্দিষ্ট নয়'}\nএলাকা: ${$('location').value || 'নির্দিষ্ট নয়'}\nকভারেজ রেডিয়াস: ${$('radius').value} কিলোমিটার\nলিঙ্গ: ${{ all: 'সবাই', men: 'শুধু পুরুষ', women: 'শুধু নারী' }[$('gender').value]}\nবয়স: ${$('ageMin').value}–${$('ageMax').value}\nআগ্রহ: ${$('interests').value || 'নির্দিষ্ট নয়'}\nদিন: ${days}\nদৈনিক বাজেট: $${daily}\nমোট বাজেট: $${daily * days}\nডলার রেট: ৳${rate}\nমোট বিজ্ঞাপন বাজেট: ${money(daily * days * rate)}\nনোট: এটি ডেমো সারাংশ; বিজ্ঞাপন বা পেমেন্ট চালু হয়নি।` }
+function orderText() { const c = { name: countryNames[$('country').value] || 'অন্যান্য দেশ', flag: flags[$('country').value] || '🌍' }; const channels = getChannels(); const g = $('goal').value; const days = getDays(), daily = getDaily(), rate = Math.max(1, Number($('dollarRate').value) || 150); return `SMMCaptain.xyz — ডেমো অর্ডার সারাংশ\nWhatsApp নম্বর: ${$('phone').value}\nবিজ্ঞাপনের WhatsApp নম্বর: ${$('adWhatsappNumber').value || 'প্রযোজ্য নয়'}\nপ্ল্যাটফর্ম: Facebook\nপোস্ট লিংক: ${$('postLink').value}\nলক্ষ্য: ${goalNames[g]}\nমেসেজ চ্যানেল: ${g === 'messages' ? (channels.includes('All') ? 'সব জায়গায়' : (channels.join(', ') || 'নির্বাচন করা হয়নি')) : 'প্রযোজ্য নয়'}\nদেশ: ${c.flag} ${c.name}\nজেলা/স্টেট/অঞ্চল: ${$('district').value || 'নির্দিষ্ট নয়'}\nউপজেলা: ${$('upazila').value || 'নির্দিষ্ট নয়'}\nএলাকা: ${$('location').value || 'নির্দিষ্ট নয়'}\nকভারেজ রেডিয়াস: ${$('radius').value} কিলোমিটার\nলিঙ্গ: ${{ all: 'সবাই', men: 'শুধু পুরুষ', women: 'শুধু নারী' }[$('gender').value]}\nবয়স: ${$('ageMin').value}–${$('ageMax').value}\nআগ্রহ: ${$('interests').value || 'নির্দিষ্ট নয়'}\nদিন: ${days}\nদৈনিক বাজেট: $${daily}\nমোট বাজেট: $${daily * days}\nডলার রেট: ৳${rate}\nমোট বিজ্ঞাপন বাজেট: ${money(daily * days * rate)}\nনোট: এটি ডেমো সারাংশ; বিজ্ঞাপন বা পেমেন্ট চালু হয়নি।` }
 $('campaignForm').addEventListener('submit', e => { e.preventDefault(); if (Number($('ageMin').value) > Number($('ageMax').value)) { toast('বয়সের রেঞ্জ ঠিক করুন।'); return } if (getDaily() * getDays() < 10) { toast('মোট বিজ্ঞাপন বাজেট কমপক্ষে $১০ হতে হবে।'); return } if (!/^https?:\/\//i.test($('postLink').value)) { toast('সঠিক পোস্ট/ভিডিও লিংক দিন।'); $('postLink').focus(); return } if (!$('accessConfirm').checked) { toast('ডেমো অ্যাক্সেস সংক্রান্ত নিশ্চিতকরণে টিক দিন।'); return } if (!getChannels().length && $('goal').value === 'messages') { toast('অন্তত একটি মেসেজ চ্যানেল নির্বাচন করুন।'); return } const summary = orderText(); $('orderSummary').innerHTML = '<pre></pre>'; $('orderSummary').querySelector('pre').textContent = summary; const amount = money(getDaily() * getDays() * (Math.max(1, Number($('dollarRate').value) || 150))); $('modalPayTitle').textContent = 'পেমেন্টের পরিমাণ: ' + amount; $('modalTitle').textContent = amount + ' পেমেন্ট করে অর্ডার করুন'; $('modalBack').classList.remove('hidden') });
 $('closeModal').addEventListener('click', () => $('modalBack').classList.add('hidden'));
 $('modalBack').addEventListener('click', e => { if (e.target === $('modalBack')) $('modalBack').classList.add('hidden') });
 $('copyOrder').addEventListener('click', async () => { try { await navigator.clipboard.writeText(orderText()); toast('অর্ডারের সারাংশ কপি হয়েছে।') } catch (e) { toast('কপি করা যায়নি—সারাংশ নির্বাচন করে কপি করুন।') } });
 $('previewButton').addEventListener('click', () => toast('এটি শুধু বিজ্ঞাপনের প্রিভিউ—কোনো বিজ্ঞাপন প্রকাশ হয়নি।'));
-updateRegion(); updateGoal();
+updateAge(); updateWhatsAppField(); updateSchedule(); updateRegion(); updateGoal();
