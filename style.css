@@ -610,6 +610,16 @@ textarea {
     transition: .15s
 }
 
+#customDays {
+    min-height: 60px;
+    padding: 16px;
+    font-size: 18px;
+}
+
+.duration-field {
+    grid-column: 1 / -1;
+}
+
 .input:focus,
 select:focus,
 textarea:focus {
@@ -763,6 +773,19 @@ textarea {
     border-radius: 8px;
     font-size: 12px;
     font-weight: 750
+}
+
+.radius-shortcuts {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 7px;
+}
+
+.mini-btn.quick-radius.active {
+    border-color: var(--orange);
+    background: #fff4eb;
+    color: var(--orange-dark, #c65300);
 }
 
 .video {
@@ -1062,6 +1085,19 @@ textarea {
 
 .modal h2 {
     margin-top: 0
+}
+
+.order-number {
+    display: inline-flex;
+    margin: 4px 0 14px;
+    padding: 10px 14px;
+    border: 1px solid #ffd2b3;
+    border-radius: 10px;
+    background: #fff5ed;
+    color: #a94400;
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: .5px;
 }
 
 .modal pre {

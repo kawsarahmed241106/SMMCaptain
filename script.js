@@ -21,8 +21,20 @@
             const rateInput = document.querySelector('#dollarRate');
             if (rateInput) {
                 rateInput.value = Number(settings.dollarRate);
-                if (typeof window.refreshCampaignPricing === 'function') window.refreshCampaignPricing();
-                else rateInput.dispatchEvent(new Event('input', { bubbles: true }));
+                // Keep all pricing surfaces in sync with the admin value. The
+                // input event also covers cases where this settings fetch
+                // finishes before the main form has finished initializing.
+                rateInput.dispatchEvent(new Event('input', { bubbles: true }));
+                rateInput.dispatchEvent(new Event('change', { bubbles: true }));
+                if (typeof window.refreshCampaignPricing === 'function') {
+                    window.refreshCampaignPricing();
+                } else {
+                    window.addEventListener('load', () => {
+                        if (typeof window.refreshCampaignPricing === 'function') {
+                            window.refreshCampaignPricing();
+                        }
+                    }, { once: true });
+                }
             }
         }
         const rateNote = document.querySelector('#heroExchangeRateNote');
@@ -67,25 +79,40 @@
       }
     };
     const bootstrapClient = window.smmSupabaseBootstrap || window.smmSupabaseClient;
-    if (!bootstrapClient) return;
-    bootstrapClient.from('site_settings').select('settings').eq('id', 1).maybeSingle()
-      .then(async ({ data, error }) => {
+    const readSettingsFromRest = async () => {
+      const url = `${window.smmSupabaseUrl}/rest/v1/site_settings?select=settings&id=eq.1`;
+      const key = window.smmSupabaseBootstrapKey;
+      const response = await fetch(url, {
+        headers: { apikey: key, Authorization: `Bearer ${key}` },
+        cache: 'no-store'
+      });
+      if (!response.ok) throw new Error(`Settings request failed (${response.status}).`);
+      const rows = await response.json();
+      return rows[0]?.settings || null;
+    };
+    const loadSettings = async () => {
+      if (bootstrapClient) {
+        const { data, error } = await bootstrapClient.from('site_settings').select('settings').eq('id', 1).maybeSingle();
         if (error) throw error;
-        if (!data?.settings) return;
-        const key = data.settings.supabasePublishableKey || window.smmSupabaseBootstrapKey;
-        const activeClient = key && key !== window.smmSupabaseBootstrapKey
-          ? window.createSmmSupabaseClient(key)
-          : bootstrapClient;
-        window.smmSupabaseClient = activeClient;
-        const activeResult = activeClient === bootstrapClient
-          ? { data, error: null }
-          : await activeClient.from('site_settings').select('settings').eq('id', 1).maybeSingle();
-        if (activeResult.error) {
-          console.warn('Active publishable key failed; using bootstrap settings.', activeResult.error);
-          applySettings(data.settings);
-          return;
+        if (data?.settings) return data.settings;
+      }
+      return readSettingsFromRest();
+    };
+    loadSettings()
+      .catch(async (error) => {
+        console.warn('Supabase client settings read failed; trying the REST endpoint.', error);
+        return readSettingsFromRest();
+      })
+      .then((settings) => {
+        if (!settings) return;
+        // The public settings row is readable with the bootstrap key. Applying
+        // it directly avoids delaying the page on a redundant second read with
+        // the admin-selected key.
+        const activeKey = settings.supabasePublishableKey || window.smmSupabaseBootstrapKey;
+        if (activeKey && window.createSmmSupabaseClient) {
+          window.smmSupabaseClient = window.createSmmSupabaseClient(activeKey);
         }
-        applySettings(activeResult.data?.settings || data.settings);
+        applySettings(settings);
       })
       .catch((error) => console.warn('Supabase site settings unavailable; showing page defaults.', error));
 })();
@@ -133,11 +160,33 @@ function updateAge(changedSlider) {
     $('ageSliderTrack').style.setProperty('--age-end', `${end}%`);
     updateAll();
 }
+function getDaily() {
+    return Math.max(2, Math.min(1000, Number($('dailyBudget').value) || 2));
+}
+function getDays() {
+    return Math.max(1, Number($('customDays').value) || 1);
+}
+function getChannels() {
+    return [...document.querySelectorAll('input[name="channel"]:checked')].map(channel => channel.value);
+}
+function updateRadiusShortcutState() {
+    document.querySelectorAll('.quick-radius').forEach(button => {
+        button.classList.toggle('active', Number(button.dataset.km) === Number($('radius').value));
+    });
+}
+function toast(message) {
+    const element = $('toast');
+    if (!element) return;
+    element.textContent = message;
+    element.classList.remove('hidden');
+    clearTimeout(toast.timeout);
+    toast.timeout = setTimeout(() => element.classList.add('hidden'), 3200);
+}
 function updateBudget() {
     let daily = getDaily(), days = getDays(), rate = Math.max(1, Number($('dollarRate').value) || 150), total = daily * days;
     $('heroExchangeRate').textContent = '৳' + rate.toLocaleString('bn-BD') + ' / $১';
-    $('dailyDisplay').textContent = '$' + daily.toLocaleString('en-US'); $('dailyTaka').textContent = money(daily * rate); $('totalUsd').textContent = '$' + total.toLocaleString('en-US'); $('totalTaka').textContent = money(total * rate);
-    $('sumDaily').textContent = '$' + daily.toLocaleString('en-US'); $('sumTotalUsd').textContent = '$' + total.toLocaleString('en-US'); $('sumTotalTaka').textContent = money(total * rate); $('sumDays').textContent = bn(days) + ' দিন'; if ($('payOrderBtn')) $('payOrderBtn').textContent = money(total * rate) + ' পেমেন্ট করে অর্ডার করুন →'; $('payOrderBtn').textContent = money(total * rate) + ' পেমেন্ট করে অর্ডার করুন →';
+    $('dailyTaka').textContent = money(daily * rate); $('totalUsd').textContent = '$' + total.toLocaleString('en-US'); $('totalTaka').textContent = money(total * rate);
+    $('sumDaily').textContent = '$' + daily.toLocaleString('en-US'); $('sumTotalUsd').textContent = '$' + total.toLocaleString('en-US'); $('sumTotalTaka').textContent = money(total * rate); $('sumDays').textContent = bn(days) + ' দিন';
     let g = $('goal').value, low = 0, high = 0, unit = 'ফলাফল'; if (g === 'messages') { low = total * 2; high = total * 8; unit = 'মেসেজ' } else if (g === 'views') { low = total * 500; high = total * 2000; unit = 'ভিডিও ভিউ' } else if (g === 'leads') { low = total * .5; high = total * 2; unit = 'লিড' } else if (g === 'sales') { low = total * .2; high = total * 1; unit = 'সম্ভাব্য বিক্রয়' } else if (g === 'engagement') { low = total * 15; high = total * 60; unit = 'এনগেজমেন্ট' } else if (g === 'traffic') { low = total * 5; high = total * 25; unit = 'ক্লিক' } else if (g === 'awareness') { low = total * 500; high = total * 1500; unit = 'সম্ভাব্য রিচ' } else { low = total * 10; high = total * 40; unit = 'অ্যাকশন' }
     $('estimate').textContent = `শুধু পরিকল্পনার নমুনা: আনুমানিক ${Math.round(low).toLocaleString('en-US')}–${Math.round(high).toLocaleString('en-US')} ${unit} হতে পারে। এটি কোনো নিশ্চয়তা বা Meta-এর লাইভ পূর্বাভাস নয়। বাস্তব ফলাফল অডিয়েন্স, কনটেন্ট, প্রতিযোগিতা ও অ্যাকাউন্টের ওপর নির্ভর করবে।`;
 }
@@ -150,7 +199,9 @@ function updateSchedule() {
 }
 function updateWhatsAppField() { const selected = document.querySelector('input[name="channel"][value="WhatsApp"]').checked || document.querySelector('input[name="channel"][value="All"]').checked; $('whatsappNumberField').classList.toggle('hidden', !selected); $('adWhatsappNumber').required = selected }
 function updateAll() { updateWhatsAppField(); updateBudget(); updateGoal(); updateMessageTemplate(); let msg = $('customMessage').value.trim() || $('messageTemplate').value || 'আপনার পণ্য বা সার্ভিস সম্পর্কে জানতে এখনই মেসেজ করুন!'; $('previewCopy').textContent = msg; let title = $('goal').value === 'sales' ? 'আপনার পণ্য এখনই দেখুন' : $('goal').value === 'views' ? 'আমাদের ভিডিওটি দেখুন' : 'আপনার ব্যবসা আরও এগিয়ে নিন'; $('previewHeadline').textContent = title }
-window.refreshCampaignPricing = updateAll;
+// Admin settings only need to recalculate pricing; avoid coupling that refresh
+// to unrelated form controls that may still be initializing.
+window.refreshCampaignPricing = updateBudget;
 $('ageMin').value = '18'; $('ageMax').value = '65';
 $('country').addEventListener('change', updateRegion);
 $('goal').addEventListener('change', updateGoal);
@@ -169,8 +220,13 @@ $('goalToggle').addEventListener('click', () => { const options = $('goalOptions
 document.querySelectorAll('input[name="goalChoice"]').forEach(option => option.addEventListener('change', () => { if (!option.checked) return; $('goalOptions').hidden = true; $('goalToggle').setAttribute('aria-expanded', 'false') }));
 $('dailyBudget').addEventListener('input', () => { $('dailyCustom').value = $('dailyBudget').value; updateBudget() });
 $('dailyCustom').addEventListener('input', () => { let v = Math.max(2, Math.min(1000, Number($('dailyCustom').value) || 2)); $('dailyBudget').value = v; updateBudget() });
-['dollarRate', 'customDays', 'gender', 'radius', 'location', 'interests', 'district', 'upazila', 'messageTemplate', 'customMessage', 'leadOffer', 'salesUrl', 'destinationUrl'].forEach(id => $(id).addEventListener('input', () => { if (id === 'district') updateUpazilas(); updateAll() }));
+['dollarRate', 'customDays', 'gender', 'radius', 'location', 'interests', 'district', 'upazila', 'messageTemplate', 'customMessage', 'leadOffer', 'salesUrl', 'destinationUrl'].forEach(id => $(id).addEventListener('input', () => { if (id === 'district') updateUpazilas(); if (id === 'radius') updateRadiusShortcutState(); updateAll() }));
 document.querySelectorAll('.quickday').forEach(b => b.addEventListener('click', () => { $('customDays').value = b.dataset.days; updateAll() }));
+document.querySelectorAll('.quick-radius').forEach(button => button.addEventListener('click', () => {
+    $('radius').value = button.dataset.km;
+    updateRadiusShortcutState();
+    updateAll();
+}));
 
 document.querySelectorAll('input[name="channel"]').forEach(x => x.addEventListener('change', e => {
     const all = document.querySelector('input[name="channel"][value="All"]');
@@ -189,11 +245,92 @@ document.querySelectorAll('input[name="channel"]').forEach(x => x.addEventListen
 }));
 $('copyId').addEventListener('click', async () => { const url = $('friendRequestBtn').href; try { await navigator.clipboard.writeText(url); toast('Facebook আইডি লিংক কপি হয়েছে।') } catch (e) { toast('Facebook ID: ' + url) } });
 $('scrollBudget').addEventListener('click', () => $('dailyBudget').scrollIntoView({ behavior: 'smooth', block: 'center' }));
-document.querySelectorAll('.pay').forEach(b => b.addEventListener('click', () => { document.querySelectorAll('.pay').forEach(x => x.classList.remove('active')); b.classList.add('active'); toast('ডেমো নির্বাচন: ' + b.textContent + ' — পেমেন্ট চালু নেই।') }));
-function orderText() { const c = { name: countryNames[$('country').value] || 'অন্যান্য দেশ', flag: flags[$('country').value] || '🌍' }; const channels = getChannels(); const g = $('goal').value; const days = getDays(), daily = getDaily(), rate = Math.max(1, Number($('dollarRate').value) || 150); return `SMMCaptain.xyz — ডেমো অর্ডার সারাংশ\nWhatsApp নম্বর: ${$('phone').value}\nবিজ্ঞাপনের WhatsApp নম্বর: ${$('adWhatsappNumber').value || 'প্রযোজ্য নয়'}\nপ্ল্যাটফর্ম: Facebook\nপোস্ট লিংক: ${$('postLink').value}\nলক্ষ্য: ${goalNames[g]}\nমেসেজ চ্যানেল: ${g === 'messages' ? (channels.includes('All') ? 'সব জায়গায়' : (channels.join(', ') || 'নির্বাচন করা হয়নি')) : 'প্রযোজ্য নয়'}\nদেশ: ${c.flag} ${c.name}\nজেলা/স্টেট/অঞ্চল: ${$('district').value || 'নির্দিষ্ট নয়'}\nউপজেলা: ${$('upazila').value || 'নির্দিষ্ট নয়'}\nএলাকা: ${$('location').value || 'নির্দিষ্ট নয়'}\nকভারেজ রেডিয়াস: ${$('radius').value} কিলোমিটার\nলিঙ্গ: ${{ all: 'সবাই', men: 'শুধু পুরুষ', women: 'শুধু নারী' }[$('gender').value]}\nবয়স: ${$('ageMin').value}–${$('ageMax').value}\nআগ্রহ: ${$('interests').value || 'নির্দিষ্ট নয়'}\nদিন: ${days}\nদৈনিক বাজেট: $${daily}\nমোট বাজেট: $${daily * days}\nডলার রেট: ৳${rate}\nমোট বিজ্ঞাপন বাজেট: ${money(daily * days * rate)}\nনোট: এটি ডেমো সারাংশ; বিজ্ঞাপন বা পেমেন্ট চালু হয়নি।` }
-$('campaignForm').addEventListener('submit', e => { e.preventDefault(); if (Number($('ageMin').value) > Number($('ageMax').value)) { toast('বয়সের রেঞ্জ ঠিক করুন।'); return } if (getDaily() * getDays() < 10) { toast('মোট বিজ্ঞাপন বাজেট কমপক্ষে $১০ হতে হবে।'); return } if (!/^https?:\/\//i.test($('postLink').value)) { toast('সঠিক পোস্ট/ভিডিও লিংক দিন।'); $('postLink').focus(); return } if (!$('accessConfirm').checked) { toast('ডেমো অ্যাক্সেস সংক্রান্ত নিশ্চিতকরণে টিক দিন।'); return } if (!getChannels().length && $('goal').value === 'messages') { toast('অন্তত একটি মেসেজ চ্যানেল নির্বাচন করুন।'); return } const summary = orderText(); $('orderSummary').innerHTML = '<pre></pre>'; $('orderSummary').querySelector('pre').textContent = summary; const amount = money(getDaily() * getDays() * (Math.max(1, Number($('dollarRate').value) || 150))); $('modalPayTitle').textContent = 'পেমেন্টের পরিমাণ: ' + amount; $('modalTitle').textContent = amount + ' পেমেন্ট করে অর্ডার করুন'; $('modalBack').classList.remove('hidden') });
+function buildOrderDetails() {
+    const country = $('country').value;
+    return {
+        platform: 'Facebook',
+        postLink: $('postLink').value.trim(),
+        goal: $('goal').value,
+        goalLabel: goalNames[$('goal').value],
+        messageChannels: getChannels(),
+        adWhatsapp: $('adWhatsappNumber').value.trim(),
+        messageTemplate: $('messageTemplate').value,
+        customMessage: $('customMessage').value.trim(),
+        countryCode: country,
+        country: `${flags[country] || '🌍'} ${countryNames[country] || 'অন্যান্য দেশ'}`,
+        district: $('district').value,
+        upazila: $('upazila').value,
+        location: $('location').value.trim(),
+        radiusKm: Number($('radius').value),
+        gender: { all: 'সবাই', men: 'পুরুষ', women: 'নারী' }[$('gender').value],
+        ageMin: Number($('ageMin').value),
+        ageMax: Number($('ageMax').value),
+        interests: $('interests').value.trim(),
+        days: getDays(),
+        dailyBudgetUsd: getDaily(),
+        totalBudgetUsd: getDaily() * getDays(),
+        dollarRate: Number($('dollarRate').value),
+        totalBudgetBdt: getDaily() * getDays() * Number($('dollarRate').value),
+        schedule: document.querySelector('input[name="schedule"]:checked')?.value || 'all',
+        scheduleStart: $('scheduleStart').value,
+        scheduleEnd: $('scheduleEnd').value,
+        leadType: document.querySelector('input[name="leadType"]:checked')?.value || '',
+        leadOffer: $('leadOffer').value.trim(),
+        salesUrl: $('salesUrl').value.trim(),
+        destinationUrl: $('destinationUrl').value.trim(),
+        submittedEmail: $('email').value.trim(),
+        accessConfirmed: $('accessConfirm').checked,
+        termsAccepted: $('terms').checked
+    };
+}
+$('campaignForm').addEventListener('submit', async event => {
+    event.preventDefault();
+    if (Number($('ageMin').value) > Number($('ageMax').value)) { toast('বয়সের রেঞ্জ ঠিক করুন।'); return; }
+    if (getDaily() * getDays() < 10) { toast('মোট বিজ্ঞাপন বাজেট কমপক্ষে $১০ হতে হবে।'); return; }
+    if (!/^https?:\/\//i.test($('postLink').value)) { toast('সঠিক পোস্ট/ভিডিও লিংক দিন।'); $('postLink').focus(); return; }
+    if (!$('accessConfirm').checked) { toast('ডেমো অ্যাক্সেস সংক্রান্ত নিশ্চিতকরণে টিক দিন।'); return; }
+    if (!getChannels().length && $('goal').value === 'messages') { toast('অন্তত একটি মেসেজ চ্যানেল নির্বাচন করুন।'); return; }
+
+    const button = $('submitOrderBtn');
+    button.disabled = true;
+    button.textContent = 'অর্ডার জমা হচ্ছে…';
+    try {
+        const client = window.smmSupabaseClient || window.smmSupabaseBootstrap;
+        if (!client) throw new Error('Supabase সংযোগ পাওয়া যায়নি। পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।');
+        const details = buildOrderDetails();
+        const { data, error } = await client.rpc('create_campaign_order', {
+            p_customer_email: $('email').value.trim(),
+            p_customer_phone: $('phone').value.trim(),
+            p_ad_whatsapp: $('adWhatsappNumber').value.trim(),
+            p_details: details
+        });
+        if (error) throw error;
+        const order = Array.isArray(data) ? data[0] : data;
+        if (!order?.order_id || !order?.order_number) throw new Error('অর্ডার নম্বর তৈরি হয়নি। আবার চেষ্টা করুন।');
+
+        let emailSent = false;
+        try {
+            const { data: emailResult, error: emailError } = await client.functions.invoke('send-order-email', { body: { order_id: order.order_id } });
+            if (emailError) throw emailError;
+            emailSent = emailResult?.sent === true;
+        } catch (emailError) {
+            console.warn('Order saved, but confirmation email could not be sent.', emailError);
+        }
+
+        $('successOrderNumber').textContent = order.order_number;
+        $('successEmailStatus').textContent = emailSent
+            ? `অর্ডারের নিশ্চিতকরণ ইমেইল ${$('email').value.trim()} ঠিকানায় পাঠানো হয়েছে।`
+            : 'অর্ডারটি সংরক্ষিত হয়েছে। ইমেইল পাঠানোর সেটআপ সম্পন্ন হলে নিশ্চিতকরণ পাঠানো যাবে।';
+        $('modalBack').classList.remove('hidden');
+    } catch (error) {
+        console.error('Order submission failed.', error);
+        toast(`অর্ডার জমা হয়নি: ${error.message || 'আবার চেষ্টা করুন।'}`);
+    } finally {
+        button.disabled = false;
+        button.textContent = 'অর্ডার জমা দিন →';
+    }
+});
 $('closeModal').addEventListener('click', () => $('modalBack').classList.add('hidden'));
 $('modalBack').addEventListener('click', e => { if (e.target === $('modalBack')) $('modalBack').classList.add('hidden') });
-$('copyOrder').addEventListener('click', async () => { try { await navigator.clipboard.writeText(orderText()); toast('অর্ডারের সারাংশ কপি হয়েছে।') } catch (e) { toast('কপি করা যায়নি—সারাংশ নির্বাচন করে কপি করুন।') } });
 $('previewButton').addEventListener('click', () => toast('এটি শুধু বিজ্ঞাপনের প্রিভিউ—কোনো বিজ্ঞাপন প্রকাশ হয়নি।'));
-updateAge(); updateWhatsAppField(); updateSchedule(); updateRegion(); updateGoal();
+updateAge(); updateWhatsAppField(); updateSchedule(); updateRegion(); updateGoal(); updateRadiusShortcutState();

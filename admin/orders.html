@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101827">
+  <title>Campaign orders | SMMCaptain Admin</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="orders.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../supabase-config.js"></script>
+  <script src="orders.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="index.html"><span class="brand-mark">S</span><span>SMMCaptain <small>ADMIN</small></span></a>
+      <a class="site-link" href="index.html">Site settings ↗</a>
+      <a class="site-link" href="../index.html" target="_blank" rel="noopener">View website ↗</a>
+    </header>
+    <section class="orders-page">
+      <div class="page-heading">
+        <div><p class="eyebrow">ORDER MANAGEMENT</p><h1>Campaign orders</h1><p class="muted">Review customer details and submitted campaign settings.</p></div>
+        <button class="button ghost" type="button" id="refreshOrders">Refresh</button>
+      </div>
+      <div class="notice" id="ordersStatus" role="status">Checking admin access…</div>
+      <div class="orders-list" id="ordersList"></div>
+      <p class="orders-footer" id="ordersFooter"></p>
+    </section>
+  </main>
+</body>
+</html>

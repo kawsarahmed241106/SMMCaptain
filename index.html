@@ -9,7 +9,7 @@
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
-  <script src="script.js" defer></script>
+  <script src="script.js?v=20261020-9" defer></script>
 </head>
 
 <body>
@@ -160,9 +160,9 @@
           </div>
           <div class="hint">একাধিক নির্দিষ্ট চ্যানেল নির্বাচন করতে পারবেন। “সব জায়গায়” বাছলে উপলভ্য সব মেসেজ চ্যানেল ব্যবহৃত হবে। চ্যানেলগুলোর যোগ্যতা Meta অ্যাকাউন্টের সেটআপের ওপর নির্ভর করে।</div>
           <div id="whatsappNumberField" class="field hidden">
-            <label for="adWhatsappNumber">বিজ্ঞাপনের জন্য WhatsApp নম্বর দিন *</label>
+            <label for="adWhatsappNumber">গ্রাহকের মেসেজ যে WhatsApp নম্বরে পাবেন *</label>
             <input class="input" id="adWhatsappNumber" type="tel" placeholder="যেমন: +8801XXXXXXXXX" autocomplete="tel">
-            <div class="hint">এই নম্বরটি WhatsApp মেসেজ চ্যানেলের জন্য ব্যবহার হবে।</div>
+            <div class="hint">এই নম্বরেই বিজ্ঞাপন থেকে আসা গ্রাহকের WhatsApp মেসেজ যাবে।</div>
           </div>
         </div>
         <div class="field"><label>কাস্টমারকে কী মেসেজ বা Greeting Text দিতে চান? (ঐচ্ছিক)</label><select
@@ -283,19 +283,18 @@
       <div class="field"><label for="location">এলাকা বা শহরের নাম (ঐচ্ছিক)</label><input class="input" id="location"
           placeholder="যেমন: সাভার, আমিনবাজার, আশুলিয়া"></div>
       <div class="field"><label for="radius">কত কিলোমিটার পর্যন্ত বিজ্ঞাপন চালাতে চান?</label>
-        <div class="grid2"><input class="input" id="radius" type="number" min="1" max="500" value="10"
-            placeholder="কিলোমিটার লিখুন"><select id="radiusSuggestion">
-            <option value="">সাজেস্টেড দূরত্ব</option>
-            <option value="5">৫ কিলোমিটার</option>
-            <option value="10" selected>১০ কিলোমিটার</option>
-            <option value="15">১৫ কিলোমিটার</option>
-            <option value="20">২০ কিলোমিটার</option>
-            <option value="25">২৫ কিলোমিটার</option>
-            <option value="30">৩০ কিলোমিটার</option>
-            <option value="50">৫০ কিলোমিটার</option>
-            <option value="100">১০০ কিলোমিটার</option>
-          </select></div>
-        <div class="hint">নিজে কিলোমিটার লিখুন অথবা সাজেস্টেড অপশন থেকে বেছে নিন।</div>
+        <input class="input" id="radius" type="number" min="1" max="500" value="10"
+            placeholder="কিলোমিটার লিখুন">
+        <div class="hint radius-shortcuts"><span>দ্রুত বেছে নিতে চাইলে:</span>
+          <button type="button" class="mini-btn quick-radius" data-km="5">৫ কিমি</button>
+          <button type="button" class="mini-btn quick-radius active" data-km="10">১০ কিমি</button>
+          <button type="button" class="mini-btn quick-radius" data-km="15">১৫ কিমি</button>
+          <button type="button" class="mini-btn quick-radius" data-km="20">২০ কিমি</button>
+          <button type="button" class="mini-btn quick-radius" data-km="25">২৫ কিমি</button>
+          <button type="button" class="mini-btn quick-radius" data-km="30">৩০ কিমি</button>
+          <button type="button" class="mini-btn quick-radius" data-km="50">৫০ কিমি</button>
+          <button type="button" class="mini-btn quick-radius" data-km="100">১০০ কিমি</button>
+        </div>
       </div>
       <div class="field audience-field">
         <label class="field-label">লিঙ্গ <span class="info-mark" title="যাদের কাছে বিজ্ঞাপন পৌঁছাবে">ⓘ</span></label>
@@ -335,7 +334,7 @@
         </div>
       </div>
       <div class="grid2">
-        <div class="field"><label for="customDays">কত দিনের বিজ্ঞাপন চালাতে চান?</label><input class="input"
+        <div class="field duration-field"><label for="customDays">কত দিনের বিজ্ঞাপন চালাতে চান?</label><input class="input"
             id="customDays" type="number" min="1" max="365" value="10" placeholder="দিনের সংখ্যা লিখুন">
           <div class="hint">দ্রুত বেছে নিতে চাইলে: <button type="button" class="mini-btn quickday" data-days="5">৫
               দিন</button> <button type="button" class="mini-btn quickday" data-days="7">১ সপ্তাহ</button> <button
@@ -359,7 +358,7 @@
         <div class="rangehead">
           <div><label for="dailyBudget" style="font-weight:800;font-size:14px">প্রতিদিন কত ডলার খরচ করবেন?</label>
             <div class="hint">সর্বনিম্ন $২ · সর্বোচ্চ $১,০০০</div>
-          </div><strong id="dailyDisplay">$5</strong>
+          </div>
         </div>
         <input class="range" type="range" id="dailyBudget" min="2" max="1000" step="1" value="5">
         <div class="grid2">
@@ -373,8 +372,7 @@
         <div class="moneyline"><span>আনুমানিক মোট টাকা</span><strong id="totalTaka">৳৭,৫০০</strong></div>
         <div class="moneyline"><span>সার্ভিস চার্জ</span><strong>পরবর্তীতে নির্ধারিত হবে</strong></div>
         <div class="estimate" id="estimate">সম্ভাব্য ফলাফল একটি আনুমানিক ডেমো; ফলাফল নিশ্চিত নয়।</div>
-        <div class="notice">ন্যূনতম মোট বাজেট $১০। দৈনিক বাজেট × দিনের সংখ্যা অনুযায়ী মোট বাজেট হিসাব করা হবে।
-          পেমেন্টের আগে চূড়ান্ত মূল্য ও প্রযোজ্য চার্জ নিশ্চিত করুন।</div>
+        <div class="notice">ন্যূনতম মোট বাজেট $১০। দৈনিক বাজেট × দিনের সংখ্যা অনুযায়ী মোট বিজ্ঞাপন বাজেট হিসাব করা হয়।</div>
       </div>
     </section>
     <section class="card">
@@ -389,10 +387,12 @@
           type="tel" placeholder="01XXXXXXXXX">
         <div class="hint">এই নম্বরে অর্ডার সম্পর্কে যোগাযোগ করা হবে।</div>
       </div>
+      <div class="field"><label for="email">ইমেইল ঠিকানা *</label><input class="input" id="email" name="email" required
+          type="email" autocomplete="email" placeholder="আপনার ইমেইল লিখুন"></div>
       <label class="inline" style="font-size:12px"><input id="terms" type="checkbox" required> আমি তথ্যগুলো যাচাই করেছি
         এবং বুঝেছি।</label>
     </section>
-    <button class="primary" type="submit" id="payOrderBtn">৳৭,৫০০ পেমেন্ট করে অর্ডার করুন →</button>
+    <button class="primary" type="submit" id="submitOrderBtn">অর্ডার জমা দিন →</button>
     </form>
     </div>
     <aside class="summary">
@@ -426,8 +426,7 @@
       </section>
       <section class="card">
         <h2 style="font-size:15px">📌 গুরুত্বপূর্ণ তথ্য</h2>
-        <p class="sub" style="margin-top:8px">এই প্রোটোটাইপে কোনো টাকা কাটা হবে না এবং Meta-তে বিজ্ঞাপন প্রকাশ হবে না।
-          লাইভ করার আগে নিরাপদ সার্ভার, অর্ডার ড্যাশবোর্ড, Meta API এবং পেমেন্ট গেটওয়ে যুক্ত করতে হবে।</p>
+        <p class="sub" style="margin-top:8px">অর্ডার জমা দিলে তা অ্যাডমিন প্যানেলে সংরক্ষিত হবে। এই সংস্করণে পেমেন্ট নেওয়া হবে না।</p>
       </section>
     </aside>
   </main>
@@ -438,18 +437,11 @@
   <div id="toast" class="toast hidden" role="status"></div>
   <div id="modalBack" class="modalback hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal">
-      <h2 id="modalTitle">পেমেন্ট করে অর্ডার করুন</h2>
-      <p class="sub">পেমেন্ট API সংযুক্ত হলে এখানে নিরাপদ পেমেন্ট অপশন দেখানো হবে।</p>
-      <div id="orderSummary"></div>
-      <h3 style="font-size:14px" id="modalPayTitle">পেমেন্টের পরিমাণ: ৳৭,৫০০</h3>
-      <h3 style="font-size:14px">পেমেন্ট গেটওয়ে (ডেমো)</h3>
-      <div class="payment-options"><button class="pay" type="button">বিকাশ</button><button class="pay"
-          type="button">নগদ</button><button class="pay" type="button">কার্ড / অন্যান্য</button></div>
-      <div class="notice">এগুলো এখন শুধু নমুনা অপশন। এই সংস্করণে কোনো পেমেন্ট নেওয়া বা অর্ডার সার্ভারে জমা হচ্ছে না।
-      </div>
-      <div style="display:flex;gap:10px;margin-top:16px"><button class="secondary" type="button" id="closeModal"
-          style="flex:1">ফর্মে ফিরে যান</button><button class="primary" type="button" id="copyOrder"
-          style="flex:1">সারাংশ কপি করুন</button></div>
+      <h2 id="modalTitle">অর্ডার জমা হয়েছে</h2>
+      <p class="sub">আপনার অর্ডার নম্বর:</p>
+      <p class="order-number" id="successOrderNumber"></p>
+      <p class="sub" id="successEmailStatus" aria-live="polite"></p>
+      <button class="primary" type="button" id="closeModal" style="width:100%;margin-top:12px">ঠিক আছে</button>
     </div>
   </div>
 </body>
