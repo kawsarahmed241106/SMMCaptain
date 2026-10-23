@@ -47,15 +47,16 @@ create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),
   order_number text not null unique,
   created_at timestamptz not null default now(),
-  customer_email text not null,
+  customer_email text,
   customer_phone text not null,
   ad_whatsapp text not null default '',
   details jsonb not null default '{}'::jsonb,
   status text not null default 'new'
-    check (status in ('new', 'processing', 'completed', 'cancelled')),
-  email_status text not null default 'pending'
-    check (email_status in ('pending', 'sending', 'sent', 'failed'))
+    check (status in ('new', 'processing', 'completed', 'cancelled'))
 );
+
+alter table public.orders drop column if exists email_status;
+alter table public.orders alter column customer_email drop not null;
 
 create index if not exists orders_created_at_idx on public.orders (created_at desc);
 alter table public.orders enable row level security;
@@ -74,8 +75,9 @@ create table if not exists public.order_daily_counters (
 alter table public.order_daily_counters enable row level security;
 revoke all on public.order_daily_counters from anon, authenticated;
 
+drop function if exists public.create_campaign_order(text, text, text, jsonb);
+
 create or replace function public.create_campaign_order(
-  p_customer_email text,
   p_customer_phone text,
   p_ad_whatsapp text,
   p_details jsonb
@@ -90,9 +92,6 @@ declare
   generated_order_number text;
   created_order public.orders%rowtype;
 begin
-  if p_customer_email is null or p_customer_email !~* '^[^@[:space:]]+@[^@[:space:]]+\.[^@[:space:]]+$' then
-    raise exception 'A valid customer email is required.' using errcode = '22023';
-  end if;
   if p_customer_phone is null or length(trim(p_customer_phone)) < 6 then
     raise exception 'A valid customer WhatsApp number is required.' using errcode = '22023';
   end if;
@@ -111,8 +110,8 @@ begin
 
   generated_order_number := 'SC-' || to_char(local_order_date, 'YYYYMMDD') || '-' || lpad(sequence_number::text, 5, '0');
 
-  insert into public.orders (order_number, customer_email, customer_phone, ad_whatsapp, details)
-  values (generated_order_number, lower(trim(p_customer_email)), trim(p_customer_phone), coalesce(trim(p_ad_whatsapp), ''), p_details)
+  insert into public.orders (order_number, customer_phone, ad_whatsapp, details)
+  values (generated_order_number, trim(p_customer_phone), coalesce(trim(p_ad_whatsapp), ''), p_details)
   returning * into created_order;
 
   return jsonb_build_object(
@@ -123,5 +122,5 @@ begin
 end;
 $$;
 
-revoke all on function public.create_campaign_order(text, text, text, jsonb) from public;
-grant execute on function public.create_campaign_order(text, text, text, jsonb) to anon, authenticated;
+revoke all on function public.create_campaign_order(text, text, jsonb) from public;
+grant execute on function public.create_campaign_order(text, text, jsonb) to anon, authenticated;

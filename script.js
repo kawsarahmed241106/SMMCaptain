@@ -278,7 +278,6 @@ function buildOrderDetails() {
         leadOffer: $('leadOffer').value.trim(),
         salesUrl: $('salesUrl').value.trim(),
         destinationUrl: $('destinationUrl').value.trim(),
-        submittedEmail: $('email').value.trim(),
         accessConfirmed: $('accessConfirm').checked,
         termsAccepted: $('terms').checked
     };
@@ -299,7 +298,6 @@ $('campaignForm').addEventListener('submit', async event => {
         if (!client) throw new Error('Supabase সংযোগ পাওয়া যায়নি। পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।');
         const details = buildOrderDetails();
         const { data, error } = await client.rpc('create_campaign_order', {
-            p_customer_email: $('email').value.trim(),
             p_customer_phone: $('phone').value.trim(),
             p_ad_whatsapp: $('adWhatsappNumber').value.trim(),
             p_details: details
@@ -308,19 +306,7 @@ $('campaignForm').addEventListener('submit', async event => {
         const order = Array.isArray(data) ? data[0] : data;
         if (!order?.order_id || !order?.order_number) throw new Error('অর্ডার নম্বর তৈরি হয়নি। আবার চেষ্টা করুন।');
 
-        let emailSent = false;
-        try {
-            const { data: emailResult, error: emailError } = await client.functions.invoke('send-order-email', { body: { order_id: order.order_id } });
-            if (emailError) throw emailError;
-            emailSent = emailResult?.sent === true;
-        } catch (emailError) {
-            console.warn('Order saved, but confirmation email could not be sent.', emailError);
-        }
-
         $('successOrderNumber').textContent = order.order_number;
-        $('successEmailStatus').textContent = emailSent
-            ? `অর্ডারের নিশ্চিতকরণ ইমেইল ${$('email').value.trim()} ঠিকানায় পাঠানো হয়েছে।`
-            : 'অর্ডারটি সংরক্ষিত হয়েছে। ইমেইল পাঠানোর সেটআপ সম্পন্ন হলে নিশ্চিতকরণ পাঠানো যাবে।';
         $('modalBack').classList.remove('hidden');
     } catch (error) {
         console.error('Order submission failed.', error);

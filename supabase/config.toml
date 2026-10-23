@@ -1,4 +1,1 @@
 project_id = "oumcdspxvpsfmbnbggid"
-
-[functions.send-order-email]
-verify_jwt = false

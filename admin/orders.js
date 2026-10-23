@@ -35,10 +35,8 @@
 
     const contact = document.createElement('div');
     contact.className = 'order-contact';
-    addText(contact, 'p', `Customer: ${order.customer_email}`);
     addText(contact, 'p', `Contact WhatsApp: ${order.customer_phone}`);
     if (order.ad_whatsapp) addText(contact, 'p', `Message recipient WhatsApp: ${order.ad_whatsapp}`);
-    addText(contact, 'p', `Confirmation email: ${order.email_status}`);
     card.append(contact);
 
     const details = document.createElement('details');
