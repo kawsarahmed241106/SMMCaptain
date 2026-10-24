@@ -1,5 +1,0 @@
----
-deployment:
-  tasks:
-    - export DEPLOYPATH=/home/smmcapta/public_html
-    - /bin/rsync -rav --exclude='.git*' * $DEPLOYPATH

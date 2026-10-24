@@ -1,2 +1,2 @@
 RewriteEngine On
-RewriteRule ^track/?$ track.html [L]
+RewriteRule ^track/?$ track/index.html [L]
