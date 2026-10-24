@@ -16,7 +16,7 @@ Sign in at `/admin/`, then open `/admin/orders.html` or choose **View orders** i
 
 ## 3. Enable order tracking and WhatsApp alerts
 
-The setup SQL creates the `/track` lookup RPC and an `orders` insert trigger. The tracker only returns the order number, status, and submitted time; it does not expose phone numbers or campaign details.
+The setup SQL creates the `/track` lookup RPC and an `orders` insert trigger. The tracker only returns the order number, status, and submitted time; it does not expose phone numbers or campaign details. If you have already run the original setup script, run `supabase/fix_make_notification_trim.sql` once to update the existing trigger function.
 
 Before running `supabase/setup.sql`, enable the **Vault** extension in the Supabase Dashboard if it is not already enabled. The SQL enables `pg_net`. Then add a Vault secret named `make_order_webhook_url` and set its value to the Make custom webhook URL. Do not put this URL or the UltraMsg token in the repository.
 

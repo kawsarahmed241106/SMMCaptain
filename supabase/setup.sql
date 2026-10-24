@@ -160,7 +160,7 @@ begin
 
   customer_digits := pg_catalog.regexp_replace(new.customer_phone, '[^0-9]', '', 'g');
   customer_phone_e164 := case
-    when pg_catalog.left(pg_catalog.trim(new.customer_phone), 1) = '+' then '+' || customer_digits
+    when pg_catalog.left(pg_catalog.btrim(new.customer_phone), 1) = '+' then '+' || customer_digits
     when customer_digits like '880%' then '+' || customer_digits
     when customer_digits like '0%' then '+880' || pg_catalog.substr(customer_digits, 2)
     else '+880' || customer_digits
