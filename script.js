@@ -290,6 +290,11 @@ $('campaignForm').addEventListener('submit', async event => {
     if (!$('accessConfirm').checked) { toast('ডেমো অ্যাক্সেস সংক্রান্ত নিশ্চিতকরণে টিক দিন।'); return; }
     if (!getChannels().length && $('goal').value === 'messages') { toast('অন্তত একটি মেসেজ চ্যানেল নির্বাচন করুন।'); return; }
 
+    const formattedPhone = getFormattedPhoneNumber();
+    if (formattedPhone.length < 8 || formattedPhone.length > 15) {
+        toast('সঠিক WhatsApp নম্বর দিন।'); $('phone').focus(); return;
+    }
+
     const button = $('submitOrderBtn');
     button.disabled = true;
     button.textContent = 'অর্ডার জমা হচ্ছে…';
@@ -298,7 +303,7 @@ $('campaignForm').addEventListener('submit', async event => {
         if (!client) throw new Error('Supabase সংযোগ পাওয়া যায়নি। পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।');
         const details = buildOrderDetails();
         const { data, error } = await client.rpc('create_campaign_order', {
-            p_customer_phone: $('phone').value.trim(),
+            p_customer_phone: formattedPhone,
             p_ad_whatsapp: $('adWhatsappNumber').value.trim(),
             p_details: details
         });
@@ -307,6 +312,7 @@ $('campaignForm').addEventListener('submit', async event => {
         if (!order?.order_id || !order?.order_number) throw new Error('অর্ডার নম্বর তৈরি হয়নি। আবার চেষ্টা করুন।');
 
         $('successOrderNumber').textContent = order.order_number;
+        $('successTrackLink').href = `/track?order_id=${encodeURIComponent(order.order_number)}`;
         $('modalBack').classList.remove('hidden');
     } catch (error) {
         console.error('Order submission failed.', error);
@@ -316,6 +322,23 @@ $('campaignForm').addEventListener('submit', async event => {
         button.textContent = 'অর্ডার জমা দিন →';
     }
 });
+
+function getFormattedPhoneNumber() {
+    const countryCode = $('phoneCountryCode').value;
+    let phoneNumber = $('phone').value.trim().replace(/\D/g, '');
+    const cleanCountryCode = countryCode.replace(/\D/g, '');
+
+    // Keep a number that already includes the selected country code as entered.
+    if (phoneNumber.startsWith(cleanCountryCode)) return phoneNumber;
+
+    // Bangladesh mobile numbers are commonly entered with a leading trunk zero.
+    if (cleanCountryCode === '880' && phoneNumber.startsWith('0')) {
+        phoneNumber = phoneNumber.substring(1);
+    }
+
+    return cleanCountryCode + phoneNumber;
+}
+
 $('closeModal').addEventListener('click', () => $('modalBack').classList.add('hidden'));
 $('modalBack').addEventListener('click', e => { if (e.target === $('modalBack')) $('modalBack').classList.add('hidden') });
 $('previewButton').addEventListener('click', () => toast('এটি শুধু বিজ্ঞাপনের প্রিভিউ—কোনো বিজ্ঞাপন প্রকাশ হয়নি।'));

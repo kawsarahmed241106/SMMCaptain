@@ -7,6 +7,8 @@ The frontend is configured for the Supabase project URL and publishable key prov
 3. In the Supabase Dashboard for this project, open **SQL Editor**, paste and run `setup.sql`. Its final statement grants `site_admin` to `smmcaptain@gmail.com`. If you already ran the setup file before creating this user, run it again now.
 4. Open `/admin/`, sign in with that email/password, edit the fields, and choose **Save changes**. Visit or reload the main page to see the published values.
 
+If Admin shows a row-level security error when saving, confirm that the SQL statement assigned the `site_admin` role to the exact admin email. Then log out of Admin and sign in again so Supabase issues a fresh access token with the updated role.
+
 Only a Supabase user with the server-controlled `site_admin` app-metadata role can insert or update the settings row. The public page can read the single settings row. Never put a Supabase secret or service-role key in browser files.
 
 ## Rotate the active publishable key

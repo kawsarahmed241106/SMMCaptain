@@ -1,0 +1,55 @@
+.track-brand { color: inherit; }
+.track-home { color: #b94e06; font-size: 13px; font-weight: 700; text-decoration: none; }
+.track-home:hover { text-decoration: underline; }
+.track-main { min-height: calc(100vh - 76px); display: grid; place-items: start center; padding: 64px 18px; }
+.track-card { width: min(100%, 620px); background: var(--white); border: 1px solid var(--line); border-radius: 20px; padding: clamp(22px, 5vw, 38px); box-shadow: var(--shadow); }
+.track-icon { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 13px; background: #fff0e5; color: #b94e06; font-size: 24px; font-weight: 800; }
+.track-eyebrow { margin: 20px 0 4px; color: #b94e06; font-size: 10px; font-weight: 800; letter-spacing: 1.5px; }
+.track-card h1 { margin: 0; font-size: clamp(24px, 5vw, 32px); letter-spacing: -.6px; }
+.track-intro { margin: 8px 0 26px; color: var(--muted); font-size: 14px; }
+.track-form label { display: block; margin-bottom: 7px; font-size: 13px; font-weight: 750; }
+.track-input-row { display: flex; gap: 10px; }
+.track-input-row input { min-width: 0; flex: 1 1 auto; width: 100%; min-height: 58px; border: 1px solid #dbe2ea; border-radius: 11px; padding: 15px 16px; color: var(--ink); font: inherit; font-size: 16px; outline: 0; }
+.track-input-row input:focus { border-color: var(--orange); box-shadow: 0 0 0 3px #ff7a1a18; }
+.track-input-row .primary { width: auto; flex: 0 0 auto; min-height: 58px; border: 0; cursor: pointer; white-space: nowrap; }
+.track-input-row .primary:disabled { opacity: .65; cursor: wait; }
+.track-hint { margin: 8px 0 0; color: var(--muted); font-size: 11px; }
+.track-result { margin-top: 20px; padding: 15px 16px; border: 1px solid #dce8de; border-radius: 12px; background: #f6fbf7; }
+.track-result.error { border-color: #f2d0cc; background: #fff6f5; color: #9a322d; }
+.track-result-title { margin: 0 0 10px; font-size: 14px; font-weight: 800; }
+.track-result-row { display: flex; justify-content: space-between; gap: 18px; padding-top: 8px; border-top: 1px solid #e5ece6; font-size: 12px; }
+.track-result-row + .track-result-row { margin-top: 7px; }
+.track-result-label { color: var(--muted); }
+.track-result-value { text-align: right; font-weight: 700; overflow-wrap: anywhere; }
+
+/* Match the public homepage theme; admin pages use their own stylesheet. */
+.track-main,
+.track-card,
+.track-result,
+.track-result.error,
+.track-icon { background: #000 !important; color: #fff !important; }
+.track-card,
+.track-result,
+.track-input-row input { border-color: #00bfff !important; }
+.track-card h1,
+.track-eyebrow { color: #0077ff !important; }
+.track-intro,
+.track-form label,
+.track-hint,
+.track-result-title,
+.track-result-row,
+.track-result-label,
+.track-result-value { color: #fff !important; }
+.track-input-row input { background: #000 !important; color: #fff !important; }
+.track-home { color: #0077ff !important; }
+@media (max-width: 520px) {
+  .track-main { min-height: calc(100vh - 68px); padding-top: 34px; }
+  .topbar-inner { padding-left: 16px; padding-right: 16px; }
+  .track-brand { gap: 8px; font-size: 14px; }
+  .track-brand .logo { width: 34px; height: 34px; }
+  .track-home { font-size: 11px; }
+  .track-input-row { flex-direction: column; }
+  .track-input-row .primary { min-height: 46px; }
+  .track-input-row input { min-height: 52px; }
+  .track-input-row .primary { width: 100%; }
+}

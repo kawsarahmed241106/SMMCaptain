@@ -610,6 +610,24 @@ textarea {
     transition: .15s
 }
 
+.phone-input-group {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.phone-input-group select {
+    flex: 0 0 auto;
+    width: auto;
+    max-width: min(230px, 46%);
+    padding: 12px 10px;
+}
+
+.phone-input-group .input {
+    flex: 1 1 0;
+    min-width: 0;
+}
+
 #customDays {
     min-height: 60px;
     padding: 16px;
@@ -1100,6 +1118,17 @@ textarea {
     letter-spacing: .5px;
 }
 
+.track-order-link {
+    display: block;
+    margin: 0 0 14px;
+    color: #b94e06;
+    font-size: 13px;
+    font-weight: 750;
+    text-decoration: none;
+}
+
+.track-order-link:hover { text-decoration: underline; }
+
 .modal pre {
     white-space: pre-wrap;
     overflow-wrap: anywhere;
@@ -1165,6 +1194,173 @@ textarea {
     .topnote {
         display: none
     }
+}
+
+/* Public site dark cyan theme. Admin uses its separate stylesheet. */
+:root {
+    --navy: #000000;
+    --navy2: #000000;
+    --ink: #ffffff;
+    --muted: #ffffff;
+    --line: #00bfff;
+    --bg: #000000;
+    --white: #000000;
+    --blue: #0077ff;
+    --orange: #0077ff;
+    --orange2: #00bfff;
+}
+
+body,
+.topbar,
+.hero,
+.card,
+.summary,
+.summary .card,
+.goal-options,
+.goal-toggle,
+.goal-option,
+.gender-option,
+.platform,
+.choice span,
+.accessbox,
+.video,
+.budgetbox,
+.notice,
+.adpreview,
+.advisual,
+.age-range-row,
+.age-range-row > span,
+.mini-btn,
+.demoid,
+.moneyline,
+.goal-icon,
+.step,
+.num,
+.radius-shortcuts,
+.summaryrows,
+.total,
+.estimate,
+.modal,
+.modal pre,
+.secondary,
+.pay,
+.order-number,
+.toast {
+    background: #000000 !important;
+}
+
+body,
+body * {
+    color: #ffffff !important;
+    border-color: #00bfff !important;
+}
+
+h1,
+h2,
+h3,
+.hero h1,
+.card h2,
+.summary-title,
+.modal h2 {
+    color: #0077ff !important;
+}
+
+input,
+select,
+textarea,
+.input,
+.rate-display[readonly] {
+    background: #000000 !important;
+    color: #ffffff !important;
+    border-color: #00bfff !important;
+}
+
+a,
+.track-order-link {
+    color: #0077ff !important;
+}
+
+.primary {
+    background: linear-gradient(135deg, #0077ff, #00bfff) !important;
+    color: #ffffff !important;
+    box-shadow: 0 7px 18px #0077ff35 !important;
+}
+
+.logo,
+.logo-fallback {
+    color: #00bfff !important;
+}
+
+.age-range-row {
+    box-shadow: 0 0 0 1px #00bfff20;
+}
+
+.dual-age-track {
+    background: #18313a !important;
+}
+
+.dual-age-fill {
+    background: #00bfff !important;
+}
+
+.dual-age-input::-webkit-slider-thumb {
+    background: #0077ff !important;
+    box-shadow: 0 0 0 3px #000, 0 0 0 4px #00bfff !important;
+}
+
+.dual-age-input::-moz-range-thumb {
+    background: #0077ff !important;
+    box-shadow: 0 0 0 3px #000, 0 0 0 4px #00bfff !important;
+}
+
+.mini-btn.quick-radius.active {
+    background: #07151b !important;
+    color: #fff !important;
+    border-color: #00bfff !important;
+}
+
+.mini-btn:hover {
+    background: #07151b !important;
+}
+
+.adpreview {
+    background: #070d16 !important;
+    border: 1px solid #00bfff !important;
+    box-shadow: 0 12px 28px #0009;
+}
+
+.avatar {
+    background: #102b46 !important;
+    color: #fff !important;
+    border: 1px solid #00bfff !important;
+}
+
+.advisual {
+    min-height: 170px;
+    background: radial-gradient(ellipse at 50% 0%, #0077ff35, transparent 65%), linear-gradient(145deg, #08111f, #0b2030) !important;
+    border-top: 1px solid #00bfff;
+}
+
+.advisual .adlabel {
+    color: #00bfff !important;
+}
+
+.advisual strong {
+    color: #fff !important;
+}
+
+.advisual small {
+    color: #c9e5f3 !important;
+}
+
+.adcta {
+    background: #07151b !important;
+    border-top: 1px solid #00bfff !important;
+}
+
+.adcta button {
+    background: linear-gradient(135deg, #0077ff, #00bfff) !important;
+    color: #fff !important;
 }
 
 @media(max-width:520px) {

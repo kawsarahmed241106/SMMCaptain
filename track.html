@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101827">
+  <title>Track your order | SMMCaptain.xyz</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="track.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="track.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand track-brand" href="/">
+        <div class="logo"><span class="logo-fallback">S</span></div>
+        <div>SMMCaptain<span>.xyz</span></div>
+      </a>
+      <a class="track-home" href="/">মূল পেজে ফিরুন</a>
+    </div>
+  </header>
+  <main class="track-main">
+    <section class="track-card" aria-labelledby="trackTitle">
+      <div class="track-icon" aria-hidden="true">↗</div>
+      <p class="track-eyebrow">ORDER SUPPORT</p>
+      <h1 id="trackTitle">Track your order</h1>
+      <p class="track-intro">আপনার অর্ডার আইডি লিখে অর্ডারের বর্তমান অবস্থা দেখুন।</p>
+      <form id="trackForm" class="track-form">
+        <label for="orderId">অর্ডার আইডি</label>
+        <div class="track-input-row">
+          <input id="orderId" name="orderId" type="text" placeholder="যেমন: SC-20261024-1041"
+            autocomplete="off" maxlength="20" required>
+          <button class="primary" type="submit" id="trackButton">অর্ডার খুঁজুন</button>
+        </div>
+        <p class="track-hint">অর্ডার জমা দেওয়ার পর পাওয়া আইডিটি ব্যবহার করুন।</p>
+      </form>
+      <div id="trackResult" class="track-result" role="status" aria-live="polite" hidden></div>
+    </section>
+  </main>
+</body>
+</html>

@@ -58,6 +58,8 @@ create table if not exists public.orders (
 alter table public.orders drop column if exists email_status;
 alter table public.orders alter column customer_email drop not null;
 
+create extension if not exists pg_net;
+
 create index if not exists orders_created_at_idx on public.orders (created_at desc);
 alter table public.orders enable row level security;
 revoke all on public.orders from public, anon, authenticated;
@@ -103,12 +105,12 @@ begin
   end if;
 
   insert into public.order_daily_counters (order_date, last_number)
-  values (local_order_date, 1)
+  values (local_order_date, 1041)
   on conflict (order_date) do update
-    set last_number = public.order_daily_counters.last_number + 1
+    set last_number = greatest(public.order_daily_counters.last_number + 1, 1041)
   returning last_number into sequence_number;
 
-  generated_order_number := 'SC-' || to_char(local_order_date, 'YYYYMMDD') || '-' || lpad(sequence_number::text, 5, '0');
+  generated_order_number := 'SC-' || to_char(local_order_date, 'YYYYMMDD') || '-' || sequence_number::text;
 
   insert into public.orders (order_number, customer_phone, ad_whatsapp, details)
   values (generated_order_number, trim(p_customer_phone), coalesce(trim(p_ad_whatsapp), ''), p_details)
@@ -124,3 +126,89 @@ $$;
 
 revoke all on function public.create_campaign_order(text, text, jsonb) from public;
 grant execute on function public.create_campaign_order(text, text, jsonb) to anon, authenticated;
+
+-- Send a minimal order event to Make after the order transaction commits.
+-- Store the Make custom webhook URL in Supabase Vault as make_order_webhook_url.
+create or replace function public.notify_make_new_order()
+returns trigger
+language plpgsql
+security definer
+set search_path = ''
+as $$
+declare
+  make_webhook_url text;
+  customer_digits text;
+  customer_phone_e164 text;
+  author_phone text;
+begin
+  select secret.decrypted_secret
+    into make_webhook_url
+    from vault.decrypted_secrets as secret
+   where secret.name = 'make_order_webhook_url'
+   limit 1;
+
+  if make_webhook_url is null or make_webhook_url = '' then
+    raise warning 'Order notification skipped: make_order_webhook_url is not configured in Supabase Vault.';
+    return new;
+  end if;
+
+  select nullif(pg_catalog.btrim(settings ->> 'author_phone'), '')
+    into author_phone
+    from public.site_settings
+   where id = 1;
+  author_phone := coalesce(author_phone, '+8801843161825');
+
+  customer_digits := pg_catalog.regexp_replace(new.customer_phone, '[^0-9]', '', 'g');
+  customer_phone_e164 := case
+    when pg_catalog.left(pg_catalog.trim(new.customer_phone), 1) = '+' then '+' || customer_digits
+    when customer_digits like '880%' then '+' || customer_digits
+    when customer_digits like '0%' then '+880' || pg_catalog.substr(customer_digits, 2)
+    else '+880' || customer_digits
+  end;
+
+  perform net.http_post(
+    url := make_webhook_url,
+    body := pg_catalog.jsonb_build_object(
+      'event', 'new_order',
+      'event_id', new.id,
+      'order_id', new.order_number,
+      'customer_phone', customer_phone_e164,
+      'author_phone', author_phone,
+      'track_url', 'https://smmcaptain.xyz/track'
+    ),
+    headers := pg_catalog.jsonb_build_object('Content-Type', 'application/json'),
+    timeout_milliseconds := 5000
+  );
+
+  return new;
+exception when others then
+  -- Keep order creation working if an external notification service is down.
+  raise warning 'Order % saved, but its Make notification could not be queued: %', new.order_number, sqlerrm;
+  return new;
+end;
+$$;
+
+drop trigger if exists orders_notify_make on public.orders;
+create trigger orders_notify_make
+  after insert on public.orders
+  for each row execute function public.notify_make_new_order();
+
+-- This public RPC reveals only a matching order's number, status, and time.
+-- It never returns customer contact information or campaign details.
+drop function if exists public.track_campaign_order(text);
+create function public.track_campaign_order(p_order_number text)
+returns table (order_number text, created_at timestamptz, status text)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select o.order_number, o.created_at, o.status
+    from public.orders as o
+   where p_order_number ~ '^SC-[0-9]{8}-([0-9]{5}|[1-9][0-9]{3,})$'
+     and o.order_number = pg_catalog.upper(pg_catalog.btrim(p_order_number))
+   limit 1;
+$$;
+
+revoke all on function public.track_campaign_order(text) from public;
+grant execute on function public.track_campaign_order(text) to anon, authenticated;
