@@ -60,3 +60,7 @@ exception when others then
   return new;
 end;
 $$;
+
+-- Returns true when the corrected phone trim call is installed.
+select pg_get_functiondef('public.notify_make_new_order()'::regprocedure)
+  like '%pg_catalog.btrim(new.customer_phone)%' as fixed;
