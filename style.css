@@ -1426,6 +1426,10 @@ body * {
     text-decoration: none;
 }
 
+.payment-return-link[hidden] {
+    display: none !important;
+}
+
 #paymentMessage {
     margin: 10px 0 20px;
     color: #d3e1eb !important;
