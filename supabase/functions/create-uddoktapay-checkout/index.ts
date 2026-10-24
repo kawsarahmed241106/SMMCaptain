@@ -27,6 +27,7 @@ Deno.serve(async (request) => {
   }
 
   let body: { order_id?: string; checkout_token?: string };
+  let publicFailure = "Could not create a UddoktaPay payment link. Please try again.";
   try {
     body = await request.json();
   } catch {
@@ -129,7 +130,11 @@ Deno.serve(async (request) => {
     );
     if (!gatewayResponse.ok || gatewayData.status !== true || !parsedPaymentUrl ||
         parsedPaymentUrl.protocol !== "https:" || !trustedPaymentHost) {
-      throw new Error(typeof gatewayData.message === "string" ? gatewayData.message : "UddoktaPay did not return a valid payment link.");
+      const gatewayMessage = typeof gatewayData.message === "string" ? gatewayData.message.trim() : "";
+      publicFailure = gatewayMessage
+        ? `UddoktaPay rejected checkout: ${gatewayMessage.slice(0, 240)}`
+        : `UddoktaPay did not return a valid payment link (HTTP ${gatewayResponse.status}).`;
+      throw new Error(publicFailure);
     }
 
     const { error: saveError } = await db
@@ -143,6 +148,6 @@ Deno.serve(async (request) => {
   } catch (error) {
     console.error("UddoktaPay checkout creation failed:", error instanceof Error ? error.message : "Unknown error");
     await db.from("orders").update({ payment_status: "failed" }).eq("id", orderId).eq("payment_status", "creating");
-    return respond(502, { error: "Could not create a UddoktaPay payment link. Please try again." });
+    return respond(502, { error: publicFailure });
   }
 });

@@ -309,7 +309,18 @@ async function startUddoktaPayment(order) {
     const { data, error } = await client.functions.invoke('create-uddoktapay-checkout', {
         body: { order_id: order.order_id, checkout_token: order.checkout_token }
     });
-    if (error) throw new Error(data?.error || 'পেমেন্ট লিংক তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    if (error) {
+        let message = data?.error;
+        if (!message && error.context && typeof error.context.clone === 'function') {
+            const responseBody = await error.context.clone().json().catch(() => null);
+            message = responseBody?.error || responseBody?.message;
+        }
+        console.error('UddoktaPay checkout function failed.', {
+            message: message || error.message,
+            status: error.context?.status
+        });
+        throw new Error(message || `পেমেন্ট সার্ভার অনুরোধটি গ্রহণ করেনি (${error.context?.status || 'network error'}).`);
+    }
     if (!data?.payment_url) throw new Error(data?.error || 'UddoktaPay পেমেন্ট লিংক দেয়নি।');
     const paymentUrl = new URL(data.payment_url);
     if (paymentUrl.protocol !== 'https:') throw new Error('UddoktaPay নিরাপদ পেমেন্ট লিংক দেয়নি।');
