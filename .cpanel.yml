@@ -1,5 +1,4 @@
 ---
 deployment:
   tasks:
-    - export DEPLOYPATH=/home/smmcapta/public_html/
-    - /bin/rsync -a --exclude='.git/' --exclude='.github/' --exclude='supabase/' --exclude='.cpanel.yml' --exclude='.ftp-deploy-sync-state.json' ./ $DEPLOYPATH
+    - /bin/true
