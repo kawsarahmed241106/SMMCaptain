@@ -35,11 +35,17 @@ create policy "Site admins can update settings"
   with check ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'site_admin');
 
 -- Grant the admin role to the SMMCaptain admin account.
+-- Change this email if the account used to sign in at /admin/ is different.
 -- If this file was run before the user was created, run this block again afterward.
 update auth.users
 set raw_app_meta_data = coalesce(raw_app_meta_data, '{}'::jsonb)
     || '{"role":"site_admin"}'::jsonb
-where email = 'smmcaptain@gmail.com';
+where lower(email) = lower('smmcaptain@gmail.com');
+
+-- Verify that the configured admin account has the required app-metadata role.
+select email, raw_app_meta_data ->> 'role' as app_role
+from auth.users
+where lower(email) = lower('smmcaptain@gmail.com');
 
 -- Campaign orders are inserted through a database function so the browser can
 -- submit orders without receiving permission to read or edit other customers' data.
@@ -52,8 +58,29 @@ create table if not exists public.orders (
   ad_whatsapp text not null default '',
   details jsonb not null default '{}'::jsonb,
   status text not null default 'new'
-    check (status in ('new', 'processing', 'completed', 'cancelled'))
+    check (status in ('new', 'processing', 'completed', 'cancelled')),
+  payment_token uuid not null default gen_random_uuid(),
+  payment_status text not null default 'unpaid',
+  payment_invoice_id text,
+  payment_url text,
+  payment_amount numeric(12, 2),
+  payment_method text,
+  payment_transaction_id text,
+  payment_attempted_at timestamptz,
+  paid_at timestamptz
 );
+
+-- Keep this base setup safe to rerun after payment_setup.sql has been applied.
+alter table public.orders
+  add column if not exists payment_token uuid not null default gen_random_uuid(),
+  add column if not exists payment_status text not null default 'unpaid',
+  add column if not exists payment_invoice_id text,
+  add column if not exists payment_url text,
+  add column if not exists payment_amount numeric(12, 2),
+  add column if not exists payment_method text,
+  add column if not exists payment_transaction_id text,
+  add column if not exists payment_attempted_at timestamptz,
+  add column if not exists paid_at timestamptz;
 
 alter table public.orders drop column if exists email_status;
 alter table public.orders alter column customer_email drop not null;
@@ -77,8 +104,6 @@ create table if not exists public.order_daily_counters (
 alter table public.order_daily_counters enable row level security;
 revoke all on public.order_daily_counters from anon, authenticated;
 
-drop function if exists public.create_campaign_order(text, text, text, jsonb);
-
 create or replace function public.create_campaign_order(
   p_customer_phone text,
   p_ad_whatsapp text,
@@ -93,6 +118,10 @@ declare
   sequence_number integer;
   generated_order_number text;
   created_order public.orders%rowtype;
+  daily_usd numeric(10, 2);
+  campaign_days integer;
+  current_rate numeric(10, 2);
+  trusted_details jsonb;
 begin
   if p_customer_phone is null or length(trim(p_customer_phone)) < 6 then
     raise exception 'A valid customer WhatsApp number is required.' using errcode = '22023';
@@ -103,6 +132,35 @@ begin
   if octet_length(p_details::text) > 65536 then
     raise exception 'Order details are too large.' using errcode = '22023';
   end if;
+  if coalesce(p_details->>'dailyBudgetUsd', '') !~ '^([0-9]+)(\.[0-9]{1,2})?$'
+     or coalesce(p_details->>'days', '') !~ '^[0-9]{1,3}$' then
+    raise exception 'A valid campaign budget and duration are required.' using errcode = '22023';
+  end if;
+
+  daily_usd := (p_details->>'dailyBudgetUsd')::numeric;
+  campaign_days := (p_details->>'days')::integer;
+  if daily_usd < 2 or daily_usd > 1000 or campaign_days < 1 or campaign_days > 365
+     or daily_usd * campaign_days < 10 then
+    raise exception 'The campaign budget or duration is outside the allowed range.' using errcode = '22023';
+  end if;
+
+  select case
+    when coalesce(settings->>'dollarRate', '') ~ '^([0-9]+)(\.[0-9]{1,2})?$'
+      then (settings->>'dollarRate')::numeric
+    else 150
+  end
+    into current_rate
+    from public.site_settings
+   where id = 1;
+  current_rate := greatest(coalesce(current_rate, 150), 1);
+
+  trusted_details := p_details || jsonb_build_object(
+    'dailyBudgetUsd', daily_usd,
+    'days', campaign_days,
+    'totalBudgetUsd', daily_usd * campaign_days,
+    'dollarRate', current_rate,
+    'totalBudgetBdt', round(daily_usd * campaign_days * current_rate, 2)
+  );
 
   insert into public.order_daily_counters (order_date, last_number)
   values (local_order_date, 1041)
@@ -113,12 +171,13 @@ begin
   generated_order_number := 'SC-' || to_char(local_order_date, 'YYYYMMDD') || '-' || sequence_number::text;
 
   insert into public.orders (order_number, customer_phone, ad_whatsapp, details)
-  values (generated_order_number, trim(p_customer_phone), coalesce(trim(p_ad_whatsapp), ''), p_details)
+  values (generated_order_number, trim(p_customer_phone), coalesce(trim(p_ad_whatsapp), ''), trusted_details)
   returning * into created_order;
 
   return jsonb_build_object(
     'order_id', created_order.id,
     'order_number', created_order.order_number,
+    'checkout_token', created_order.payment_token,
     'created_at', created_order.created_at
   );
 end;
