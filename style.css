@@ -463,8 +463,9 @@ button {
 
 .goal-options {
     display: grid;
-    gap: 7px;
-    margin-top: 9px
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 12px
 }
 
 .goal-options[hidden] {
@@ -477,10 +478,11 @@ button {
     grid-template-columns: 44px minmax(0, 1fr) auto;
     align-items: center;
     gap: 12px;
-    padding: 11px 13px;
-    border: 1px solid #d9e1eb;
-    border-radius: 12px;
-    background: #fff;
+    min-height: 72px;
+    padding: 12px 16px;
+    border: 1px solid #16485a;
+    border-radius: 14px;
+    background: #080e16;
     color: var(--ink);
     text-align: left;
     cursor: pointer;
@@ -489,58 +491,63 @@ button {
 
 .goal-toggle:hover,
 .goal-toggle[aria-expanded="true"] {
-    border-color: #1877f2;
-    background: #f7faff
+    border-color: #00bfff;
+    background: #0b1722;
+    box-shadow: 0 0 0 2px #00bfff18
 }
 
 .goal-toggle:focus-visible {
-    outline: 2px solid #1877f2;
+    outline: 2px solid #00bfff;
     outline-offset: 2px
 }
 
 .goal-toggle-label {
-    color: #1877f2;
+    color: #67d8ff;
     font-size: 12px;
     font-weight: 750;
     white-space: nowrap
 }
 
 .goal-option {
-    display: grid;
-    grid-template-columns: 44px minmax(0, 1fr) 20px;
+    display: grid !important;
+    grid-template-columns: 46px minmax(0, 1fr) 20px;
     align-items: center;
     gap: 12px;
-    padding: 11px 13px;
-    border: 1px solid #e0e5eb;
-    border-radius: 12px;
-    background: #fff;
+    min-height: 100px;
+    padding: 14px 16px;
+    border: 1px solid #16485a;
+    border-radius: 14px;
+    background: #080e16;
     cursor: pointer;
-    transition: border-color .15s, background .15s, box-shadow .15s
+    transition: border-color .15s, background .15s, box-shadow .15s, transform .15s
 }
 
 .goal-option:hover {
-    border-color: #9bbdf6;
-    background: #fafcff
+    border-color: #00bfff !important;
+    background: #0b1722 !important;
+    transform: translateY(-1px)
 }
 
 .goal-option:has(input:checked) {
-    border-color: #1877f2;
-    background: #f3f8ff;
-    box-shadow: inset 0 0 0 1px #1877f2
+    border-color: #00bfff !important;
+    background: linear-gradient(110deg, #0b1d2a, #080e16 78%) !important;
+    box-shadow: inset 0 0 0 1px #00bfff55, 0 6px 18px #0005
 }
 
 .goal-option:focus-within {
-    outline: 2px solid #1877f2;
+    outline: 2px solid #00bfff;
     outline-offset: 2px
 }
 
 .goal-icon {
     width: 42px;
     height: 42px;
-    border-radius: 50%;
+    border-radius: 13px;
     display: grid;
     place-items: center;
-    font-size: 20px
+    font-size: 20px;
+    background: #102535 !important;
+    border: 1px solid #16485a !important
 }
 
 .icon-messages { background: #fff0c7 }
@@ -561,13 +568,13 @@ button {
 }
 
 .goal-copy strong {
-    color: #273343;
+    color: #ffffff !important;
     font-size: 13px;
     line-height: 1.4
 }
 
 .goal-copy small {
-    color: #718096;
+    color: #aebdca !important;
     font-size: 11px;
     line-height: 1.45
 }
@@ -577,8 +584,9 @@ button {
     margin-top: 3px;
     padding: 2px 6px;
     border-radius: 4px;
-    background: #eef0f3;
-    color: #596273;
+    background: #102535 !important;
+    color: #8ee1ff !important;
+    border: 1px solid #16485a !important;
     font-size: 10px;
     font-weight: 700
 }
@@ -587,7 +595,7 @@ button {
     width: 18px;
     height: 18px;
     margin: 0;
-    accent-color: #1877f2;
+    accent-color: #0077ff;
     cursor: pointer
 }
 
@@ -1255,6 +1263,74 @@ body * {
     border-color: #00bfff !important;
 }
 
+/* Keep the goal picker compact and readable on the dark public theme. */
+.goal-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.goal-toggle,
+.goal-option {
+    border: 1px solid #16485a !important;
+    border-radius: 14px;
+    background: #080e16 !important;
+}
+
+.goal-toggle {
+    min-height: 72px;
+}
+
+.goal-toggle:hover,
+.goal-toggle[aria-expanded="true"] {
+    border-color: #00bfff !important;
+    background: #0b1722 !important;
+    box-shadow: 0 0 0 2px #00bfff18;
+}
+
+.goal-toggle-label {
+    color: #67d8ff !important;
+}
+
+.goal-option {
+    min-height: 100px;
+}
+
+.goal-option:hover {
+    border-color: #00bfff !important;
+    background: #0b1722 !important;
+    transform: translateY(-1px);
+}
+
+.goal-option:has(input:checked) {
+    border-color: #00bfff !important;
+    background: linear-gradient(110deg, #0b1d2a, #080e16 78%) !important;
+    box-shadow: inset 0 0 0 1px #00bfff55, 0 6px 18px #0005;
+}
+
+.goal-icon {
+    border: 1px solid #16485a !important;
+    border-radius: 13px;
+    background: #102535 !important;
+}
+
+.goal-copy strong {
+    color: #fff !important;
+}
+
+.goal-copy small {
+    color: #aebdca !important;
+}
+
+.goal-good {
+    border: 1px solid #16485a !important;
+    background: #102535 !important;
+    color: #8ee1ff !important;
+}
+
+.goal-option input[type="radio"] {
+    accent-color: #0077ff;
+}
+
 h1,
 h2,
 h3,
@@ -1364,6 +1440,10 @@ a,
 }
 
 @media(max-width:520px) {
+    .goal-options {
+        grid-template-columns: 1fr;
+    }
+
     .topbar {
         padding: 0 3px
     }
@@ -1410,6 +1490,7 @@ a,
     .goal-option {
         grid-template-columns: 38px minmax(0, 1fr) 18px;
         gap: 9px;
+        min-height: 88px;
         padding: 10px
     }
 
