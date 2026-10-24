@@ -6,10 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#101827">
   <title>SMMCaptain.xyz — Facebook Ads সহজেই</title>
-  <link rel="stylesheet" href="style.css?v=20261024-2">
+  <link rel="stylesheet" href="style.css?v=20261024-3">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
-  <script src="script.js?v=20261024-1" defer></script>
+  <script src="script.js?v=20261024-2" defer></script>
 </head>
 
 <body>
@@ -421,7 +421,23 @@
       <label class="inline" style="font-size:12px"><input id="terms" type="checkbox" required> আমি তথ্যগুলো যাচাই করেছি
         এবং বুঝেছি।</label>
     </section>
-    <button class="primary" type="submit" id="submitOrderBtn">অর্ডার জমা দিন →</button>
+    <section class="card payment-choice-card">
+      <div class="cardhead">
+        <div class="num">৬</div>
+        <div>
+          <h2>পেমেন্ট পদ্ধতি</h2>
+          <p class="sub">অর্ডার নিশ্চিত করতে UddoktaPay-এর মাধ্যমে পেমেন্ট করুন।</p>
+        </div>
+      </div>
+      <label class="payment-choice" for="paymentMethodUddokta">
+        <input id="paymentMethodUddokta" type="radio" name="paymentMethod" value="uddoktapay" checked>
+        <span class="payment-choice-mark" aria-hidden="true">৳</span>
+        <span class="payment-choice-copy"><strong>UddoktaPay</strong><small>bKash, Nagad, Rocket ও অন্যান্য উপলভ্য পেমেন্ট মাধ্যম</small></span>
+        <span class="payment-choice-check" aria-hidden="true">✓</span>
+      </label>
+      <p class="payment-summary">পরিশোধযোগ্য: <strong id="paymentAmount">৳০</strong></p>
+    </section>
+    <button class="primary" type="submit" id="submitOrderBtn">পেমেন্ট করে অর্ডার করুন →</button>
     </form>
     </div>
     <aside class="summary">
@@ -455,7 +471,7 @@
       </section>
       <section class="card">
         <h2 style="font-size:15px">📌 গুরুত্বপূর্ণ তথ্য</h2>
-        <p class="sub" style="margin-top:8px">অর্ডার জমা দিলে তা অ্যাডমিন প্যানেলে সংরক্ষিত হবে। এই সংস্করণে পেমেন্ট নেওয়া হবে না।</p>
+        <p class="sub" style="margin-top:8px">আপনার অর্ডার Supabase-এ সংরক্ষিত হবে এবং UddoktaPay-এ নিরাপদ পেমেন্ট লিংকে নিয়ে যাবে।</p>
       </section>
     </aside>
   </main>
@@ -467,9 +483,10 @@
   <div id="modalBack" class="modalback hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal">
       <h2 id="modalTitle">অর্ডার জমা হয়েছে</h2>
-      <p class="sub">আপনার অর্ডার নম্বর:</p>
+      <p class="sub" id="modalDescription">আপনার অর্ডার নম্বর:</p>
       <p class="order-number" id="successOrderNumber"></p>
       <a class="track-order-link" id="successTrackLink" href="/track">অর্ডারের অবস্থা দেখুন →</a>
+      <button class="primary hidden" type="button" id="retryPaymentBtn" style="width:100%;margin-top:12px">পেমেন্ট আবার চেষ্টা করুন</button>
       <button class="primary" type="button" id="closeModal" style="width:100%;margin-top:12px">ঠিক আছে</button>
     </div>
   </div>

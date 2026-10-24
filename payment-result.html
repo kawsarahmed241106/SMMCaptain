@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#101827">
+  <title>পেমেন্টের অবস্থা | SMMCaptain.xyz</title>
+  <link rel="stylesheet" href="style.css?v=20261024-3">
+  <link rel="stylesheet" href="track/track.css?v=20261024-1">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="payment-result.js?v=20261024-1" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="/"><div class="logo"><span class="logo-fallback">S</span></div><div>SMMCaptain<span>.xyz</span></div></a>
+      <a class="track-home" href="/">মূল পেজে ফিরুন</a>
+    </div>
+  </header>
+  <main class="track-main">
+    <section class="track-card" aria-live="polite">
+      <div class="track-icon" aria-hidden="true">৳</div>
+      <h1>পেমেন্টের অবস্থা</h1>
+      <p class="track-sub" id="paymentMessage">পেমেন্ট যাচাই করা হচ্ছে…</p>
+      <p class="order-number" id="paymentOrderNumber" hidden></p>
+      <button class="primary payment-return-link" id="retryPaymentButton" type="button" hidden>পেমেন্ট আবার চেষ্টা করুন</button>
+      <a class="primary payment-return-link" id="paymentTrackLink" href="/track/" hidden>অর্ডার ট্র্যাক করুন</a>
+      <a class="secondary payment-return-link" href="/">মূল পেজে ফিরুন</a>
+    </section>
+  </main>
+</body>
+</html>

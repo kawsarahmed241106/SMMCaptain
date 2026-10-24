@@ -186,9 +186,18 @@ function updateBudget() {
     let daily = getDaily(), days = getDays(), rate = Math.max(1, Number($('dollarRate').value) || 150), total = daily * days;
     $('heroExchangeRate').textContent = '৳' + rate.toLocaleString('bn-BD') + ' / $১';
     $('dailyTaka').textContent = money(daily * rate); $('totalUsd').textContent = '$' + total.toLocaleString('en-US'); $('totalTaka').textContent = money(total * rate);
+    if ($('paymentAmount')) $('paymentAmount').textContent = money(total * rate);
     $('sumDaily').textContent = '$' + daily.toLocaleString('en-US'); $('sumTotalUsd').textContent = '$' + total.toLocaleString('en-US'); $('sumTotalTaka').textContent = money(total * rate); $('sumDays').textContent = bn(days) + ' দিন';
     let g = $('goal').value, low = 0, high = 0, unit = 'ফলাফল'; if (g === 'messages') { low = total * 2; high = total * 8; unit = 'মেসেজ' } else if (g === 'views') { low = total * 500; high = total * 2000; unit = 'ভিডিও ভিউ' } else if (g === 'leads') { low = total * .5; high = total * 2; unit = 'লিড' } else if (g === 'sales') { low = total * .2; high = total * 1; unit = 'সম্ভাব্য বিক্রয়' } else if (g === 'engagement') { low = total * 15; high = total * 60; unit = 'এনগেজমেন্ট' } else if (g === 'traffic') { low = total * 5; high = total * 25; unit = 'ক্লিক' } else if (g === 'awareness') { low = total * 500; high = total * 1500; unit = 'সম্ভাব্য রিচ' } else { low = total * 10; high = total * 40; unit = 'অ্যাকশন' }
     $('estimate').textContent = `শুধু পরিকল্পনার নমুনা: আনুমানিক ${Math.round(low).toLocaleString('en-US')}–${Math.round(high).toLocaleString('en-US')} ${unit} হতে পারে। এটি কোনো নিশ্চয়তা বা Meta-এর লাইভ পূর্বাভাস নয়। বাস্তব ফলাফল অডিয়েন্স, কনটেন্ট, প্রতিযোগিতা ও অ্যাকাউন্টের ওপর নির্ভর করবে।`;
+}
+
+async function ensurePaymentFunctionSession(client) {
+    const { data: sessionData, error: sessionError } = await client.auth.getSession();
+    if (sessionError) throw new Error('পেমেন্ট সেশন তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    if (sessionData.session) return;
+    const { error } = await client.auth.signInAnonymously();
+    if (error) throw new Error('Supabase Auth-এ Anonymous Sign-Ins চালু করতে হবে।');
 }
 function updateGoal() { const g = $('goal').value; const radios = [...document.querySelectorAll('input[name="goalChoice"]')]; radios.forEach(option => option.checked = option.value === g); const selected = radios.find(option => option.checked)?.closest('.goal-option'); if (selected) { const icon = selected.querySelector('.goal-icon'); $('goalCurrentIcon').className = icon.className; $('goalCurrentIcon').textContent = icon.textContent; $('goalCurrentTitle').textContent = selected.querySelector('.goal-copy strong').textContent; $('goalCurrentDescription').textContent = selected.querySelector('.goal-copy small').textContent; $('goalToggleLabel').textContent = 'লক্ষ্য পরিবর্তন করুন⌄' } $('messagingFields').classList.toggle('hidden', g !== 'messages'); $('leadFields').classList.toggle('hidden', g !== 'leads'); $('salesFields').classList.toggle('hidden', g !== 'sales'); $('urlGoalFields').classList.toggle('hidden', !['traffic', 'awareness', 'engagement', 'views', 'app'].includes(g)); $('sumGoal').textContent = goalNames[g]; $('previewCta').textContent = g === 'messages' ? 'Send Message' : g === 'leads' ? 'Sign Up' : g === 'sales' ? 'Shop Now' : g === 'views' ? 'Watch Video' : g === 'traffic' ? 'Learn More' : 'Learn More'; $('previewButton').textContent = g === 'messages' ? 'মেসেজ পাঠান' : g === 'leads' ? 'নিবন্ধন করুন' : g === 'sales' ? 'কিনুন' : g === 'views' ? 'ভিডিও দেখুন' : 'আরও জানুন'; updateBudget() }
 function updateMessageTemplate() { $('customMessageArea').hidden = $('messageTemplate').value !== '' }
@@ -282,6 +291,32 @@ function buildOrderDetails() {
         termsAccepted: $('terms').checked
     };
 }
+
+let pendingPaymentOrder = null;
+
+async function startUddoktaPayment(order) {
+    const client = window.smmSupabaseClient || window.smmSupabaseBootstrap;
+    if (!client) throw new Error('Supabase সংযোগ পাওয়া যায়নি।');
+    await ensurePaymentFunctionSession(client);
+    const { data, error } = await client.functions.invoke('create-uddoktapay-checkout', {
+        body: { order_id: order.order_id, checkout_token: order.checkout_token }
+    });
+    if (error) throw new Error(data?.error || 'পেমেন্ট লিংক তৈরি করা যায়নি। আবার চেষ্টা করুন।');
+    if (!data?.payment_url) throw new Error(data?.error || 'UddoktaPay পেমেন্ট লিংক দেয়নি।');
+    const paymentUrl = new URL(data.payment_url);
+    if (paymentUrl.protocol !== 'https:') throw new Error('UddoktaPay নিরাপদ পেমেন্ট লিংক দেয়নি।');
+    window.location.assign(paymentUrl.href);
+}
+
+function showPaymentRetry(order, error) {
+    $('modalTitle').textContent = 'অর্ডার সংরক্ষিত হয়েছে';
+    $('modalDescription').textContent = `পেমেন্ট লিংক তৈরি করা যায়নি: ${error.message || 'কিছুক্ষণ পর আবার চেষ্টা করুন।'}`;
+    $('successOrderNumber').textContent = order.order_number;
+    $('successTrackLink').href = `/track/?order_id=${encodeURIComponent(order.order_number)}`;
+    $('retryPaymentBtn').classList.remove('hidden');
+    $('modalBack').classList.remove('hidden');
+}
+
 $('campaignForm').addEventListener('submit', async event => {
     event.preventDefault();
     if (Number($('ageMin').value) > Number($('ageMax').value)) { toast('বয়সের রেঞ্জ ঠিক করুন।'); return; }
@@ -297,10 +332,11 @@ $('campaignForm').addEventListener('submit', async event => {
 
     const button = $('submitOrderBtn');
     button.disabled = true;
-    button.textContent = 'অর্ডার জমা হচ্ছে…';
+    button.textContent = 'পেমেন্ট লিংক তৈরি হচ্ছে…';
     try {
         const client = window.smmSupabaseClient || window.smmSupabaseBootstrap;
         if (!client) throw new Error('Supabase সংযোগ পাওয়া যায়নি। পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।');
+        await ensurePaymentFunctionSession(client);
         const details = buildOrderDetails();
         const { data, error } = await client.rpc('create_campaign_order', {
             p_customer_phone: formattedPhone,
@@ -309,17 +345,32 @@ $('campaignForm').addEventListener('submit', async event => {
         });
         if (error) throw error;
         const order = Array.isArray(data) ? data[0] : data;
-        if (!order?.order_id || !order?.order_number) throw new Error('অর্ডার নম্বর তৈরি হয়নি। আবার চেষ্টা করুন।');
-
-        $('successOrderNumber').textContent = order.order_number;
-        $('successTrackLink').href = `/track?order_id=${encodeURIComponent(order.order_number)}`;
-        $('modalBack').classList.remove('hidden');
+        if (!order?.order_id || !order?.order_number || !order?.checkout_token) throw new Error('অর্ডার বা নিরাপদ পেমেন্ট রেফারেন্স তৈরি হয়নি।');
+        pendingPaymentOrder = order;
+        await startUddoktaPayment(order);
     } catch (error) {
-        console.error('Order submission failed.', error);
-        toast(`অর্ডার জমা হয়নি: ${error.message || 'আবার চেষ্টা করুন।'}`);
+        console.error('Order or payment setup failed.', error);
+        if (pendingPaymentOrder) showPaymentRetry(pendingPaymentOrder, error);
+        else toast(`অর্ডার জমা হয়নি: ${error.message || 'আবার চেষ্টা করুন।'}`);
     } finally {
         button.disabled = false;
-        button.textContent = 'অর্ডার জমা দিন →';
+        button.textContent = 'পেমেন্ট করে অর্ডার করুন →';
+    }
+});
+
+$('retryPaymentBtn').addEventListener('click', async () => {
+    if (!pendingPaymentOrder) return;
+    const retryButton = $('retryPaymentBtn');
+    retryButton.disabled = true;
+    retryButton.textContent = 'পেমেন্ট লিংক তৈরি হচ্ছে…';
+    try {
+        await startUddoktaPayment(pendingPaymentOrder);
+    } catch (error) {
+        console.error('Could not retry UddoktaPay checkout.', error);
+        showPaymentRetry(pendingPaymentOrder, error);
+    } finally {
+        retryButton.disabled = false;
+        retryButton.textContent = 'পেমেন্ট আবার চেষ্টা করুন';
     }
 });
 
