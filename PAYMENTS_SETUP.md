@@ -21,7 +21,7 @@ The checkout sends orders to Supabase first, then creates a UddoktaPay payment l
    Keep JWT verification enabled. The page signs in anonymously before invoking the functions.
 5. To deploy functions automatically on every push to `main`, add these GitHub repository Actions secrets under Settings → Secrets and variables → Actions:
    - `SUPABASE_ACCESS_TOKEN`: a Supabase personal access token.
-   - `SUPABASE_PROJECT_ID`: `gpclmymbggvfflvictpz`.
+   - `SUPABASE_PROJECT_ID`: `gpclmymbggvfflvictpz` (paste only the 20-character value; no quotes or spaces).
 
    The workflow deploys the functions only. The SQL migration and Edge Function secrets above still need to be configured in Supabase.
 6. Deploy the website files to `public_html`. The payment return page is `/payment-result.html`; the tracking page is `/track/`.

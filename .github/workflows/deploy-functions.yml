@@ -20,6 +20,12 @@ jobs:
       - name: Deploy Edge Functions
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
         run: |
-          supabase functions deploy create-uddoktapay-checkout --project-ref "${{ secrets.SUPABASE_PROJECT_ID }}"
-          supabase functions deploy verify-uddoktapay-payment --project-ref "${{ secrets.SUPABASE_PROJECT_ID }}"
+          PROJECT_REF="$(printf '%s' "$SUPABASE_PROJECT_ID" | tr -d '[:space:]')"
+          if [[ ! "$PROJECT_REF" =~ ^[a-z0-9]{20}$ ]]; then
+            echo "SUPABASE_PROJECT_ID must contain exactly 20 lowercase letters or digits."
+            exit 1
+          fi
+          supabase functions deploy create-uddoktapay-checkout --project-ref "$PROJECT_REF"
+          supabase functions deploy verify-uddoktapay-payment --project-ref "$PROJECT_REF"
