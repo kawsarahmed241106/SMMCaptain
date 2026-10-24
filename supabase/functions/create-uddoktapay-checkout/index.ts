@@ -19,7 +19,7 @@ Deno.serve(async (request) => {
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
   const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-  const apiKey = Deno.env.get("UDDOKTAPAY_API_KEY");
+  const apiKey = Deno.env.get("UDDOKTAPAY_API_KEY")?.trim() ?? "";
   const billingEmail = Deno.env.get("UDDOKTAPAY_BILLING_EMAIL")?.trim().toLowerCase() ?? "";
   if (!supabaseUrl || !serviceRoleKey || !apiKey || !billingEmail) {
     console.error("Supabase or UddoktaPay function secrets are missing.");
