@@ -2139,3 +2139,117 @@ a,
         height: 38px;
     }
 }
+
+/* Keep the layered age range inputs transparent so they do not cover the track. */
+.home-page .age-range-row {
+    grid-template-columns: 48px minmax(0, 1fr) 58px;
+    gap: 14px;
+    min-height: 76px;
+    padding: 12px 14px;
+    border: 1px solid #00bfff !important;
+    border-radius: 16px;
+    background: linear-gradient(110deg, #06131d, #03080d) !important;
+    box-shadow: 0 8px 22px #0007, inset 0 1px #ffffff09;
+}
+
+.home-page .age-range-row > span {
+    min-width: 48px;
+    min-height: 38px;
+    padding: 0 9px;
+    border: 1px solid #167b9d !important;
+    border-radius: 11px;
+    background: #071b29 !important;
+    color: #e9f8ff !important;
+    font-size: 14px;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+}
+
+.home-page .dual-age-slider {
+    min-width: 0;
+    height: 42px;
+    margin: 0 4px;
+}
+
+.home-page .dual-age-track,
+.home-page .dual-age-fill {
+    height: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-radius: 999px;
+}
+
+.home-page .dual-age-track {
+    background: #203b49 !important;
+    box-shadow: inset 0 1px 2px #000b, 0 0 0 1px #00bfff45;
+}
+
+.home-page .dual-age-fill {
+    background: linear-gradient(90deg, #0077ff, #00bfff) !important;
+    box-shadow: 0 0 12px #00bfff75;
+}
+
+.home-page .dual-age-input {
+    top: 0;
+    left: 0;
+    height: 42px;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+}
+
+.home-page .dual-age-input::-webkit-slider-runnable-track {
+    height: 8px;
+    background: transparent !important;
+}
+
+.home-page .dual-age-input::-moz-range-track {
+    height: 8px;
+    background: transparent !important;
+}
+
+.home-page .dual-age-input::-webkit-slider-thumb {
+    width: 23px;
+    height: 23px;
+    margin-top: -7.5px;
+    border: 3px solid #000 !important;
+    border-radius: 50%;
+    background: #fff !important;
+    box-shadow: 0 0 0 2px #00bfff, 0 2px 9px #000b !important;
+}
+
+.home-page .dual-age-input::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border: 3px solid #000 !important;
+    border-radius: 50%;
+    background: #fff !important;
+    box-shadow: 0 0 0 2px #00bfff, 0 2px 9px #000b !important;
+}
+
+.home-page .dual-age-input:focus-visible::-webkit-slider-thumb,
+.home-page .dual-age-input:focus-visible::-moz-range-thumb {
+    box-shadow: 0 0 0 4px #0077ff88, 0 0 0 6px #00bfff !important;
+}
+
+@media (max-width: 520px) {
+    .home-page .age-range-row {
+        grid-template-columns: 44px minmax(0, 1fr) 54px;
+        gap: 9px;
+        min-height: 70px;
+        padding: 10px;
+    }
+
+    .home-page .age-range-row > span {
+        min-width: 44px;
+        min-height: 36px;
+        padding: 0 6px;
+        font-size: 13px;
+    }
+
+    .home-page .dual-age-slider {
+        margin: 0 2px;
+    }
+}
