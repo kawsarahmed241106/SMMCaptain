@@ -197,7 +197,15 @@ async function ensurePaymentFunctionSession(client) {
     if (sessionError) throw new Error('পেমেন্ট সেশন তৈরি করা যায়নি। আবার চেষ্টা করুন।');
     if (sessionData.session) return;
     const { error } = await client.auth.signInAnonymously();
-    if (error) throw new Error('Supabase Auth-এ Anonymous Sign-Ins চালু করতে হবে।');
+    if (error) {
+        console.error('Supabase anonymous sign-in failed.', {
+            code: error.code,
+            status: error.status,
+            message: error.message
+        });
+        const errorCode = error.code || error.status || 'unknown';
+        throw new Error(`Supabase anonymous sign-in ব্যর্থ হয়েছে (${errorCode}): ${error.message}`);
+    }
 }
 function updateGoal() { const g = $('goal').value; const radios = [...document.querySelectorAll('input[name="goalChoice"]')]; radios.forEach(option => option.checked = option.value === g); const selected = radios.find(option => option.checked)?.closest('.goal-option'); if (selected) { const icon = selected.querySelector('.goal-icon'); $('goalCurrentIcon').className = icon.className; $('goalCurrentIcon').textContent = icon.textContent; $('goalCurrentTitle').textContent = selected.querySelector('.goal-copy strong').textContent; $('goalCurrentDescription').textContent = selected.querySelector('.goal-copy small').textContent; $('goalToggleLabel').textContent = 'লক্ষ্য পরিবর্তন করুন⌄' } $('messagingFields').classList.toggle('hidden', g !== 'messages'); $('leadFields').classList.toggle('hidden', g !== 'leads'); $('salesFields').classList.toggle('hidden', g !== 'sales'); $('urlGoalFields').classList.toggle('hidden', !['traffic', 'awareness', 'engagement', 'views', 'app'].includes(g)); $('sumGoal').textContent = goalNames[g]; $('previewCta').textContent = g === 'messages' ? 'Send Message' : g === 'leads' ? 'Sign Up' : g === 'sales' ? 'Shop Now' : g === 'views' ? 'Watch Video' : g === 'traffic' ? 'Learn More' : 'Learn More'; $('previewButton').textContent = g === 'messages' ? 'মেসেজ পাঠান' : g === 'leads' ? 'নিবন্ধন করুন' : g === 'sales' ? 'কিনুন' : g === 'views' ? 'ভিডিও দেখুন' : 'আরও জানুন'; updateBudget() }
 function updateMessageTemplate() { $('customMessageArea').hidden = $('messageTemplate').value !== '' }
