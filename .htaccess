@@ -1,3 +1,4 @@
 RewriteEngine On
+RewriteRule (^|/)\.git(/|$) - [F,L,NC]
 RewriteRule (^|/)\.github(/|$) - [F,L,NC]
 RewriteRule ^track/?$ track/index.html [L]

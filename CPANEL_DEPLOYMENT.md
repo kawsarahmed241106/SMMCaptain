@@ -1,19 +1,17 @@
 # Deploying from cPanel Git Version Control
 
-This repository can be deployed from cPanel without FTP. The `.cpanel.yml` file copies the public website files and the `admin/` and `track/` folders into `/home/smmcapta/public_html/`. It leaves Git metadata, GitHub workflow files, Supabase setup files, and deployment documentation out of the web root.
+The cPanel Git repository is located at `/home/smmcapta/public_html`, which is also the live document root. In this layout, **Update from Remote** checks out website files directly into the live directory, so `.cpanel.yml` uses a no-op deployment task instead of copying the directory into itself.
 
 ## One-time setup
 
-1. Commit and push `.cpanel.yml` and this guide to the GitHub `main` branch.
-2. In cPanel, open **Files → Git Version Control** and create a repository by cloning `https://github.com/kawsarahmed241106/SMMCaptain.git`.
-3. Set the repository path to a new directory outside `public_html`, for example `/home/smmcapta/repositories/SMMCaptain`.
-4. If GitHub prompts for authentication because the repository is private, configure SSH access in cPanel and add the cPanel public key to GitHub as a read-only deploy key, then clone using the repository's SSH URL.
-5. In cPanel, open **Manage** for the repository, then **Pull or Deploy**. Choose **Deploy HEAD Commit** to publish the current checkout to `public_html`.
+1. Keep the repository path set to `/home/smmcapta/public_html`.
+2. In cPanel, open **Manage → Pull or Deploy** and click **Update from Remote**. Since the checked-out files are already in the document root, this updates the live website files.
+3. If cPanel enables **Deploy HEAD Commit**, click it to record the deployment. The task intentionally does not copy files because source and destination are the same directory.
 
 ## Each update
 
-After pushing code to GitHub, open the repository in cPanel **Git Version Control**, click **Update from Remote**, then click **Deploy HEAD Commit**. cPanel's Git interface does not automatically pull commits from GitHub when GitHub receives a push; these two actions publish each update.
+After pushing code to GitHub, open the repository in cPanel **Git Version Control**, click **Update from Remote**, then click **Deploy HEAD Commit** if enabled. cPanel's Git interface does not automatically pull commits from GitHub when GitHub receives a push.
 
-The deployment task does not delete files already in `public_html`. This avoids removing cPanel-managed or user-uploaded files. Remove obsolete site files from `public_html` manually when needed.
+cPanel requires a checked-in `.cpanel.yml` and a clean working tree. Avoid editing tracked website files directly in cPanel File Manager; make changes in the GitHub source and pull them. If deployment is disabled, check the repository's `git status --short` in cPanel Terminal. The output should be empty.
 
-If your cPanel account's home directory is not `/home/smmcapta`, update `DEPLOYPATH` in `.cpanel.yml` to the correct absolute `public_html` path before deploying.
+The `.htaccess` file blocks direct requests to the `.github` and `.git` directories.
