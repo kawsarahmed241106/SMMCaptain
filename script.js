@@ -188,9 +188,15 @@ function updateBudget() {
     $('heroExchangeRate').textContent = '৳' + rate.toLocaleString('bn-BD') + ' / $১';
     $('dailyTaka').textContent = money(daily * rate); $('totalUsd').textContent = '$' + total.toLocaleString('en-US'); $('totalTaka').textContent = money(total * rate);
     if ($('paymentAmount')) $('paymentAmount').textContent = money(total * rate);
+    updateOrderButtonAmount(total * rate);
     $('sumDaily').textContent = '$' + daily.toLocaleString('en-US'); $('sumTotalUsd').textContent = '$' + total.toLocaleString('en-US'); $('sumTotalTaka').textContent = money(total * rate); $('sumDays').textContent = bn(days) + ' দিন';
     let g = $('goal').value, low = 0, high = 0, unit = 'ফলাফল'; if (g === 'messages') { low = total * 2; high = total * 8; unit = 'মেসেজ' } else if (g === 'views') { low = total * 500; high = total * 2000; unit = 'ভিডিও ভিউ' } else if (g === 'leads') { low = total * .5; high = total * 2; unit = 'লিড' } else if (g === 'sales') { low = total * .2; high = total * 1; unit = 'সম্ভাব্য বিক্রয়' } else if (g === 'engagement') { low = total * 15; high = total * 60; unit = 'এনগেজমেন্ট' } else if (g === 'traffic') { low = total * 5; high = total * 25; unit = 'ক্লিক' } else if (g === 'awareness') { low = total * 500; high = total * 1500; unit = 'সম্ভাব্য রিচ' } else { low = total * 10; high = total * 40; unit = 'অ্যাকশন' }
     $('estimate').textContent = `শুধু পরিকল্পনার নমুনা: আনুমানিক ${Math.round(low).toLocaleString('en-US')}–${Math.round(high).toLocaleString('en-US')} ${unit} হতে পারে। এটি কোনো নিশ্চয়তা বা Meta-এর লাইভ পূর্বাভাস নয়। বাস্তব ফলাফল অডিয়েন্স, কনটেন্ট, প্রতিযোগিতা ও অ্যাকাউন্টের ওপর নির্ভর করবে।`;
+}
+function updateOrderButtonAmount(amount) {
+    const button = $('submitOrderBtn');
+    if (!button || button.dataset.busy === 'true') return;
+    button.textContent = `৳${Math.round(amount).toLocaleString('bn-BD')} পরিশোধ করে অর্ডার করুন →`;
 }
 
 async function ensurePaymentFunctionSession(client) {
@@ -382,6 +388,7 @@ $('campaignForm').addEventListener('submit', async event => {
 
     const button = $('submitOrderBtn');
     button.disabled = true;
+    button.dataset.busy = 'true';
     button.textContent = 'পেমেন্ট লিংক তৈরি হচ্ছে…';
     pendingPaymentOrder = null;
     try {
@@ -405,7 +412,8 @@ $('campaignForm').addEventListener('submit', async event => {
         else toast(`অর্ডার জমা হয়নি: ${error.message || 'আবার চেষ্টা করুন।'}`);
     } finally {
         button.disabled = false;
-        button.textContent = 'পেমেন্ট করে অর্ডার করুন →';
+        button.dataset.busy = 'false';
+        updateOrderButtonAmount(getDaily() * getDays() * Math.max(1, Number($('dollarRate').value) || 150));
     }
 });
 
