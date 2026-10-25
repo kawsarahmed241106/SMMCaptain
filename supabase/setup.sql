@@ -57,8 +57,7 @@ create table if not exists public.orders (
   customer_phone text not null,
   ad_whatsapp text not null default '',
   details jsonb not null default '{}'::jsonb,
-  status text not null default 'new'
-    check (status in ('new', 'processing', 'completed', 'cancelled')),
+  status text not null default 'pending',
   payment_token uuid not null default gen_random_uuid(),
   payment_status text not null default 'unpaid',
   payment_invoice_id text,
@@ -82,6 +81,15 @@ alter table public.orders
   add column if not exists payment_attempted_at timestamptz,
   add column if not exists paid_at timestamptz;
 
+-- Pending is the initial public order status. Convert legacy `new` rows before
+-- replacing the old constraint so this migration is safe to run more than once.
+alter table public.orders alter column status set default 'pending';
+update public.orders set status = 'pending' where status = 'new';
+alter table public.orders drop constraint if exists orders_status_check;
+alter table public.orders drop constraint if exists orders_status_workflow_check;
+alter table public.orders add constraint orders_status_workflow_check
+  check (status in ('pending', 'processing', 'completed', 'cancelled'));
+
 alter table public.orders drop column if exists email_status;
 alter table public.orders alter column customer_email drop not null;
 
@@ -91,11 +99,18 @@ create index if not exists orders_created_at_idx on public.orders (created_at de
 alter table public.orders enable row level security;
 revoke all on public.orders from public, anon, authenticated;
 grant select on public.orders to authenticated;
+grant update (status) on public.orders to authenticated;
 
 drop policy if exists "Site admins can read orders" on public.orders;
 create policy "Site admins can read orders"
   on public.orders for select to authenticated
   using ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'site_admin');
+
+drop policy if exists "Site admins can update order status" on public.orders;
+create policy "Site admins can update order status"
+  on public.orders for update to authenticated
+  using ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'site_admin')
+  with check ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'site_admin');
 
 create table if not exists public.order_daily_counters (
   order_date date primary key,

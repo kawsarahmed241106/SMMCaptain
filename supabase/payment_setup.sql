@@ -12,6 +12,22 @@ alter table public.orders
   add column if not exists payment_attempted_at timestamptz,
   add column if not exists paid_at timestamptz;
 
+-- Keep order status consistent whether this migration is run before or after
+-- the base setup. Existing `new` orders are displayed as Pending.
+alter table public.orders alter column status set default 'pending';
+update public.orders set status = 'pending' where status = 'new';
+alter table public.orders drop constraint if exists orders_status_check;
+alter table public.orders drop constraint if exists orders_status_workflow_check;
+alter table public.orders add constraint orders_status_workflow_check
+  check (status in ('pending', 'processing', 'completed', 'cancelled'));
+
+grant update (status) on public.orders to authenticated;
+drop policy if exists "Site admins can update order status" on public.orders;
+create policy "Site admins can update order status"
+  on public.orders for update to authenticated
+  using ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'site_admin')
+  with check ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'site_admin');
+
 do $$
 begin
   if not exists (

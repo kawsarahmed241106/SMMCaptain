@@ -21,6 +21,22 @@
     dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Dhaka'
   }).format(new Date(value)) + ' (Bangladesh time)';
 
+  const orderStatuses = [
+    { value: 'pending', label: 'Pending' },
+    { value: 'processing', label: 'Processing' },
+    { value: 'completed', label: 'Completed' },
+    { value: 'cancelled', label: 'Cancelled' }
+  ];
+  const normaliseStatus = value => value === 'new' ? 'pending' : value;
+
+  function updateStatusBadge(badge, value) {
+    const statusValue = normaliseStatus(value);
+    const selected = orderStatuses.find(item => item.value === statusValue);
+    badge.textContent = selected?.label || 'Pending';
+    badge.className = `order-status status-${statusValue}`;
+    badge.setAttribute('aria-label', `Order status: ${selected?.label || 'Pending'}`);
+  }
+
   function renderOrder(order) {
     const card = document.createElement('article');
     card.className = 'order-card';
@@ -30,9 +46,49 @@
     addText(heading, 'h2', order.order_number);
     addText(heading, 'p', formatDate(order.created_at), 'order-date');
     head.append(heading);
-    const badge = addText(head, 'span', order.status, `order-status status-${order.status}`);
-    badge.setAttribute('aria-label', `Order status: ${order.status}`);
+    const initialStatus = normaliseStatus(order.status);
+    const badge = addText(head, 'span', '', 'order-status');
+    updateStatusBadge(badge, initialStatus);
     card.append(head);
+
+    const statusControl = document.createElement('div');
+    statusControl.className = 'order-status-control';
+    const statusLabel = document.createElement('label');
+    statusLabel.textContent = 'Order status';
+    const statusSelect = document.createElement('select');
+    statusSelect.setAttribute('aria-label', `Change status for ${order.order_number}`);
+    orderStatuses.forEach(item => {
+      const option = document.createElement('option');
+      option.value = item.value;
+      option.textContent = item.label;
+      statusSelect.append(option);
+    });
+    statusSelect.value = orderStatuses.some(item => item.value === initialStatus) ? initialStatus : 'pending';
+    const saveMessage = document.createElement('span');
+    saveMessage.className = 'status-save-message';
+    saveMessage.setAttribute('role', 'status');
+    statusSelect.addEventListener('change', async () => {
+      const nextStatus = statusSelect.value;
+      statusSelect.disabled = true;
+      saveMessage.textContent = 'Saving…';
+      saveMessage.classList.remove('is-error');
+      try {
+        const { error } = await client.from('orders').update({ status: nextStatus }).eq('id', order.id);
+        if (error) throw error;
+        order.status = nextStatus;
+        updateStatusBadge(badge, nextStatus);
+        saveMessage.textContent = 'Status saved';
+      } catch (error) {
+        console.error(`Could not update ${order.order_number}.`, error);
+        statusSelect.value = normaliseStatus(order.status);
+        saveMessage.textContent = error.message || 'Could not save status. Check admin SQL permissions.';
+        saveMessage.classList.add('is-error');
+      } finally {
+        statusSelect.disabled = false;
+      }
+    });
+    card.append(statusControl);
+    statusControl.append(statusLabel, statusSelect, saveMessage);
 
     const contact = document.createElement('div');
     contact.className = 'order-contact';

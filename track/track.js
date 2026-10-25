@@ -8,10 +8,11 @@
   const button = $('trackButton');
 
   const statuses = {
-    new: 'অর্ডার জমা হয়েছে',
-    processing: 'কাজ চলছে',
-    completed: 'সম্পন্ন হয়েছে',
-    cancelled: 'বাতিল হয়েছে'
+    new: 'Pending · অর্ডার জমা হয়েছে',
+    pending: 'Pending · অর্ডার জমা হয়েছে',
+    processing: 'Processing · কাজ চলছে',
+    completed: 'Completed · সম্পন্ন হয়েছে',
+    cancelled: 'Cancelled · বাতিল হয়েছে'
   };
 
   const showMessage = (message, isError = false) => {
@@ -82,7 +83,7 @@
       heading.textContent = 'অর্ডার পাওয়া গেছে';
       result.append(heading);
       addRow('অর্ডার আইডি', order.order_number);
-      addRow('অবস্থা', statuses[order.status] || order.status);
+      addRow('অবস্থা', statuses[order.status] || statuses.pending);
       addRow('জমা দেওয়ার সময়', new Intl.DateTimeFormat('bn-BD', {
         dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Dhaka'
       }).format(new Date(order.created_at)) + ' (বাংলাদেশ সময়)');
