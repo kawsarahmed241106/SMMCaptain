@@ -47,6 +47,7 @@
   function showDashboard(settings = loadedSettings) {
     $('loginCard').classList.add('hidden');
     $('dashboard').classList.remove('hidden');
+    $('adminNav').classList.remove('hidden');
     Object.entries(settings).forEach(([key, value]) => {
       const input = form.elements.namedItem(key);
       if (input) input.value = value;
@@ -92,6 +93,7 @@
   });
   $('logoutButton').addEventListener('click', async () => {
     await supabase.auth.signOut();
+    $('adminNav').classList.add('hidden');
     $('dashboard').classList.add('hidden');
     $('loginCard').classList.remove('hidden');
     $('password').value = '';
