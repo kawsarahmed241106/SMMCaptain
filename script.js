@@ -154,11 +154,6 @@ function getDays() {
 function getChannels() {
     return [...document.querySelectorAll('input[name="channel"]:checked')].map(channel => channel.value);
 }
-function updateRadiusShortcutState() {
-    document.querySelectorAll('.quick-radius').forEach(button => {
-        button.classList.toggle('active', Number(button.dataset.km) === Number($('radius').value));
-    });
-}
 function toast(message) {
     const element = $('toast');
     if (!element) return;
@@ -222,13 +217,8 @@ $('goalToggle').addEventListener('click', () => { const options = $('goalOptions
 document.querySelectorAll('input[name="goalChoice"]').forEach(option => option.addEventListener('change', () => { if (!option.checked) return; $('goalOptions').hidden = true; $('goalToggle').setAttribute('aria-expanded', 'false') }));
 $('dailyBudget').addEventListener('input', () => { $('dailyCustom').value = $('dailyBudget').value; updateBudget() });
 $('dailyCustom').addEventListener('input', () => { let v = Math.max(2, Math.min(1000, Number($('dailyCustom').value) || 2)); $('dailyBudget').value = v; updateBudget() });
-['dollarRate', 'customDays', 'gender', 'radius', 'location', 'interests', 'district', 'upazila', 'messageTemplate', 'customMessage', 'leadOffer', 'salesUrl', 'destinationUrl'].forEach(id => $(id).addEventListener('input', () => { if (id === 'district') updateUpazilas(); if (id === 'radius') updateRadiusShortcutState(); updateAll() }));
+['dollarRate', 'customDays', 'gender', 'location', 'interests', 'district', 'upazila', 'messageTemplate', 'customMessage', 'leadOffer', 'salesUrl', 'destinationUrl'].forEach(id => $(id).addEventListener('input', () => { if (id === 'district') updateUpazilas(); updateAll() }));
 document.querySelectorAll('.quickday').forEach(b => b.addEventListener('click', () => { $('customDays').value = b.dataset.days; updateAll() }));
-document.querySelectorAll('.quick-radius').forEach(button => button.addEventListener('click', () => {
-    $('radius').value = button.dataset.km;
-    updateRadiusShortcutState();
-    updateAll();
-}));
 
 document.querySelectorAll('input[name="channel"]').forEach(x => x.addEventListener('change', e => {
     const all = document.querySelector('input[name="channel"][value="All"]');
@@ -268,7 +258,6 @@ function buildOrderDetails() {
         district: $('district').value,
         upazila: $('upazila').value,
         location: $('location').value.trim(),
-        radiusKm: Number($('radius').value),
         gender: { all: 'সবাই', men: 'পুরুষ', women: 'নারী' }[$('gender').value],
         ageMin: Number($('ageMin').value),
         ageMax: Number($('ageMax').value),
