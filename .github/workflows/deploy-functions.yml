@@ -29,3 +29,4 @@ jobs:
           fi
           supabase functions deploy create-uddoktapay-checkout --project-ref "$PROJECT_REF"
           supabase functions deploy verify-uddoktapay-payment --project-ref "$PROJECT_REF"
+          supabase functions deploy resolve-facebook-share --project-ref "$PROJECT_REF"

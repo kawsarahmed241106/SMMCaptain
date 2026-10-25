@@ -426,6 +426,9 @@ function getPostPreview(link) {
     }
 
     if (isHost('facebook.com') || host === 'fb.watch') {
+        if (/\/share\/(?:v|r)\//i.test(url.pathname)) {
+            return { resolveFacebookShare: true, sourceUrl: url.href };
+        }
         const videoPost = host === 'fb.watch' || /\/(?:videos?|watch|reel|reels)\//i.test(url.pathname) || /\/share\/(?:v|r)\//i.test(url.pathname);
         const plugin = videoPost ? 'video.php' : 'post.php';
         const params = new URLSearchParams({ href: url.href, show_text: 'true', width: '500', adapt_container_width: 'true' });
@@ -447,7 +450,26 @@ function getPostPreview(link) {
     return { message: 'এই লিংকের প্রিভিউ সমর্থিত নয়। Facebook, Instagram, TikTok বা YouTube-এর একটি পাবলিক লিংক দিন।' };
 }
 
-function renderPostPreview() {
+let postPreviewSequence = 0;
+
+function showPostPreviewMessage(content, text, sourceUrl = '') {
+    const message = document.createElement('p');
+    message.className = 'post-preview-placeholder';
+    message.textContent = text;
+    content.append(message);
+    if (sourceUrl) {
+        const sourceLink = document.createElement('a');
+        sourceLink.className = 'post-preview-source-link';
+        sourceLink.href = sourceUrl;
+        sourceLink.target = '_blank';
+        sourceLink.rel = 'noopener noreferrer';
+        sourceLink.textContent = 'Facebook-এ ভিডিওটি খুলুন ↗';
+        content.append(sourceLink);
+    }
+}
+
+async function renderPostPreview() {
+    const sequence = ++postPreviewSequence;
     const content = $('postPreviewContent');
     const media = $('adPreviewMedia');
     const fallback = $('adPreviewFallback');
@@ -463,13 +485,39 @@ function renderPostPreview() {
     content.hidden = false;
     fallback.hidden = true;
 
-    const preview = getPostPreview(link);
+    let preview = getPostPreview(link);
     if (!preview) {
-        const placeholder = document.createElement('p');
-        placeholder.className = 'post-preview-placeholder';
-        placeholder.textContent = 'প্রিভিউ দেখতে একটি সঠিক পোস্ট বা ভিডিও লিংক দিন।';
-        content.append(placeholder);
+        showPostPreviewMessage(content, 'প্রিভিউ দেখতে একটি সঠিক পোস্ট বা ভিডিও লিংক দিন।');
         return;
+    }
+    if (preview.resolveFacebookShare) {
+        showPostPreviewMessage(content, 'Facebook ভিডিওর সরাসরি লিংক খোঁজা হচ্ছে…');
+        const client = window.smmSupabaseClient || window.smmSupabaseBootstrap;
+        if (!client) {
+            content.replaceChildren();
+            showPostPreviewMessage(content, 'Facebook-এর সরাসরি ভিডিও লিংক পাওয়া যায়নি।', link);
+            return;
+        }
+        try {
+            const { data, error } = await client.functions.invoke('resolve-facebook-share', { body: { url: link } });
+            if (sequence !== postPreviewSequence || $('postLink').value.trim() !== link) return;
+            if (error || !data?.resolved_url) {
+                content.replaceChildren();
+                showPostPreviewMessage(content, data?.error || 'Facebook এই শেয়ার লিংক থেকে পাবলিক ভিডিও লিংক দেয়নি। ভিডিওটি পাবলিক কি না যাচাই করুন।', link);
+                return;
+            }
+            preview = getPostPreview(data.resolved_url);
+            if (!preview || preview.resolveFacebookShare || !preview.src) {
+                content.replaceChildren();
+                showPostPreviewMessage(content, 'Facebook একটি ব্যবহারযোগ্য ভিডিও প্রিভিউ লিংক দেয়নি।', link);
+                return;
+            }
+        } catch (error) {
+            if (sequence !== postPreviewSequence) return;
+            content.replaceChildren();
+            showPostPreviewMessage(content, error?.message || 'Facebook ভিডিওর লিংক যাচাই করা যায়নি।', link);
+            return;
+        }
     }
     if (preview.message) {
         const message = document.createElement('p');

@@ -1,1 +1,4 @@
 project_id = "gpclmymbggvfflvictpz"
+
+[functions.resolve-facebook-share]
+verify_jwt = false
