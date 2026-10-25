@@ -10,7 +10,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="brand-logo.js?v=20261025-1" defer></script>
-  <script src="script.js?v=20261025-7" defer></script>
+  <script src="script.js?v=20261025-8" defer></script>
 </head>
 
 <body class="home-page">
@@ -97,15 +97,15 @@
       </div>
       <div class="field goal-field"><span class="field-label">লক্ষ্য নির্বাচন করুন</span>
       <button class="goal-toggle" id="goalToggle" type="button" aria-expanded="false" aria-controls="goalOptions">
-        <span id="goalCurrentIcon" class="goal-icon icon-messages" aria-hidden="true">💬</span>
-        <span class="goal-copy"><strong id="goalCurrentTitle">মেসেজ পান</strong><small id="goalCurrentDescription">Messenger, WhatsApp বা Instagram-এ গ্রাহকদের কাছ থেকে মেসেজ পান।</small></span>
+        <span id="goalCurrentIcon" class="goal-icon" aria-hidden="true">◎</span>
+        <span class="goal-copy"><strong id="goalCurrentTitle">ক্যাম্পেইনের লক্ষ্য নির্বাচন করুন</strong><small id="goalCurrentDescription">আপনার বিজ্ঞাপন দিয়ে কী ফল চান তা বেছে নিন।</small></span>
         <span class="goal-toggle-label" id="goalToggleLabel">লক্ষ্য বেছে নিন⌄</span>
       </button>
       <div class="goal-options" id="goalOptions" role="radiogroup" aria-label="বিজ্ঞাপনের লক্ষ্য নির্বাচন" hidden>
         <label class="goal-option">
           <span class="goal-icon icon-messages" aria-hidden="true">💬</span>
           <span class="goal-copy"><strong>মেসেজ পান</strong><small>Messenger, WhatsApp বা Instagram-এ গ্রাহকদের কাছ থেকে মেসেজ পান।</small><span class="goal-good">ভালো: বিক্রয়</span></span>
-          <input type="radio" name="goalChoice" value="messages" checked aria-label="মেসেজ পান">
+          <input type="radio" name="goalChoice" value="messages" aria-label="মেসেজ পান">
         </label>
         <label class="goal-option">
           <span class="goal-icon icon-leads" aria-hidden="true">📋</span>
@@ -143,6 +143,7 @@
           <input type="radio" name="goalChoice" value="app" aria-label="অ্যাপ প্রচার করুন">
         </label>
       </div><select id="goal" class="goal-select-bridge" aria-hidden="true" tabindex="-1">
+          <option value="" selected></option>
           <option value="messages">মেসেজ</option>
           <option value="leads">লিড / কাস্টমারের তথ্য</option>
           <option value="sales">সেলস ক্যাম্পেইন</option>
@@ -152,7 +153,7 @@
           <option value="views">ভিডিও ভিউ (Video Views)</option>
           <option value="app">অ্যাপ প্রোমোশন (App Promotion)</option>
         </select></div>
-      <div id="messagingFields">
+      <div id="messagingFields" class="hidden">
         <div class="field"><label>আপনার বিজ্ঞাপনের মেসেজ কোথায় নিতে চান?</label>
           <div class="pillgrid">
             <label class="choice"><input type="checkbox" name="channel" value="All" checked><span>✓ সব
@@ -446,7 +447,7 @@
               পাঠান</button></div>
         </div>
         <div class="summaryrows">
-          <div class="sumrow"><span>ক্যাম্পেইন লক্ষ্য</span><strong id="sumGoal">মেসেজ</strong></div>
+          <div class="sumrow"><span>ক্যাম্পেইন লক্ষ্য</span><strong id="sumGoal">নির্বাচন করা হয়নি</strong></div>
           <div class="sumrow"><span>সময়কাল</span><strong id="sumDays">১০ দিন</strong></div>
           <div class="sumrow"><span>দৈনিক বাজেট</span><strong id="sumDaily">$5</strong></div>
           <div class="sumrow"><span>মোট বাজেট</span><strong id="sumTotalUsd">$50</strong></div>

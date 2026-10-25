@@ -208,7 +208,34 @@ async function ensurePaymentFunctionSession(client) {
         throw new Error(`Supabase anonymous sign-in ব্যর্থ হয়েছে (${errorCode}): ${error.message}`);
     }
 }
-function updateGoal() { const g = $('goal').value; const radios = [...document.querySelectorAll('input[name="goalChoice"]')]; radios.forEach(option => option.checked = option.value === g); const selected = radios.find(option => option.checked)?.closest('.goal-option'); if (selected) { const icon = selected.querySelector('.goal-icon'); $('goalCurrentIcon').className = icon.className; $('goalCurrentIcon').textContent = icon.textContent; $('goalCurrentTitle').textContent = selected.querySelector('.goal-copy strong').textContent; $('goalCurrentDescription').textContent = selected.querySelector('.goal-copy small').textContent; $('goalToggleLabel').textContent = 'লক্ষ্য পরিবর্তন করুন⌄' } $('messagingFields').classList.toggle('hidden', g !== 'messages'); $('leadFields').classList.toggle('hidden', g !== 'leads'); $('salesFields').classList.toggle('hidden', g !== 'sales'); $('urlGoalFields').classList.toggle('hidden', !['traffic', 'awareness', 'engagement', 'views', 'app'].includes(g)); $('sumGoal').textContent = goalNames[g]; $('previewCta').textContent = g === 'messages' ? 'Send Message' : g === 'leads' ? 'Sign Up' : g === 'sales' ? 'Shop Now' : g === 'views' ? 'Watch Video' : g === 'traffic' ? 'Learn More' : 'Learn More'; $('previewButton').textContent = g === 'messages' ? 'মেসেজ পাঠান' : g === 'leads' ? 'নিবন্ধন করুন' : g === 'sales' ? 'কিনুন' : g === 'views' ? 'ভিডিও দেখুন' : 'আরও জানুন'; updateBudget() }
+function updateGoal() {
+    const g = $('goal').value;
+    const radios = [...document.querySelectorAll('input[name="goalChoice"]')];
+    radios.forEach(option => option.checked = option.value === g);
+    const selected = radios.find(option => option.checked)?.closest('.goal-option');
+    if (selected) {
+        const icon = selected.querySelector('.goal-icon');
+        $('goalCurrentIcon').className = icon.className;
+        $('goalCurrentIcon').textContent = icon.textContent;
+        $('goalCurrentTitle').textContent = selected.querySelector('.goal-copy strong').textContent;
+        $('goalCurrentDescription').textContent = selected.querySelector('.goal-copy small').textContent;
+        $('goalToggleLabel').textContent = 'লক্ষ্য পরিবর্তন করুন⌄';
+    } else {
+        $('goalCurrentIcon').className = 'goal-icon';
+        $('goalCurrentIcon').textContent = '◎';
+        $('goalCurrentTitle').textContent = 'ক্যাম্পেইনের লক্ষ্য নির্বাচন করুন';
+        $('goalCurrentDescription').textContent = 'আপনার বিজ্ঞাপন দিয়ে কী ফল চান তা বেছে নিন।';
+        $('goalToggleLabel').textContent = 'লক্ষ্য বেছে নিন⌄';
+    }
+    $('messagingFields').classList.toggle('hidden', g !== 'messages');
+    $('leadFields').classList.toggle('hidden', g !== 'leads');
+    $('salesFields').classList.toggle('hidden', g !== 'sales');
+    $('urlGoalFields').classList.toggle('hidden', !['traffic', 'awareness', 'engagement', 'views', 'app'].includes(g));
+    $('sumGoal').textContent = goalNames[g] || 'নির্বাচন করা হয়নি';
+    $('previewCta').textContent = g === 'messages' ? 'Send Message' : g === 'leads' ? 'Sign Up' : g === 'sales' ? 'Shop Now' : g === 'views' ? 'Watch Video' : 'Learn More';
+    $('previewButton').textContent = g === 'messages' ? 'মেসেজ পাঠান' : g === 'leads' ? 'নিবন্ধন করুন' : g === 'sales' ? 'কিনুন' : g === 'views' ? 'ভিডিও দেখুন' : 'আরও জানুন';
+    updateBudget();
+}
 function updateMessageTemplate() { $('customMessageArea').hidden = $('messageTemplate').value !== '' }
 function updateSchedule() {}
 function updateWhatsAppField() { const selected = document.querySelector('input[name="channel"][value="WhatsApp"]').checked || document.querySelector('input[name="channel"][value="All"]').checked; $('whatsappNumberField').classList.toggle('hidden', !selected); $('adWhatsappNumber').required = selected }
@@ -335,6 +362,13 @@ function showPaymentRetry(order, error) {
 
 $('campaignForm').addEventListener('submit', async event => {
     event.preventDefault();
+    if (!$('goal').value) {
+        $('goalOptions').hidden = false;
+        $('goalToggle').setAttribute('aria-expanded', 'true');
+        toast('অর্ডার করার আগে একটি ক্যাম্পেইন লক্ষ্য নির্বাচন করুন।');
+        $('goalOptions').querySelector('input[name="goalChoice"]')?.focus();
+        return;
+    }
     if (Number($('ageMin').value) > Number($('ageMax').value)) { toast('বয়সের রেঞ্জ ঠিক করুন।'); return; }
     if (getDaily() * getDays() < 10) { toast('মোট বিজ্ঞাপন বাজেট কমপক্ষে $১০ হতে হবে।'); return; }
     if (!/^https?:\/\//i.test($('postLink').value)) { toast('সঠিক পোস্ট/ভিডিও লিংক দিন।'); $('postLink').focus(); return; }
