@@ -421,25 +421,25 @@ function getPostPreview(link) {
             ? url.pathname.split('/').filter(Boolean)[0]
             : url.searchParams.get('v') || url.pathname.match(/^\/(?:shorts|embed|live)\/([\w-]{11})/)?.[1];
         if (videoId && /^[\w-]{11}$/.test(videoId)) {
-            return { src: `https://www.youtube-nocookie.com/embed/${videoId}`, title: 'YouTube ভিডিও', kind: 'youtube' };
+            return { src: `https://www.youtube-nocookie.com/embed/${videoId}`, title: 'YouTube ভিডিও', kind: 'youtube', sourceUrl: url.href };
         }
     }
 
     if (isHost('facebook.com') || host === 'fb.watch') {
-        const videoPost = /\/(?:videos?|watch|reel|reels)\//i.test(url.pathname);
+        const videoPost = host === 'fb.watch' || /\/(?:videos?|watch|reel|reels)\//i.test(url.pathname) || /\/share\/(?:v|r)\//i.test(url.pathname);
         const plugin = videoPost ? 'video.php' : 'post.php';
         const params = new URLSearchParams({ href: url.href, show_text: 'true', width: '500', adapt_container_width: 'true' });
-        return { src: `https://www.facebook.com/plugins/${plugin}?${params}`, title: 'Facebook পোস্ট বা ভিডিও', kind: 'post' };
+        return { src: `https://www.facebook.com/plugins/${plugin}?${params}`, title: 'Facebook পোস্ট বা ভিডিও', kind: 'post', sourceUrl: url.href };
     }
 
     if (isHost('instagram.com')) {
         const post = url.pathname.match(/^\/(p|reel|reels|tv)\/([\w-]+)/i);
-        if (post) return { src: `https://www.instagram.com/${post[1]}/${post[2]}/embed/`, title: 'Instagram পোস্ট বা Reel', kind: 'post' };
+        if (post) return { src: `https://www.instagram.com/${post[1]}/${post[2]}/embed/`, title: 'Instagram পোস্ট বা Reel', kind: 'post', sourceUrl: url.href };
     }
 
     if (isHost('tiktok.com')) {
         const videoId = url.pathname.match(/\/video\/(\d+)/)?.[1];
-        if (videoId) return { src: `https://www.tiktok.com/player/v1/${videoId}?description=1`, title: 'TikTok ভিডিও', kind: 'video' };
+        if (videoId) return { src: `https://www.tiktok.com/player/v1/${videoId}?description=1`, title: 'TikTok ভিডিও', kind: 'video', sourceUrl: url.href };
     }
     if (/^(?:vt|vm)\.tiktok\.com$/.test(host)) {
         return { message: 'TikTok-এর সংক্ষিপ্ত লিংকটি সরাসরি প্রিভিউ করা যায় না। ভিডিওটি খুলে পূর্ণ TikTok লিংকটি কপি করে দিন।' };
@@ -488,6 +488,14 @@ function renderPostPreview() {
     frame.allowFullscreen = true;
     frame.className = `post-preview-frame-${preview.kind}`;
     content.append(frame);
+
+    const sourceLink = document.createElement('a');
+    sourceLink.className = 'post-preview-source-link';
+    sourceLink.href = preview.sourceUrl;
+    sourceLink.target = '_blank';
+    sourceLink.rel = 'noopener noreferrer';
+    sourceLink.textContent = 'প্রিভিউ না দেখালে মূল পোস্ট / ভিডিও খুলুন ↗';
+    content.append(sourceLink);
 }
 
 let postPreviewTimer;

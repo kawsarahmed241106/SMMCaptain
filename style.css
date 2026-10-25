@@ -2361,6 +2361,21 @@ a,
     justify-self: center;
 }
 
+.home-page .post-preview-source-link {
+    justify-self: center;
+    margin: 10px 12px;
+    color: #67d8ff;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
+}
+
+.home-page .post-preview-source-link:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
 @media (max-width: 600px) {
     .home-page .post-preview-frame-post {
         min-height: 520px;
