@@ -93,7 +93,7 @@
   retryButton.addEventListener('click', async () => {
     const mode = retryMode;
     retryButton.disabled = true;
-    retryButton.textContent = mode === 'verify' ? 'পেমেন্ট যাচাই হচ্ছে…' : 'পেমেন্ট লিংক তৈরি হচ্ছে…';
+    retryButton.textContent = mode === 'verify' ? 'পেমেন্ট যাচাই হচ্ছে…' : 'প্রক্রিয়াধীন…';
     try {
       if (mode === 'verify') await verify();
       else await beginPaymentAgain();

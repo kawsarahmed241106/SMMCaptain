@@ -389,7 +389,7 @@ $('campaignForm').addEventListener('submit', async event => {
     const button = $('submitOrderBtn');
     button.disabled = true;
     button.dataset.busy = 'true';
-    button.textContent = 'পেমেন্ট লিংক তৈরি হচ্ছে…';
+    button.textContent = 'প্রক্রিয়াধীন…';
     pendingPaymentOrder = null;
     try {
         const client = window.smmSupabaseClient || window.smmSupabaseBootstrap;
@@ -421,7 +421,7 @@ $('retryPaymentBtn').addEventListener('click', async () => {
     if (!pendingPaymentOrder) return;
     const retryButton = $('retryPaymentBtn');
     retryButton.disabled = true;
-    retryButton.textContent = 'পেমেন্ট লিংক তৈরি হচ্ছে…';
+    retryButton.textContent = 'প্রক্রিয়াধীন…';
     try {
         await startUddoktaPayment(pendingPaymentOrder);
     } catch (error) {
