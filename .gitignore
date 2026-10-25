@@ -1,0 +1,5 @@
+# Hosting-generated files that may exist beside the site when public_html is the repo.
+/.ftp-deploy-sync-state.json
+/.well-known/
+/cgi-bin/
+/error_log
