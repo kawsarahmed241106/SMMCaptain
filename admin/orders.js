@@ -37,6 +37,86 @@
     badge.setAttribute('aria-label', `Order status: ${selected?.label || 'Pending'}`);
   }
 
+  const displayValue = value => {
+    if (value === null || value === undefined || value === '') return '';
+    if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+    if (Array.isArray(value)) return value.length ? value.join(', ') : '';
+    return String(value);
+  };
+
+  function addDetailSection(container, title, details, fields) {
+    const rows = fields
+      .map(([key, label, formatter]) => {
+        const rawValue = details[key];
+        if ((rawValue === null || rawValue === undefined || rawValue === '') && key !== 'ageMin') return null;
+        const value = formatter ? formatter(rawValue, details) : displayValue(rawValue);
+        return value ? { label, value } : null;
+      })
+      .filter(Boolean);
+    if (!rows.length) return;
+
+    const section = document.createElement('section');
+    section.className = 'order-detail-section';
+    addText(section, 'h3', title);
+    const grid = document.createElement('dl');
+    grid.className = 'order-detail-grid';
+    rows.forEach(({ label, value }) => {
+      addText(grid, 'dt', label);
+      addText(grid, 'dd', value);
+    });
+    section.append(grid);
+    container.append(section);
+  }
+
+  function renderCampaignDetails(details = {}) {
+    const container = document.createElement('div');
+    container.className = 'order-details-content';
+
+    // Keep these groups in the same sequence as sections 1–4 on the main form.
+    addDetailSection(container, '1. Post information', details, [
+      ['platform', 'Platform'],
+      ['postLink', 'Post / video link'],
+      ['accessConfirmed', 'Page access confirmed']
+    ]);
+    addDetailSection(container, '2. Campaign goal', details, [
+      ['goalLabel', 'Goal'],
+      ['messageChannels', 'Message channels'],
+      ['adWhatsapp', 'WhatsApp destination'],
+      ['messageTemplate', 'Message template'],
+      ['customMessage', 'Custom message'],
+      ['leadType', 'Lead collection method'],
+      ['leadOffer', 'Lead information requested'],
+      ['salesUrl', 'Product / sales link'],
+      ['destinationUrl', 'Destination link']
+    ]);
+    addDetailSection(container, '3. Audience', details, [
+      ['country', 'Country'],
+      ['district', 'District'],
+      ['upazila', 'Upazila'],
+      ['location', 'Area / city'],
+      ['radiusKm', 'Target radius', value => `${value} km`],
+      ['gender', 'Gender'],
+      ['ageMin', 'Age range', (_value, data) => data.ageMin != null || data.ageMax != null ? `${data.ageMin ?? '—'}–${data.ageMax ?? '—'}` : ''],
+      ['interests', 'Interests']
+    ]);
+    addDetailSection(container, '4. Schedule and budget', details, [
+      ['days', 'Duration', value => `${value} days`],
+      ['schedule', 'Schedule'],
+      ['scheduleStart', 'Start time'],
+      ['scheduleEnd', 'End time'],
+      ['dailyBudgetUsd', 'Daily budget', value => `$${Number(value).toLocaleString('en-US')}`],
+      ['dollarRate', 'Exchange rate', value => `৳${Number(value).toLocaleString('en-US')} / $1`],
+      ['totalBudgetUsd', 'Total budget (USD)', value => `$${Number(value).toLocaleString('en-US')}`],
+      ['totalBudgetBdt', 'Total budget (BDT)', value => `৳${Number(value).toLocaleString('en-US')}`]
+    ]);
+    addDetailSection(container, 'Confirmation', details, [
+      ['termsAccepted', 'Terms accepted']
+    ]);
+
+    if (!container.childElementCount) addText(container, 'p', 'No campaign details were saved.', 'muted');
+    return container;
+  }
+
   function renderOrder(order) {
     const card = document.createElement('article');
     card.className = 'order-card';
@@ -100,9 +180,7 @@
     const summary = document.createElement('summary');
     summary.textContent = 'View campaign details';
     details.append(summary);
-    const pre = document.createElement('pre');
-    pre.textContent = JSON.stringify(order.details ?? {}, null, 2);
-    details.append(pre);
+    details.append(renderCampaignDetails(order.details ?? {}));
     card.append(details);
     return card;
   }
