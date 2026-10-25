@@ -1747,6 +1747,62 @@ a,
     line-height: 1.6;
 }
 
+.home-page .existing-access-choice {
+    display: grid;
+    grid-template-columns: 20px minmax(0, 1fr);
+    align-items: start;
+    gap: 12px;
+    margin: 0 0 18px;
+    padding: 15px 16px;
+    border: 1px solid #167b9d !important;
+    border-radius: 13px;
+    background: linear-gradient(110deg, #092033, #06121a) !important;
+    cursor: pointer;
+}
+
+.home-page .existing-access-choice > input {
+    width: 18px;
+    height: 18px;
+    margin: 3px 0 0;
+    accent-color: #00bfff;
+    cursor: pointer;
+}
+
+.home-page .existing-access-choice > span {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+}
+
+.home-page .existing-access-choice strong {
+    margin: 0;
+    color: #eaf8ff !important;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.home-page .existing-access-choice small {
+    color: #a9bfce !important;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.65;
+}
+
+.home-page .existing-access-choice:focus-within {
+    outline: 2px solid #00bfff;
+    outline-offset: 2px;
+}
+
+.home-page .access-divider {
+    height: 1px;
+    margin: 16px 0;
+    background: #17627b !important;
+}
+
+.home-page #accessInstructions[hidden] {
+    display: none !important;
+}
+
 .home-page #videoPreview {
     border: 1px solid #17627b !important;
     background: #02070b !important;

@@ -6,10 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#101827">
   <title>SMMCaptain.xyz — Facebook Ads সহজেই</title>
-  <link rel="stylesheet" href="style.css?v=20261025-2">
+  <link rel="stylesheet" href="style.css?v=20261025-3">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
-  <script src="script.js?v=20261024-4" defer></script>
+  <script src="script.js?v=20261025-3" defer></script>
 </head>
 
 <body class="home-page">
@@ -54,31 +54,36 @@
             <div class="hint">যে পোস্ট/ভিডিওটি বিজ্ঞাপন দিতে চান তার লিংক দিন।</div>
           </div>
           <div class="accessbox">
-            <strong>১. প্রথমে এই Facebook আইডিতে Friend Request পাঠান</strong>
-            <div class="sub">নিচের বাটনে ক্লিক করলে Facebook প্রোফাইল খুলবে। সেখানে Friend Request পাঠান।</div>
-            <a class="primary" style="display:block;text-align:center;text-decoration:none;padding:11px;margin-top:10px"
-              id="friendRequestBtn" href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">Facebook
-              প্রোফাইল খুলুন ও Friend Request পাঠান ↗</a>
-            <div class="profile-copy"><button class="mini-btn" type="button" id="copyId">Facebook ID লিংক কপি করুন</button></div>
-            <div style="height:1px;background:#e4eaf1;margin:16px 0"></div>
-            <strong>২. এরপর আপনার পেজ থেকে Moderator / Page Access Request পাঠান</strong>
-            <div class="sub">Friend Request গ্রহণ করার পর পেজের প্রয়োজনীয় অ্যাক্সেস রিকোয়েস্ট পাঠান। বাস্তব ব্যবহারের
-              আগে এখানে আপনার যাচাইকৃত প্রোফাইল লিংক বসাতে হবে।</div>
-            <div style="margin-top:13px">
-              <strong style="font-size:13px">কীভাবে রিকোয়েস্ট পাঠাবেন? ভিডিও দেখুন</strong>
-              <div id="videoPreview"
-                style="margin-top:8px;border-radius:12px;overflow:hidden;background:#101827;min-height:150px;display:grid;place-items:center;color:white;text-align:center;padding:18px">
+            <label class="existing-access-choice" for="alreadyHasPageAccess">
+              <input type="checkbox" id="alreadyHasPageAccess" aria-controls="accessInstructions" aria-expanded="true">
+              <span><strong>আপনি কি ইতোমধ্যে Page Access দিয়েছেন?</strong><small>আগে থেকেই আমাদের Page Moderator / Access দিয়ে থাকলে টিক দিন। নতুন করে অ্যাক্সেস দেওয়ার দরকার নেই।</small></span>
+            </label>
+            <div id="accessInstructions">
+              <strong>১. প্রথমে এই Facebook আইডিতে Friend Request পাঠান</strong>
+              <div class="sub">নিচের বাটনে ক্লিক করলে Facebook প্রোফাইল খুলবে। সেখানে Friend Request পাঠান।</div>
+              <a class="primary" style="display:block;text-align:center;text-decoration:none;padding:11px;margin-top:10px"
+                id="friendRequestBtn" href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">Facebook
+                প্রোফাইল খুলুন ও Friend Request পাঠান ↗</a>
+              <div class="profile-copy"><button class="mini-btn" type="button" id="copyId">Facebook ID লিংক কপি করুন</button></div>
+              <div class="access-divider"></div>
+              <strong>২. এরপর আপনার পেজ থেকে Moderator / Page Access Request পাঠান</strong>
+              <div class="sub">Friend Request গ্রহণ করার পর পেজের প্রয়োজনীয় অ্যাক্সেস রিকোয়েস্ট পাঠান। বাস্তব ব্যবহারের
+                আগে এখানে আপনার যাচাইকৃত প্রোফাইল লিংক বসাতে হবে।</div>
+              <div style="margin-top:13px">
+                <strong style="font-size:13px">কীভাবে রিকোয়েস্ট পাঠাবেন? ভিডিও দেখুন</strong>
+                <div id="videoPreview"
+                  style="margin-top:8px;border-radius:12px;overflow:hidden;background:#101827;min-height:150px;display:grid;place-items:center;color:white;text-align:center;padding:18px">
                 <div>
                   <div style="font-size:30px">▶</div><strong style="display:block;margin:6px 0">ভিডিও
                     প্রিভিউ</strong><small style="color:#d7e0ed">অ্যাডমিন প্যানেলে নির্দেশনামূলক ভিডিওর লিংক যোগ করলে
                     এখানে ভিডিও প্লে হবে।</small>
                 </div>
+                </div>
               </div>
+              <label class="inline access-confirm" style="margin-top:13px"><input type="checkbox" id="accessConfirm"> আমি Friend Request
+                পাঠিয়েছি এবং Moderator / Page Access Request-ও পাঠিয়েছি।</label>
+              <div class="hint">পাসওয়ার্ড বা লগইন কোড কখনো শেয়ার করবেন না।</div>
             </div>
-            <label class="inline" style="margin-top:13px"><input type="checkbox" id="accessConfirm"> আমি Friend Request
-              পাঠিয়েছি এবং Moderator / Page Access Request-ও পাঠিয়েছি।</label>
-            <div class="hint">ডেমো প্রোফাইল লিংকটি এখন Facebook-এর সাধারণ পেজে যায়। লাইভ করার আগে আসল প্রোফাইল লিংক ও
-              ভিডিও বসাতে হবে। পাসওয়ার্ড বা লগইন কোড কখনো শেয়ার করবেন না।</div>
           </div>
         </section>
     <section class="card">

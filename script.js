@@ -261,6 +261,11 @@ document.querySelectorAll('input[name="channel"]').forEach(x => x.addEventListen
     updateAll()
 }));
 $('copyId').addEventListener('click', async () => { const url = $('friendRequestBtn').href; try { await navigator.clipboard.writeText(url); toast('Facebook আইডি লিংক কপি হয়েছে।') } catch (e) { toast('Facebook ID: ' + url) } });
+$('alreadyHasPageAccess').addEventListener('change', event => {
+    const alreadyHasAccess = event.currentTarget.checked;
+    $('accessInstructions').hidden = alreadyHasAccess;
+    event.currentTarget.setAttribute('aria-expanded', String(!alreadyHasAccess));
+});
 $('scrollBudget').addEventListener('click', () => $('dailyBudget').scrollIntoView({ behavior: 'smooth', block: 'center' }));
 function buildOrderDetails() {
     const country = $('country').value;
@@ -295,7 +300,7 @@ function buildOrderDetails() {
         leadOffer: $('leadOffer').value.trim(),
         salesUrl: $('salesUrl').value.trim(),
         destinationUrl: $('destinationUrl').value.trim(),
-        accessConfirmed: $('accessConfirm').checked,
+        accessConfirmed: $('alreadyHasPageAccess').checked || $('accessConfirm').checked,
         termsAccepted: $('terms').checked
     };
 }
@@ -341,7 +346,7 @@ $('campaignForm').addEventListener('submit', async event => {
     if (Number($('ageMin').value) > Number($('ageMax').value)) { toast('বয়সের রেঞ্জ ঠিক করুন।'); return; }
     if (getDaily() * getDays() < 10) { toast('মোট বিজ্ঞাপন বাজেট কমপক্ষে $১০ হতে হবে।'); return; }
     if (!/^https?:\/\//i.test($('postLink').value)) { toast('সঠিক পোস্ট/ভিডিও লিংক দিন।'); $('postLink').focus(); return; }
-    if (!$('accessConfirm').checked) { toast('ডেমো অ্যাক্সেস সংক্রান্ত নিশ্চিতকরণে টিক দিন।'); return; }
+    if (!$('alreadyHasPageAccess').checked && !$('accessConfirm').checked) { toast('অ্যাক্সেস দেওয়ার নির্দেশনা অনুসরণ করে নিশ্চিত করুন।'); return; }
     if (!getChannels().length && $('goal').value === 'messages') { toast('অন্তত একটি মেসেজ চ্যানেল নির্বাচন করুন।'); return; }
 
     const formattedPhone = getFormattedPhoneNumber();
