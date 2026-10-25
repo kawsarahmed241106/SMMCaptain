@@ -144,7 +144,7 @@ const genericAreas = { 'California': ['Los Angeles', 'San Diego', 'San Francisco
 function updateRegion() {
     const code = $('country').value, bd = code === 'BD';
     $('bangladeshLocationFields').classList.toggle('hidden', !bd);
-    if (bd) { $('district').innerHTML = '<option value="">জেলা নির্বাচন করুন</option>' + Object.keys(bdDistricts).sort((a, b) => a.localeCompare(b, 'bn')).map(x => `<option>${x}</option>`).join(''); $('upazila').innerHTML = '<option value="">আগে জেলা নির্বাচন করুন</option>'; }
+    if (bd) { const remainingDistricts = Object.keys(bdDistricts).filter(name => !['ঢাকা', 'ঢাকা মহানগর'].includes(name)).sort((a, b) => a.localeCompare(b, 'bn')); const orderedDistricts = ['ঢাকা', 'ঢাকা মহানগর', ...remainingDistricts]; $('district').innerHTML = '<option value="">জেলা নির্বাচন করুন</option>' + orderedDistricts.map(x => `<option>${x}</option>`).join(''); $('upazila').innerHTML = '<option value="">আগে জেলা নির্বাচন করুন</option>'; }
     else { const regs = genericRegions[code] || []; $('district').innerHTML = '<option value="">স্টেট / অঞ্চল (ঐচ্ছিক)</option>' + regs.map(x => `<option>${x}</option>`).join(''); $('upazila').innerHTML = '<option value="">শহর / এলাকা (ঐচ্ছিক)</option>'; }
     $('location').placeholder = bd ? 'যেমন: সাভার, আমিনবাজার, আশুলিয়া' : 'আপনার শহর বা এলাকার নাম লিখুন';
     $('sumCountry').textContent = (flags[code] || '🌍') + ' ' + (countryNames[code] || 'অন্যান্য দেশ'); updateAll();
