@@ -210,11 +210,7 @@ async function ensurePaymentFunctionSession(client) {
 }
 function updateGoal() { const g = $('goal').value; const radios = [...document.querySelectorAll('input[name="goalChoice"]')]; radios.forEach(option => option.checked = option.value === g); const selected = radios.find(option => option.checked)?.closest('.goal-option'); if (selected) { const icon = selected.querySelector('.goal-icon'); $('goalCurrentIcon').className = icon.className; $('goalCurrentIcon').textContent = icon.textContent; $('goalCurrentTitle').textContent = selected.querySelector('.goal-copy strong').textContent; $('goalCurrentDescription').textContent = selected.querySelector('.goal-copy small').textContent; $('goalToggleLabel').textContent = 'লক্ষ্য পরিবর্তন করুন⌄' } $('messagingFields').classList.toggle('hidden', g !== 'messages'); $('leadFields').classList.toggle('hidden', g !== 'leads'); $('salesFields').classList.toggle('hidden', g !== 'sales'); $('urlGoalFields').classList.toggle('hidden', !['traffic', 'awareness', 'engagement', 'views', 'app'].includes(g)); $('sumGoal').textContent = goalNames[g]; $('previewCta').textContent = g === 'messages' ? 'Send Message' : g === 'leads' ? 'Sign Up' : g === 'sales' ? 'Shop Now' : g === 'views' ? 'Watch Video' : g === 'traffic' ? 'Learn More' : 'Learn More'; $('previewButton').textContent = g === 'messages' ? 'মেসেজ পাঠান' : g === 'leads' ? 'নিবন্ধন করুন' : g === 'sales' ? 'কিনুন' : g === 'views' ? 'ভিডিও দেখুন' : 'আরও জানুন'; updateBudget() }
 function updateMessageTemplate() { $('customMessageArea').hidden = $('messageTemplate').value !== '' }
-function updateSchedule() {
-    const custom = document.querySelector('input[name="schedule"][value="custom"]').checked;
-    $('customScheduleFields').classList.toggle('hidden', !custom);
-    $('scheduleStart').required = custom; $('scheduleEnd').required = custom;
-}
+function updateSchedule() {}
 function updateWhatsAppField() { const selected = document.querySelector('input[name="channel"][value="WhatsApp"]').checked || document.querySelector('input[name="channel"][value="All"]').checked; $('whatsappNumberField').classList.toggle('hidden', !selected); $('adWhatsappNumber').required = selected }
 function updateAll() { updateWhatsAppField(); updateBudget(); updateGoal(); updateMessageTemplate(); let msg = $('customMessage').value.trim() || $('messageTemplate').value || 'আপনার পণ্য বা সার্ভিস সম্পর্কে জানতে এখনই মেসেজ করুন!'; $('previewCopy').textContent = msg; let title = $('goal').value === 'sales' ? 'আপনার পণ্য এখনই দেখুন' : $('goal').value === 'views' ? 'আমাদের ভিডিওটি দেখুন' : 'আপনার ব্যবসা আরও এগিয়ে নিন'; $('previewHeadline').textContent = title }
 // Admin settings only need to recalculate pricing; avoid coupling that refresh
@@ -289,8 +285,8 @@ function buildOrderDetails() {
         dollarRate: Number($('dollarRate').value),
         totalBudgetBdt: getDaily() * getDays() * Number($('dollarRate').value),
         schedule: document.querySelector('input[name="schedule"]:checked')?.value || 'all',
-        scheduleStart: $('scheduleStart').value,
-        scheduleEnd: $('scheduleEnd').value,
+        scheduleStart: '',
+        scheduleEnd: '',
         leadType: document.querySelector('input[name="leadType"]:checked')?.value || '',
         leadOffer: $('leadOffer').value.trim(),
         salesUrl: $('salesUrl').value.trim(),
