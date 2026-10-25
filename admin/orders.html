@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#101827">
   <title>Campaign orders | SMMCaptain Admin</title>
   <link rel="stylesheet" href="style.css?v=20261025-1">
-  <link rel="stylesheet" href="orders.css?v=20261025-3">
+  <link rel="stylesheet" href="orders.css?v=20261025-4">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
   <script src="../brand-logo.js?v=20261025-1" defer></script>
-  <script src="orders.js?v=20261025-3" defer></script>
+  <script src="orders.js?v=20261025-4" defer></script>
 </head>
 <body>
   <main class="shell">
@@ -29,5 +29,19 @@
       <p class="orders-footer" id="ordersFooter"></p>
     </section>
   </main>
+  <dialog class="delete-order-dialog" id="deleteOrderDialog" aria-labelledby="deleteOrderTitle">
+    <form id="deleteOrderForm">
+      <p class="eyebrow">PERMANENT ACTION</p>
+      <h2 id="deleteOrderTitle">Delete this order?</h2>
+      <p class="delete-order-copy">This permanently deletes order <strong id="deleteOrderLabel"></strong> and its saved details. Enter your admin password to continue.</p>
+      <label for="deleteOrderPassword">Admin password</label>
+      <input id="deleteOrderPassword" name="password" type="password" autocomplete="current-password" required>
+      <p class="delete-order-error" id="deleteOrderError" role="alert" hidden></p>
+      <div class="delete-order-actions">
+        <button class="button ghost" type="button" id="cancelDeleteOrder">Cancel</button>
+        <button class="delete-order-confirm" type="submit">Confirm delete</button>
+      </div>
+    </form>
+  </dialog>
 </body>
 </html>

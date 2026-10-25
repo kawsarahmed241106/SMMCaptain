@@ -22,11 +22,17 @@ alter table public.orders add constraint orders_status_workflow_check
   check (status in ('pending', 'processing', 'completed', 'cancelled'));
 
 grant update (status) on public.orders to authenticated;
+grant delete on public.orders to authenticated;
 drop policy if exists "Site admins can update order status" on public.orders;
 create policy "Site admins can update order status"
   on public.orders for update to authenticated
   using ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'site_admin')
   with check ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'site_admin');
+
+drop policy if exists "Site admins can delete orders" on public.orders;
+create policy "Site admins can delete orders"
+  on public.orders for delete to authenticated
+  using ((select auth.jwt() -> 'app_metadata' ->> 'role') = 'site_admin');
 
 do $$
 begin

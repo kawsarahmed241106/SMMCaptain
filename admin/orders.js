@@ -4,7 +4,15 @@
   const $ = id => document.getElementById(id);
   const status = $('ordersStatus');
   const list = $('ordersList');
+  const deleteDialog = $('deleteOrderDialog');
+  const deleteForm = $('deleteOrderForm');
+  const deletePassword = $('deleteOrderPassword');
+  const deleteOrderLabel = $('deleteOrderLabel');
+  const deleteError = $('deleteOrderError');
   let reloadSessionCleared = false;
+  let adminEmail = '';
+  let orderPendingDelete = null;
+  let deleteButtonPending = null;
 
   const setStatus = (message, isError = false) => {
     status.textContent = message;
@@ -117,6 +125,56 @@
     return container;
   }
 
+  function requestOrderDeletion(order, card, button) {
+    orderPendingDelete = { order, card };
+    deleteButtonPending = button;
+    deleteOrderLabel.textContent = order.order_number;
+    deletePassword.value = '';
+    deleteError.textContent = '';
+    deleteError.hidden = true;
+    deleteDialog.showModal();
+    deletePassword.focus();
+  }
+
+  deleteForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    if (!orderPendingDelete || !adminEmail) return;
+
+    const password = deletePassword.value;
+    const { order, card } = orderPendingDelete;
+    const submitButton = deleteForm.querySelector('[type="submit"]');
+    submitButton.disabled = true;
+    deleteButtonPending.disabled = true;
+    deleteError.hidden = true;
+    try {
+      const { error: authError } = await client.auth.signInWithPassword({ email: adminEmail, password });
+      if (authError) throw new Error('Password was not accepted. Check your admin password and try again.');
+
+      const { error } = await client.from('orders').delete().eq('id', order.id);
+      if (error) throw error;
+
+      card.remove();
+      setStatus(`Order ${order.order_number} was deleted.`);
+      $('ordersFooter').textContent = `${list.querySelectorAll('.order-card').length} order(s) shown.`;
+      deleteDialog.close();
+    } catch (error) {
+      console.error(`Could not delete ${order.order_number}.`, error);
+      deleteError.textContent = error.message || 'Could not delete this order. Check the SQL setup and admin access.';
+      deleteError.hidden = false;
+    } finally {
+      deletePassword.value = '';
+      submitButton.disabled = false;
+      if (deleteButtonPending?.isConnected) deleteButtonPending.disabled = false;
+    }
+  });
+
+  deleteDialog.addEventListener('close', () => {
+    deletePassword.value = '';
+    orderPendingDelete = null;
+    deleteButtonPending = null;
+  });
+  $('cancelDeleteOrder').addEventListener('click', () => deleteDialog.close());
+
   function renderOrder(order) {
     const card = document.createElement('article');
     card.className = 'order-card';
@@ -125,10 +183,16 @@
     const heading = document.createElement('div');
     addText(heading, 'h2', order.order_number);
     addText(heading, 'p', formatDate(order.created_at), 'order-date');
-    head.append(heading);
     const initialStatus = normaliseStatus(order.status);
     const badge = addText(head, 'span', '', 'order-status');
     updateStatusBadge(badge, initialStatus);
+    const headActions = document.createElement('div');
+    headActions.className = 'order-head-actions';
+    headActions.append(badge);
+    const deleteButton = addText(headActions, 'button', 'Delete order', 'delete-order-button');
+    deleteButton.type = 'button';
+    deleteButton.addEventListener('click', () => requestOrderDeletion(order, card, deleteButton));
+    head.append(heading, headActions);
     card.append(head);
 
     const statusControl = document.createElement('div');
@@ -207,6 +271,7 @@
         addText(list, 'a', 'Go to admin sign in →', 'orders-login-link').href = 'index.html';
         return;
       }
+      adminEmail = session.user.email || '';
       const { data, error } = await client.from('orders').select('*').order('created_at', { ascending: false }).limit(100);
       if (error) throw error;
       if (!data.length) {
