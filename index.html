@@ -6,11 +6,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="theme-color" content="#101827">
   <title>SMMCaptain.xyz — Facebook Ads সহজেই</title>
-  <link rel="stylesheet" href="style.css?v=20261025-4">
+  <link rel="stylesheet" href="style.css?v=20261025-5">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="brand-logo.js?v=20261025-1" defer></script>
-  <script src="script.js?v=20261025-13" defer></script>
+  <script src="script.js?v=20261025-15" defer></script>
 </head>
 
 <body class="home-page">
@@ -53,12 +53,6 @@
                 style="color:#d94841">*</span></label><input class="input" id="postLink" type="url"
               placeholder="https://www.facebook.com/..." required>
             <div class="hint">যে পোস্ট/ভিডিওটি বিজ্ঞাপন দিতে চান তার লিংক দিন।</div>
-            <section class="post-preview-card" aria-label="পোস্ট বা ভিডিও প্রিভিউ">
-              <div class="post-preview-heading"><span aria-hidden="true">▶</span><strong>পোস্ট / ভিডিও প্রিভিউ</strong></div>
-              <div id="postPreviewContent" class="post-preview-content" aria-live="polite">
-                <p class="post-preview-placeholder">পোস্ট বা ভিডিওর লিংক দিলে এখানে প্রিভিউ দেখা যাবে।</p>
-              </div>
-            </section>
           </div>
           <div class="accessbox">
             <label class="existing-access-choice" for="alreadyHasPageAccess">
@@ -445,9 +439,12 @@
             <div><strong>আপনার Facebook পেজ</strong><small>Sponsored · এখনই</small></div>
           </div>
           <div class="adcopy" id="previewCopy">আপনার পণ্য বা সার্ভিস সম্পর্কে জানতে এখনই মেসেজ করুন!</div>
-          <div class="advisual">
+          <div class="advisual" id="adPreviewMedia">
+            <div id="adPreviewFallback">
             <div class="adlabel">SMMCAPTAIN CAMPAIGN</div><strong id="previewHeadline">আপনার ব্যবসা আরও এগিয়ে
               নিন</strong><small>আপনার ব্র্যান্ডের জন্য বিজ্ঞাপন</small>
+            </div>
+            <div id="postPreviewContent" class="post-preview-content" aria-live="polite" hidden></div>
           </div>
           <div class="adcta"><span id="previewCta">Send Message</span><button type="button" id="previewButton">মেসেজ
               পাঠান</button></div>

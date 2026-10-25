@@ -144,12 +144,35 @@ const genericAreas = { 'California': ['Los Angeles', 'San Diego', 'San Francisco
 function updateRegion() {
     const code = $('country').value, bd = code === 'BD';
     $('bangladeshLocationFields').classList.toggle('hidden', !bd);
-    if (bd) { const remainingDistricts = Object.keys(bdDistricts).filter(name => !['ঢাকা', 'ঢাকা মহানগর'].includes(name)).sort((a, b) => a.localeCompare(b, 'bn')); const orderedDistricts = ['ঢাকা', 'ঢাকা মহানগর', ...remainingDistricts]; $('district').innerHTML = '<option value="">জেলা নির্বাচন করুন</option>' + orderedDistricts.map(x => `<option>${x}</option>`).join(''); $('upazila').innerHTML = '<option value="">আগে জেলা নির্বাচন করুন</option>'; }
+    if (bd) {
+        const firstDistricts = ['সকল জেলা', 'ঢাকা', 'ঢাকা মহানগর'];
+        const remainingDistricts = Object.keys(bdDistricts)
+            .filter(name => !firstDistricts.includes(name))
+            .sort((a, b) => a.localeCompare(b, 'bn'));
+        const orderedDistricts = [...firstDistricts, ...remainingDistricts];
+        $('district').innerHTML = '<option value="">জেলা নির্বাচন করুন</option>' + orderedDistricts.map(name => `<option>${name}</option>`).join('');
+        $('upazila').innerHTML = '<option value="">আগে জেলা নির্বাচন করুন</option>';
+    }
     else { const regs = genericRegions[code] || []; $('district').innerHTML = '<option value="">স্টেট / অঞ্চল (ঐচ্ছিক)</option>' + regs.map(x => `<option>${x}</option>`).join(''); $('upazila').innerHTML = '<option value="">শহর / এলাকা (ঐচ্ছিক)</option>'; }
     $('location').placeholder = bd ? 'যেমন: সাভার, আমিনবাজার, আশুলিয়া' : 'আপনার শহর বা এলাকার নাম লিখুন';
     $('sumCountry').textContent = (flags[code] || '🌍') + ' ' + (countryNames[code] || 'অন্যান্য দেশ'); updateAll();
 }
-function updateUpazilas() { if ($('country').value === 'BD') { const us = bdDistricts[$('district').value] || []; $('upazila').innerHTML = '<option value="">উপজেলা নির্বাচন করুন</option>' + us.map(x => `<option>${x}</option>`).join(''); } else { const a = genericAreas[$('district').value] || []; $('upazila').innerHTML = '<option value="">শহর / এলাকা (ঐচ্ছিক)</option>' + a.map(x => `<option>${x}</option>`).join(''); } }
+function updateUpazilas() {
+    if ($('country').value === 'BD') {
+        const district = $('district').value;
+        if (!district) {
+            $('upazila').innerHTML = '<option value="">আগে জেলা নির্বাচন করুন</option>';
+        } else if (district === 'সকল জেলা') {
+            $('upazila').innerHTML = '<option value="সকল উপজেলা">সকল উপজেলা</option>';
+        } else {
+            const upazilas = bdDistricts[district] || [];
+            $('upazila').innerHTML = '<option value="সকল উপজেলা">সকল উপজেলা</option>' + upazilas.map(name => `<option>${name}</option>`).join('');
+        }
+    } else {
+        const areas = genericAreas[$('district').value] || [];
+        $('upazila').innerHTML = '<option value="">শহর / এলাকা (ঐচ্ছিক)</option>' + areas.map(name => `<option>${name}</option>`).join('');
+    }
+}
 function updateAge(changedSlider) {
     const minSlider = $('ageMinSlider'), maxSlider = $('ageMaxSlider');
     let minAge = Number(minSlider.value), maxAge = Number(maxSlider.value);
@@ -426,15 +449,19 @@ function getPostPreview(link) {
 
 function renderPostPreview() {
     const content = $('postPreviewContent');
+    const media = $('adPreviewMedia');
+    const fallback = $('adPreviewFallback');
     const link = $('postLink').value.trim();
     content.replaceChildren();
     if (!link) {
-        const placeholder = document.createElement('p');
-        placeholder.className = 'post-preview-placeholder';
-        placeholder.textContent = 'পোস্ট বা ভিডিওর লিংক দিলে এখানে প্রিভিউ দেখা যাবে।';
-        content.append(placeholder);
+        media.classList.remove('has-post-preview');
+        content.hidden = true;
+        fallback.hidden = false;
         return;
     }
+    media.classList.add('has-post-preview');
+    content.hidden = false;
+    fallback.hidden = true;
 
     const preview = getPostPreview(link);
     if (!preview) {
