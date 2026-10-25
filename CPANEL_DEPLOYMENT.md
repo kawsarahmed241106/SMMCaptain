@@ -1,6 +1,6 @@
 # Deploying from cPanel Git Version Control
 
-This repository can be deployed from cPanel without FTP. The `.cpanel.yml` file copies the repository contents into `/home/smmcapta/public_html/` and excludes Git metadata, GitHub workflow files, Supabase setup files, and the deployment file itself.
+This repository can be deployed from cPanel without FTP. The `.cpanel.yml` file copies the public website files and the `admin/` and `track/` folders into `/home/smmcapta/public_html/`. It leaves Git metadata, GitHub workflow files, Supabase setup files, and deployment documentation out of the web root.
 
 ## One-time setup
 

@@ -1,4 +1,5 @@
 ---
 deployment:
   tasks:
-    - /bin/true
+    - /bin/mkdir -p /home/smmcapta/public_html
+    - /bin/cp -R .htaccess index.html payment-result.html payment-result.js script.js style.css supabase-config.js admin track /home/smmcapta/public_html/
