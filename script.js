@@ -45,21 +45,6 @@
         setText('#profileLink', settings.profileLabel);
         setLink('#profileLink', settings.profileUrl);
         setLink('#friendRequestBtn', settings.profileUrl);
-        if (settings.logoImage && /^https?:\/\//i.test(settings.logoImage)) {
-            const logo = document.querySelector('.logo');
-            if (logo) {
-                const image = document.createElement('img');
-                image.src = settings.logoImage;
-                image.alt = 'SMMCaptain logo';
-                image.addEventListener('error', () => {
-                    logo.replaceChildren(Object.assign(document.createElement('span'), {
-                        className: 'logo-fallback',
-                        textContent: 'S'
-                    }));
-                }, { once: true });
-                logo.replaceChildren(image);
-            }
-        }
         if (settings.instructionVideo && /^https?:\/\//i.test(settings.instructionVideo)) {
             const preview = document.querySelector('#videoPreview');
             if (preview) {
