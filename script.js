@@ -501,12 +501,16 @@ async function renderPostPreview() {
         try {
             const { data, error } = await client.functions.invoke('resolve-facebook-share', { body: { url: link } });
             if (sequence !== postPreviewSequence || $('postLink').value.trim() !== link) return;
-            if (error || !data?.resolved_url) {
+            if (error || (!data?.embed_url && !data?.resolved_url)) {
                 content.replaceChildren();
                 showPostPreviewMessage(content, data?.error || 'Facebook এই শেয়ার লিংক থেকে পাবলিক ভিডিও লিংক দেয়নি। ভিডিওটি পাবলিক কি না যাচাই করুন।', link);
                 return;
             }
-            preview = getPostPreview(data.resolved_url);
+            if (data.embed_url) {
+                preview = { src: data.embed_url, title: 'Facebook ভিডিও', kind: 'post', sourceUrl: link };
+            } else {
+                preview = getPostPreview(data.resolved_url);
+            }
             if (!preview || preview.resolveFacebookShare || !preview.src) {
                 content.replaceChildren();
                 showPostPreviewMessage(content, 'Facebook একটি ব্যবহারযোগ্য ভিডিও প্রিভিউ লিংক দেয়নি।', link);

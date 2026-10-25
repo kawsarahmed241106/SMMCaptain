@@ -38,6 +38,21 @@ function decodeHtmlAttribute(value: string) {
     .replace(/&#39;|&apos;/gi, "'");
 }
 
+function extractIframeUrl(html: string) {
+  const match = html.match(/<iframe\b[^>]*\bsrc=["']([^"']+)["']/i);
+  if (!match) return "";
+  return decodeHtmlAttribute(match[1]);
+}
+
+function isFacebookEmbedUrl(value: string) {
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && isFacebookHost(url.hostname) && url.pathname.startsWith("/plugins/video.php");
+  } catch {
+    return false;
+  }
+}
+
 function extractCanonicalUrl(html: string) {
   const canonical = html.match(/<link\b[^>]*rel=["']canonical["'][^>]*href=["']([^"']+)["']/i)
     ?? html.match(/<link\b[^>]*href=["']([^"']+)["'][^>]*rel=["']canonical["']/i);
@@ -117,6 +132,26 @@ Deno.serve(async (request) => {
   }
 
   try {
+    // Meta's tokenless oEmbed API supports public Facebook video URLs, including
+    // share URLs. Asking for iframe HTML gives us a safe URL to put in the preview.
+    const oembedUrl = new URL("https://graph.facebook.com/v26.0/oembed_video");
+    oembedUrl.searchParams.set("url", inputUrl.href);
+    oembedUrl.searchParams.set("maxwidth", "500");
+    oembedUrl.searchParams.set("useiframe", "true");
+    const oembedResponse = await fetch(oembedUrl, {
+      headers: { "Accept": "application/json" },
+      signal: AbortSignal.timeout(8_000),
+    });
+    if (oembedResponse.ok) {
+      const oembed = await oembedResponse.json().catch(() => null);
+      const embedUrl = typeof oembed?.html === "string" ? extractIframeUrl(oembed.html) : "";
+      if (embedUrl && isFacebookEmbedUrl(embedUrl)) {
+        return respond(200, { embed_url: embedUrl }, origin);
+      }
+    }
+
+    // Fall back to resolving redirects for URLs Meta's oEmbed endpoint does not
+    // accept. Some share links may still resolve to a canonical public permalink.
     let currentUrl = inputUrl;
     let response: Response | null = null;
     for (let redirects = 0; redirects <= 5; redirects += 1) {
