@@ -151,20 +151,17 @@
     showStatus('Defaults loaded. Click Save changes to publish them.');
   });
 
+  const loginButton = $('loginForm').querySelector('button[type="submit"]');
+  loginButton.disabled = true;
   (async () => {
-    const { data: { session } } = await bootstrapClient.auth.getSession();
-    if (session) {
-      try {
-        // Refresh persisted JWT claims so newly assigned site_admin metadata is applied.
-        const { error: refreshError } = await bootstrapClient.auth.refreshSession();
-        if (refreshError) throw refreshError;
-        loadedSettings = await loadSettings();
-        showDashboard();
-        if (keyWarning) showStatus(keyWarning, true);
-      } catch (error) {
-        $('loginError').textContent = `Could not load settings: ${error.message}`;
-        await supabase.auth.signOut();
-      }
+    try {
+      // Do not restore persisted admin credentials after a page reload.
+      const { error } = await bootstrapClient.auth.signOut({ scope: 'local' });
+      if (error) throw error;
+    } catch (error) {
+      $('loginError').textContent = `Could not clear the previous admin session: ${error.message}`;
+    } finally {
+      loginButton.disabled = false;
     }
   })();
 })();

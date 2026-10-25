@@ -4,6 +4,7 @@
   const $ = id => document.getElementById(id);
   const status = $('ordersStatus');
   const list = $('ordersList');
+  let reloadSessionCleared = false;
 
   const setStatus = (message, isError = false) => {
     status.textContent = message;
@@ -56,6 +57,15 @@
     $('ordersFooter').textContent = '';
     setStatus('Checking admin access…');
     try {
+      const navigation = performance.getEntriesByType('navigation')[0];
+      if (!reloadSessionCleared && navigation?.type === 'reload') {
+        reloadSessionCleared = true;
+        const { error } = await client.auth.signOut({ scope: 'local' });
+        if (error) throw error;
+        setStatus('You were signed out after reloading. Sign in again to view orders.', true);
+        addText(list, 'a', 'Go to admin sign in →', 'orders-login-link').href = 'index.html';
+        return;
+      }
       const { data: { session }, error: sessionError } = await client.auth.getSession();
       if (sessionError) throw sessionError;
       if (!session) {
