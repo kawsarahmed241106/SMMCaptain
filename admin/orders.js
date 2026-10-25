@@ -272,7 +272,7 @@
         return;
       }
       adminEmail = session.user.email || '';
-      const { data, error } = await client.from('orders').select('*').order('created_at', { ascending: false }).limit(100);
+      const { data, error } = await client.from('orders').select('*').eq('payment_status', 'paid').order('created_at', { ascending: false }).limit(100);
       if (error) throw error;
       if (!data.length) {
         setStatus('No orders have been submitted yet.');

@@ -132,4 +132,4 @@ end;
 $$;
 
 revoke all on function public.create_campaign_order(text, text, jsonb) from public;
-grant execute on function public.create_campaign_order(text, text, jsonb) to anon, authenticated;
+revoke all on function public.create_campaign_order(text, text, jsonb) from anon, authenticated;

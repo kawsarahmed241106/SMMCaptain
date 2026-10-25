@@ -2,13 +2,16 @@
 
 ## 1. Create the order tables and RPC
 
-Run `supabase/setup.sql` in the Supabase Dashboard SQL Editor. The script adds:
+Run `supabase/setup.sql` in the Supabase Dashboard SQL Editor. Then run `supabase/payment_setup.sql` and `supabase/payment_required_order_flow.sql` in the same SQL Editor. The payment-required migration adds:
 
-- A private `orders` table that only site admins can read.
-- A public `create_campaign_order` RPC that validates the contact information, creates a daily sequence ID such as `SC-20261020-1041`, and stores the submitted campaign details. The sequence starts at 1041 each day.
-- A daily counter so IDs remain unique when several orders arrive at the same time.
+If the existing project has already run `setup.sql` and `payment_setup.sql`, run only `payment_required_order_flow.sql` to update it.
 
-The browser can execute the RPC, but it has no direct permission to browse, update, or delete order rows.
+- A private checkout-intent table for temporary payment sessions. These are not submitted orders and are not visible to the admin orders page or order tracker.
+- A `create_campaign_checkout_intent` RPC that validates the form and calculates the amount without inserting an order.
+- A server-only finalizer that creates the numbered order only after UddoktaPay verification confirms a completed payment. Order IDs start at 1041 each day.
+- Revoked browser access to the old `create_campaign_order` RPC, which inserted orders before payment.
+
+The browser can create a temporary checkout intent, but it has no direct permission to read or edit checkout intents or order rows. Do not skip the payment-required migration; without it, the new checkout flow will not be available.
 
 ## 2. Use the admin orders page
 
@@ -16,7 +19,7 @@ Sign in at `/admin/`, then open `/admin/orders.html` or choose **View orders** i
 
 ## 3. Enable order tracking and WhatsApp alerts
 
-The setup SQL creates the `/track` lookup RPC and an `orders` insert trigger. The tracker only returns the order number, status, and submitted time; it does not expose phone numbers or campaign details. If you have already run the original setup script, run `supabase/fix_make_notification_trim.sql` once to update the existing trigger function.
+The setup SQL creates the `/track` lookup RPC and an `orders` insert trigger. The tracker only returns paid orders' number, status, and submitted time; it does not expose phone numbers or campaign details. The notification trigger runs when the paid order is finalized, not when a customer starts checkout. If you have already run the original setup script, run `supabase/fix_make_notification_trim.sql` once to update the existing trigger function.
 
 Before running `supabase/setup.sql`, enable the **Vault** extension in the Supabase Dashboard if it is not already enabled. The SQL enables `pg_net`. Then add a Vault secret named `make_order_webhook_url` and set its value to the Make custom webhook URL. Do not put this URL or the UltraMsg token in the repository.
 

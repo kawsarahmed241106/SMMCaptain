@@ -286,7 +286,7 @@ async function startUddoktaPayment(order) {
     if (!client) throw new Error('Supabase সংযোগ পাওয়া যায়নি।');
     await ensurePaymentFunctionSession(client);
     const { data, error } = await client.functions.invoke('create-uddoktapay-checkout', {
-        body: { order_id: order.order_id, checkout_token: order.checkout_token }
+        body: { checkout_id: order.checkout_id, checkout_token: order.checkout_token }
     });
     if (error) {
         let message = data?.error;
@@ -307,10 +307,11 @@ async function startUddoktaPayment(order) {
 }
 
 function showPaymentRetry(order, error) {
-    $('modalTitle').textContent = 'অর্ডার সংরক্ষিত হয়েছে';
-    $('modalDescription').textContent = `পেমেন্ট লিংক তৈরি করা যায়নি: ${error.message || 'কিছুক্ষণ পর আবার চেষ্টা করুন।'}`;
-    $('successOrderNumber').textContent = order.order_number;
-    $('successTrackLink').href = `/track/?order_id=${encodeURIComponent(order.order_number)}`;
+    $('modalTitle').textContent = 'পেমেন্ট সম্পন্ন হয়নি';
+    $('modalDescription').textContent = `পেমেন্ট লিংক তৈরি করা যায়নি: ${error.message || 'কিছুক্ষণ পর আবার চেষ্টা করুন।'} পেমেন্ট সম্পন্ন না হওয়া পর্যন্ত অর্ডার জমা হবে না।`;
+    $('successOrderNumber').textContent = '';
+    $('successOrderNumber').classList.add('hidden');
+    $('successTrackLink').classList.add('hidden');
     $('retryPaymentBtn').classList.remove('hidden');
     $('modalBack').classList.remove('hidden');
 }
@@ -331,19 +332,20 @@ $('campaignForm').addEventListener('submit', async event => {
     const button = $('submitOrderBtn');
     button.disabled = true;
     button.textContent = 'পেমেন্ট লিংক তৈরি হচ্ছে…';
+    pendingPaymentOrder = null;
     try {
         const client = window.smmSupabaseClient || window.smmSupabaseBootstrap;
         if (!client) throw new Error('Supabase সংযোগ পাওয়া যায়নি। পেজটি রিফ্রেশ করে আবার চেষ্টা করুন।');
         await ensurePaymentFunctionSession(client);
         const details = buildOrderDetails();
-        const { data, error } = await client.rpc('create_campaign_order', {
+        const { data, error } = await client.rpc('create_campaign_checkout_intent', {
             p_customer_phone: formattedPhone,
             p_ad_whatsapp: $('adWhatsappNumber').value.trim(),
             p_details: details
         });
         if (error) throw error;
         const order = Array.isArray(data) ? data[0] : data;
-        if (!order?.order_id || !order?.order_number || !order?.checkout_token) throw new Error('অর্ডার বা নিরাপদ পেমেন্ট রেফারেন্স তৈরি হয়নি।');
+        if (!order?.checkout_id || !order?.checkout_token) throw new Error('নিরাপদ পেমেন্ট রেফারেন্স তৈরি হয়নি।');
         pendingPaymentOrder = order;
         await startUddoktaPayment(order);
     } catch (error) {

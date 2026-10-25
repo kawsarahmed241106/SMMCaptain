@@ -47,8 +47,8 @@ select email, raw_app_meta_data ->> 'role' as app_role
 from auth.users
 where lower(email) = lower('smmcaptain@gmail.com');
 
--- Campaign orders are inserted through a database function so the browser can
--- submit orders without receiving permission to read or edit other customers' data.
+-- The legacy create_campaign_order routine below is revoked after creation.
+-- The payment-required migration creates orders only after a verified payment.
 create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),
   order_number text not null unique,
@@ -205,7 +205,7 @@ end;
 $$;
 
 revoke all on function public.create_campaign_order(text, text, jsonb) from public;
-grant execute on function public.create_campaign_order(text, text, jsonb) to anon, authenticated;
+revoke all on function public.create_campaign_order(text, text, jsonb) from anon, authenticated;
 
 -- Send a minimal order event to Make after the order transaction commits.
 -- Store the Make custom webhook URL in Supabase Vault as make_order_webhook_url.
@@ -287,6 +287,7 @@ as $$
     from public.orders as o
    where p_order_number ~ '^SC-[0-9]{8}-([0-9]{5}|[1-9][0-9]{3,})$'
      and o.order_number = pg_catalog.upper(pg_catalog.btrim(p_order_number))
+     and o.payment_status = 'paid'
    limit 1;
 $$;
 
