@@ -15,9 +15,9 @@ alter table public.orders
 -- Keep order status consistent whether this migration is run before or after
 -- the base setup. Existing `new` orders are displayed as Pending.
 alter table public.orders alter column status set default 'pending';
-update public.orders set status = 'pending' where status = 'new';
 alter table public.orders drop constraint if exists orders_status_check;
 alter table public.orders drop constraint if exists orders_status_workflow_check;
+update public.orders set status = 'pending' where status = 'new';
 alter table public.orders add constraint orders_status_workflow_check
   check (status in ('pending', 'processing', 'completed', 'cancelled'));
 

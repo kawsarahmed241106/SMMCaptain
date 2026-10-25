@@ -84,9 +84,9 @@ alter table public.orders
 -- Pending is the initial public order status. Convert legacy `new` rows before
 -- replacing the old constraint so this migration is safe to run more than once.
 alter table public.orders alter column status set default 'pending';
-update public.orders set status = 'pending' where status = 'new';
 alter table public.orders drop constraint if exists orders_status_check;
 alter table public.orders drop constraint if exists orders_status_workflow_check;
+update public.orders set status = 'pending' where status = 'new';
 alter table public.orders add constraint orders_status_workflow_check
   check (status in ('pending', 'processing', 'completed', 'cancelled'));
 
