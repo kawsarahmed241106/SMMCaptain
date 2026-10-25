@@ -117,7 +117,28 @@ const bdDistricts = {
     'ময়মনসিংহ': ['ময়মনসিংহ সদর', 'ভালুকা', 'ধোবাউড়া', 'ফুলবাড়ীয়া', 'গফরগাঁও', 'গৌরীপুর', 'হালুয়াঘাট', 'ঈশ্বরগঞ্জ', 'মুক্তাগাছা', 'নান্দাইল', 'ফুলপুর', 'তারাকান্দা', 'ত্রিশাল'], 'জামালপুর': ['জামালপুর সদর', 'বকশীগঞ্জ', 'দেওয়ানগঞ্জ', 'ইসলামপুর', 'মাদারগঞ্জ', 'মেলান্দহ', 'সরিষাবাড়ী'], 'নেত্রকোনা': ['নেত্রকোনা সদর', 'আটপাড়া', 'বারহাট্টা', 'দুর্গাপুর', 'খালিয়াজুরী', 'কলমাকান্দা', 'কেন্দুয়া', 'মদন', 'মোহনগঞ্জ', 'পূর্বধলা'], 'শেরপুর': ['শেরপুর সদর', 'ঝিনাইগাতী', 'নকলা', 'নালিতাবাড়ী', 'শ্রীবরদী']
 };
 const countryNames = { BD: 'বাংলাদেশ', AF: 'আফগানিস্তান', AL: 'আলবেনিয়া', DZ: 'আলজেরিয়া', AR: 'আর্জেন্টিনা', AU: 'অস্ট্রেলিয়া', AT: 'অস্ট্রিয়া', BH: 'বাহরাইন', BE: 'বেলজিয়াম', BR: 'ব্রাজিল', CA: 'কানাডা', CN: 'চীন', CY: 'সাইপ্রাস', CZ: 'চেকিয়া', DK: 'ডেনমার্ক', EG: 'মিশর', FI: 'ফিনল্যান্ড', FR: 'ফ্রান্স', DE: 'জার্মানি', GR: 'গ্রিস', HK: 'হংকং', IN: 'ভারত', ID: 'ইন্দোনেশিয়া', IR: 'ইরান', IQ: 'ইরাক', IE: 'আয়ারল্যান্ড', IL: 'ইসরায়েল', IT: 'ইতালি', JP: 'জাপান', JO: 'জর্ডান', KW: 'কুয়েত', LB: 'লেবানন', MY: 'মালয়েশিয়া', MV: 'মালদ্বীপ', MX: 'মেক্সিকো', NP: 'নেপাল', NL: 'নেদারল্যান্ডস', NZ: 'নিউজিল্যান্ড', NG: 'নাইজেরিয়া', NO: 'নরওয়ে', OM: 'ওমান', PK: 'পাকিস্তান', PH: 'ফিলিপাইন', PL: 'পোল্যান্ড', PT: 'পর্তুগাল', QA: 'কাতার', RU: 'রাশিয়া', SA: 'সৌদি আরব', SG: 'সিঙ্গাপুর', ZA: 'দক্ষিণ আফ্রিকা', KR: 'দক্ষিণ কোরিয়া', ES: 'স্পেন', LK: 'শ্রীলঙ্কা', SE: 'সুইডেন', CH: 'সুইজারল্যান্ড', TW: 'তাইওয়ান', TH: 'থাইল্যান্ড', TR: 'তুরস্ক', UA: 'ইউক্রেন', AE: 'সংযুক্ত আরব আমিরাত', GB: 'যুক্তরাজ্য', US: 'যুক্তরাষ্ট্র', VN: 'ভিয়েতনাম', OTHER: 'অন্যান্য দেশ' };
-const flags = { BD: '🇧🇩', AF: '🇦🇫', AL: '🇦🇱', DZ: '🇩🇿', AR: '🇦🇷', AU: '🇦🇺', AT: '🇦🇹', BH: '🇧🇭', BE: '🇧🇪', BR: '🇧🇷', CA: '🇨🇦', CN: '🇨🇳', CY: '🇨🇾', CZ: '🇨🇿', DK: '🇩🇰', EG: '🇪🇬', FI: '🇫🇮', FR: '🇫🇷', DE: '🇩🇪', GR: '🇬🇷', HK: '🇭🇰', IN: '🇮🇳', ID: '🇮🇩', IR: '🇮🇷', IQ: '🇮🇶', IE: '🇮🇪', IL: '🇮🇱', IT: '🇮🇹', JP: '🇯🇵', JO: '🇯🇴', KW: '🇰🇼', LB: '🇱🇧', MY: '🇲🇾', MV: '🇲🇻', MX: '🇲🇽', NP: '🇳🇵', NL: '🇳🇱', NZ: '🇳🇿', NG: '🇳🇬', NO: '🇳🇴', OM: '🇴🇲', PK: '🇵🇰', PH: '🇵🇭', PL: '🇵🇱', PT: '🇵🇹', QA: '🇶🇦', RU: '🇷🇺', SA: '🇸🇦', SG: '🇸🇬', ZA: '🇿🇦', KR: '🇰🇷', ES: '🇪🇸', LK: '🇱🇰', SE: '🇸🇪', CH: '🇨🇭', TW: '🇹🇼', TH: '🇹🇭', TR: '🇹🇷', UA: '🇺🇦', AE: '🇦🇪', GB: '🇬🇧', US: '🇺🇸', VN: '🇻🇳', OTHER: '🌍' };
+const flags = { OTHER: '🌍' };
+const countryFlag = code => [...code.toUpperCase()].map(letter => String.fromCodePoint(127397 + letter.charCodeAt(0))).join('');
+const isoCountryCodes = `AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW` .split(' ');
+const localizedCountryNames = typeof Intl !== 'undefined' && typeof Intl.DisplayNames === 'function'
+    ? new Intl.DisplayNames(['bn'], { type: 'region' })
+    : null;
+for (const code of isoCountryCodes) {
+    if (!countryNames[code]) countryNames[code] = localizedCountryNames?.of(code) || code;
+    flags[code] = countryFlag(code);
+}
+function populateCountryOptions() {
+    const select = $('country');
+    if (!select) return;
+    const orderedCodes = ['BD', ...isoCountryCodes.filter(code => code !== 'BD').sort((a, b) => countryNames[a].localeCompare(countryNames[b], 'bn'))];
+    select.replaceChildren(...orderedCodes.map(code => {
+        const option = document.createElement('option');
+        option.value = code;
+        option.textContent = `${flags[code]} ${countryNames[code]}`;
+        return option;
+    }), Object.assign(document.createElement('option'), { value: 'OTHER', textContent: '🌍 অন্যান্য দেশ' }));
+    select.value = 'BD';
+}
 const genericRegions = { US: ['Alabama', 'Alaska', 'Arizona', 'California', 'Colorado', 'Florida', 'Georgia', 'Hawaii', 'Illinois', 'Massachusetts', 'Michigan', 'New Jersey', 'New York', 'North Carolina', 'Ohio', 'Pennsylvania', 'Texas', 'Virginia', 'Washington'], IN: ['Andhra Pradesh', 'Assam', 'Bihar', 'Delhi', 'Goa', 'Gujarat', 'Haryana', 'Karnataka', 'Kerala', 'Madhya Pradesh', 'Maharashtra', 'Punjab', 'Rajasthan', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'Uttarakhand', 'West Bengal'], NP: ['Bagmati', 'Gandaki', 'Karnali', 'Koshi', 'Lumbini', 'Madhesh', 'Sudurpashchim'], GB: ['England', 'Scotland', 'Wales', 'Northern Ireland'], SA: ['Riyadh', 'Makkah', 'Madinah', 'Eastern Province', 'Asir', 'Tabuk', 'Jazan'], AE: ['Abu Dhabi', 'Dubai', 'Sharjah', 'Ajman', 'Fujairah', 'Ras Al Khaimah', 'Umm Al Quwain'], MY: ['Johor', 'Kedah', 'Kelantan', 'Kuala Lumpur', 'Melaka', 'Negeri Sembilan', 'Pahang', 'Penang', 'Perak', 'Perlis', 'Sabah', 'Sarawak', 'Selangor', 'Terengganu'], CA: ['Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Nova Scotia', 'Ontario', 'Quebec', 'Saskatchewan'], AU: ['New South Wales', 'Northern Territory', 'Queensland', 'South Australia', 'Tasmania', 'Victoria', 'Western Australia'], DE: ['Baden-Württemberg', 'Bavaria', 'Berlin', 'Brandenburg', 'Bremen', 'Hamburg', 'Hesse', 'Lower Saxony', 'Saxony', 'Thuringia'], IT: ['Lazio', 'Lombardy', 'Sicily', 'Tuscany', 'Veneto', 'Piedmont'], FR: ['Île-de-France', 'Brittany', 'Normandy', 'Occitanie', 'Provence-Alpes-Côte d’Azur'], OTHER: [] };
 const genericAreas = { 'California': ['Los Angeles', 'San Diego', 'San Francisco', 'San Jose'], 'New York': ['New York City', 'Buffalo', 'Rochester'], 'England': ['London', 'Birmingham', 'Manchester', 'Liverpool'], 'West Bengal': ['Kolkata', 'Howrah', 'Siliguri', 'Durgapur'], 'Delhi': ['New Delhi', 'Dwarka', 'Rohini'], 'Bagmati': ['Kathmandu', 'Lalitpur', 'Bhaktapur'], 'Riyadh': ['Riyadh City', 'Al Kharj', 'Diriyah'], 'Dubai': ['Downtown Dubai', 'Deira', 'Bur Dubai', 'Jumeirah'], 'Ontario': ['Toronto', 'Ottawa', 'Mississauga', 'Hamilton'], 'Berlin': ['Mitte', 'Kreuzberg', 'Charlottenburg'], 'Kuala Lumpur': ['Bukit Bintang', 'Cheras', 'Kepong'] };
 function updateRegion() {
@@ -393,4 +414,4 @@ function getFormattedPhoneNumber() {
 $('closeModal').addEventListener('click', () => $('modalBack').classList.add('hidden'));
 $('modalBack').addEventListener('click', e => { if (e.target === $('modalBack')) $('modalBack').classList.add('hidden') });
 $('previewButton').addEventListener('click', () => toast('এটি শুধু বিজ্ঞাপনের প্রিভিউ—কোনো বিজ্ঞাপন প্রকাশ হয়নি।'));
-updateAge(); updateWhatsAppField(); updateSchedule(); updateRegion(); updateGoal(); updateRadiusShortcutState();
+populateCountryOptions(); updateAge(); updateWhatsAppField(); updateSchedule(); updateRegion(); updateGoal(); updateRadiusShortcutState();
