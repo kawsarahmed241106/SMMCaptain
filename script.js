@@ -251,6 +251,8 @@ function updateAll() { updateWhatsAppField(); updateBudget(); updateGoal(); upda
 window.refreshCampaignPricing = updateBudget;
 $('ageMin').value = '18'; $('ageMax').value = '65';
 $('country').addEventListener('change', updateRegion);
+$('postLink').addEventListener('input', schedulePostPreview);
+$('postLink').addEventListener('change', renderPostPreview);
 $('goal').addEventListener('change', updateGoal);
 $('campaignForm').querySelectorAll('input[name="schedule"]').forEach(option => option.addEventListener('change', updateSchedule));
 $('ageMinSlider').addEventListener('input', () => updateAge('ageMinSlider'));
@@ -381,6 +383,90 @@ function focusFirstInvalidRequiredField(form) {
     focusAndReveal(invalid);
     invalid.reportValidity();
     return true;
+}
+
+function getPostPreview(link) {
+    let url;
+    try { url = new URL(link); } catch { return null; }
+    if (!['http:', 'https:'].includes(url.protocol)) return null;
+    url.protocol = 'https:';
+    const host = url.hostname.toLowerCase().replace(/^www\./, '');
+    const isHost = domain => host === domain || host.endsWith(`.${domain}`);
+
+    if (isHost('youtube.com') || host === 'youtu.be') {
+        const videoId = host === 'youtu.be'
+            ? url.pathname.split('/').filter(Boolean)[0]
+            : url.searchParams.get('v') || url.pathname.match(/^\/(?:shorts|embed|live)\/([\w-]{11})/)?.[1];
+        if (videoId && /^[\w-]{11}$/.test(videoId)) {
+            return { src: `https://www.youtube-nocookie.com/embed/${videoId}`, title: 'YouTube ভিডিও', kind: 'youtube' };
+        }
+    }
+
+    if (isHost('facebook.com') || host === 'fb.watch') {
+        const videoPost = /\/(?:videos?|watch|reel|reels)\//i.test(url.pathname);
+        const plugin = videoPost ? 'video.php' : 'post.php';
+        const params = new URLSearchParams({ href: url.href, show_text: 'true', width: '500', adapt_container_width: 'true' });
+        return { src: `https://www.facebook.com/plugins/${plugin}?${params}`, title: 'Facebook পোস্ট বা ভিডিও', kind: 'post' };
+    }
+
+    if (isHost('instagram.com')) {
+        const post = url.pathname.match(/^\/(p|reel|reels|tv)\/([\w-]+)/i);
+        if (post) return { src: `https://www.instagram.com/${post[1]}/${post[2]}/embed/`, title: 'Instagram পোস্ট বা Reel', kind: 'post' };
+    }
+
+    if (isHost('tiktok.com')) {
+        const videoId = url.pathname.match(/\/video\/(\d+)/)?.[1];
+        if (videoId) return { src: `https://www.tiktok.com/player/v1/${videoId}?description=1`, title: 'TikTok ভিডিও', kind: 'video' };
+    }
+    if (/^(?:vt|vm)\.tiktok\.com$/.test(host)) {
+        return { message: 'TikTok-এর সংক্ষিপ্ত লিংকটি সরাসরি প্রিভিউ করা যায় না। ভিডিওটি খুলে পূর্ণ TikTok লিংকটি কপি করে দিন।' };
+    }
+    return { message: 'এই লিংকের প্রিভিউ সমর্থিত নয়। Facebook, Instagram, TikTok বা YouTube-এর একটি পাবলিক লিংক দিন।' };
+}
+
+function renderPostPreview() {
+    const content = $('postPreviewContent');
+    const link = $('postLink').value.trim();
+    content.replaceChildren();
+    if (!link) {
+        const placeholder = document.createElement('p');
+        placeholder.className = 'post-preview-placeholder';
+        placeholder.textContent = 'পোস্ট বা ভিডিওর লিংক দিলে এখানে প্রিভিউ দেখা যাবে।';
+        content.append(placeholder);
+        return;
+    }
+
+    const preview = getPostPreview(link);
+    if (!preview) {
+        const placeholder = document.createElement('p');
+        placeholder.className = 'post-preview-placeholder';
+        placeholder.textContent = 'প্রিভিউ দেখতে একটি সঠিক পোস্ট বা ভিডিও লিংক দিন।';
+        content.append(placeholder);
+        return;
+    }
+    if (preview.message) {
+        const message = document.createElement('p');
+        message.className = 'post-preview-placeholder';
+        message.textContent = preview.message;
+        content.append(message);
+        return;
+    }
+
+    const frame = document.createElement('iframe');
+    frame.src = preview.src;
+    frame.title = preview.title;
+    frame.loading = 'lazy';
+    frame.referrerPolicy = 'strict-origin-when-cross-origin';
+    frame.allow = 'autoplay; clipboard-write; encrypted-media; picture-in-picture; fullscreen; web-share';
+    frame.allowFullscreen = true;
+    frame.className = `post-preview-frame-${preview.kind}`;
+    content.append(frame);
+}
+
+let postPreviewTimer;
+function schedulePostPreview() {
+    clearTimeout(postPreviewTimer);
+    postPreviewTimer = setTimeout(renderPostPreview, 450);
 }
 
 $('campaignForm').addEventListener('submit', async event => {
