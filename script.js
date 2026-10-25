@@ -366,24 +366,43 @@ function showPaymentRetry(order, error) {
     $('modalBack').classList.remove('hidden');
 }
 
+function focusAndReveal(control) {
+    if (!control) return;
+    const target = control.closest('.field, .card, .accessbox') || control;
+    target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    control.focus({ preventScroll: true });
+}
+
+function focusFirstInvalidRequiredField(form) {
+    const invalid = [...form.querySelectorAll('[required]')].find(control =>
+        !control.disabled && control.getClientRects().length > 0 && !control.checkValidity()
+    );
+    if (!invalid) return false;
+    focusAndReveal(invalid);
+    invalid.reportValidity();
+    return true;
+}
+
 $('campaignForm').addEventListener('submit', async event => {
     event.preventDefault();
+    if (focusFirstInvalidRequiredField(event.currentTarget)) return;
     if (!$('goal').value) {
         $('goalOptions').hidden = false;
         $('goalToggle').setAttribute('aria-expanded', 'true');
         toast('অর্ডার করার আগে একটি ক্যাম্পেইন লক্ষ্য নির্বাচন করুন।');
-        $('goalOptions').querySelector('input[name="goalChoice"]')?.focus();
+        focusAndReveal($('goalToggle'));
+        $('goalOptions').querySelector('input[name="goalChoice"]')?.focus({ preventScroll: true });
         return;
     }
-    if (Number($('ageMin').value) > Number($('ageMax').value)) { toast('বয়সের রেঞ্জ ঠিক করুন।'); return; }
-    if (getDaily() * getDays() < 10) { toast('মোট বিজ্ঞাপন বাজেট কমপক্ষে $১০ হতে হবে।'); return; }
-    if (!/^https?:\/\//i.test($('postLink').value)) { toast('সঠিক পোস্ট/ভিডিও লিংক দিন।'); $('postLink').focus(); return; }
-    if (!$('alreadyHasPageAccess').checked && !$('accessConfirm').checked) { toast('অ্যাক্সেস দেওয়ার নির্দেশনা অনুসরণ করে নিশ্চিত করুন।'); return; }
-    if (!getChannels().length && $('goal').value === 'messages') { toast('অন্তত একটি মেসেজ চ্যানেল নির্বাচন করুন।'); return; }
+    if (Number($('ageMin').value) > Number($('ageMax').value)) { toast('বয়সের রেঞ্জ ঠিক করুন।'); focusAndReveal($('ageMinSlider')); return; }
+    if (getDaily() * getDays() < 10) { toast('মোট বিজ্ঞাপন বাজেট কমপক্ষে $১০ হতে হবে।'); focusAndReveal($('dailyBudget')); return; }
+    if (!/^https?:\/\//i.test($('postLink').value)) { toast('সঠিক পোস্ট/ভিডিও লিংক দিন।'); focusAndReveal($('postLink')); return; }
+    if (!$('alreadyHasPageAccess').checked && !$('accessConfirm').checked) { toast('অ্যাক্সেস দেওয়ার নির্দেশনা অনুসরণ করে নিশ্চিত করুন।'); focusAndReveal($('accessConfirm')); return; }
+    if (!getChannels().length && $('goal').value === 'messages') { toast('অন্তত একটি মেসেজ চ্যানেল নির্বাচন করুন।'); focusAndReveal(document.querySelector('input[name="channel"]')); return; }
 
     const formattedPhone = getFormattedPhoneNumber();
     if (formattedPhone.length < 8 || formattedPhone.length > 15) {
-        toast('সঠিক WhatsApp নম্বর দিন।'); $('phone').focus(); return;
+        toast('সঠিক WhatsApp নম্বর দিন।'); focusAndReveal($('phone')); return;
     }
 
     const button = $('submitOrderBtn');
