@@ -4,6 +4,7 @@
   const $ = id => document.getElementById(id);
   const status = $('ordersStatus');
   const list = $('ordersList');
+  const statusNav = $('ordersStatusNav');
   const deleteDialog = $('deleteOrderDialog');
   const deleteForm = $('deleteOrderForm');
   const deletePassword = $('deleteOrderPassword');
@@ -14,6 +15,7 @@
   let orderPendingDelete = null;
   let deleteButtonPending = null;
   let orderGroups = new Map();
+  let activeOrderStatus = null;
 
   const setStatus = (message, isError = false) => {
     status.textContent = message;
@@ -75,10 +77,25 @@
     if (!group) return;
     const count = group.orders.querySelectorAll('.order-card').length;
     group.count.textContent = String(count);
+    group.tab.setAttribute('aria-label', `${group.label}, ${count} order${count === 1 ? '' : 's'}`);
     group.section.hidden = count === 0;
   }
 
-  function moveOrderToStatusGroup(card, value) {
+  function activateOrderStatus(value, focusTab = false) {
+    const selected = orderGroups.get(value);
+    if (!selected) return;
+    activeOrderStatus = value;
+    orderGroups.forEach((group, key) => {
+      const isActive = key === value;
+      group.tab.setAttribute('aria-selected', String(isActive));
+      group.tab.tabIndex = isActive ? 0 : -1;
+      group.tab.classList.toggle('is-active', isActive);
+      group.section.hidden = !isActive || group.orders.querySelectorAll('.order-card').length === 0;
+    });
+    if (focusTab) selected.tab.focus();
+  }
+
+  function moveOrderToStatusGroup(card, value, activate = true) {
     const statusValue = orderStatuses.some(item => item.value === normaliseStatus(value))
       ? normaliseStatus(value)
       : 'pending';
@@ -88,25 +105,50 @@
     target.orders.append(card);
     updateOrderGroup(previous && Array.from(orderGroups.values()).find(group => group.section === previous));
     updateOrderGroup(target);
+    if (activate) activateOrderStatus(statusValue);
   }
 
   function createOrderGroups() {
     list.replaceChildren();
+    statusNav.replaceChildren();
     orderGroups = new Map();
+    activeOrderStatus = null;
     orderStatuses.forEach(item => {
+      const tab = document.createElement('button');
+      tab.className = `order-status-tab order-tab-${item.value}`;
+      tab.type = 'button';
+      tab.id = `orders-tab-${item.value}`;
+      tab.setAttribute('role', 'tab');
+      tab.setAttribute('aria-selected', 'false');
+      tab.setAttribute('aria-controls', `orders-panel-${item.value}`);
+      tab.tabIndex = -1;
+      addText(tab, 'span', item.label, 'order-status-tab-label');
+      const count = addText(tab, 'span', '0', 'order-group-count');
+      tab.addEventListener('click', () => activateOrderStatus(item.value));
+      tab.addEventListener('keydown', event => {
+        const currentIndex = orderStatuses.findIndex(statusItem => statusItem.value === item.value);
+        let nextIndex = currentIndex;
+        if (event.key === 'ArrowRight') nextIndex = (currentIndex + 1) % orderStatuses.length;
+        else if (event.key === 'ArrowLeft') nextIndex = (currentIndex - 1 + orderStatuses.length) % orderStatuses.length;
+        else if (event.key === 'Home') nextIndex = 0;
+        else if (event.key === 'End') nextIndex = orderStatuses.length - 1;
+        else return;
+        event.preventDefault();
+        const nextStatus = orderStatuses[nextIndex].value;
+        activateOrderStatus(nextStatus, true);
+      });
       const section = document.createElement('section');
       section.className = `order-status-group order-group-${item.value}`;
+      section.id = `orders-panel-${item.value}`;
+      section.setAttribute('role', 'tabpanel');
+      section.setAttribute('aria-labelledby', tab.id);
       section.hidden = true;
-      const header = document.createElement('header');
-      header.className = 'order-status-group-header';
-      const title = addText(header, 'h2', item.label);
-      const count = addText(header, 'span', '0', 'order-group-count');
-      count.setAttribute('aria-label', `${item.label} order count`);
       const orders = document.createElement('div');
       orders.className = 'order-status-group-list';
-      section.append(header, orders);
+      section.append(orders);
+      statusNav.append(tab);
       list.append(section);
-      orderGroups.set(item.value, { section, title, count, orders });
+      orderGroups.set(item.value, { section, tab, label: item.label, count, orders });
     });
   }
 
@@ -220,7 +262,12 @@
 
       const groupSection = card.closest('.order-status-group');
       card.remove();
-      updateOrderGroup(Array.from(orderGroups.values()).find(group => group.section === groupSection));
+      const group = Array.from(orderGroups.values()).find(item => item.section === groupSection);
+      updateOrderGroup(group);
+      if (group?.count.textContent === '0') {
+        const nextGroup = Array.from(orderGroups.values()).find(item => Number(item.count.textContent) > 0);
+        if (nextGroup) activateOrderStatus(Array.from(orderGroups.entries()).find(([, item]) => item === nextGroup)?.[0]);
+      }
       setStatus(`Order ${order.order_number} was deleted.`);
       $('ordersFooter').textContent = `${list.querySelectorAll('.order-card').length} order(s) shown.`;
       deleteDialog.close();
@@ -347,6 +394,7 @@
     $('refreshOrders').disabled = true;
     list.replaceChildren();
     $('ordersFooter').textContent = '';
+    statusNav.replaceChildren();
     setStatus('Checking admin access…');
     try {
       const navigation = performance.getEntriesByType('navigation')[0];
@@ -372,7 +420,9 @@
       }
       setStatus(`Showing ${data.length} most recent order${data.length === 1 ? '' : 's'}.`);
       createOrderGroups();
-      data.forEach(order => moveOrderToStatusGroup(renderOrder(order), order.status));
+      data.forEach(order => moveOrderToStatusGroup(renderOrder(order), order.status, false));
+      const firstNonEmpty = Array.from(orderGroups.entries()).find(([, group]) => Number(group.count.textContent) > 0);
+      activateOrderStatus(firstNonEmpty?.[0] || orderStatuses[0].value);
       $('ordersFooter').textContent = 'Showing up to 100 recent orders.';
     } catch (error) {
       console.error('Could not load campaign orders.', error);

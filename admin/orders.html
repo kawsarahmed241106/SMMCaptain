@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#101827">
   <title>Campaign orders | SMMCaptain Admin</title>
   <link rel="stylesheet" href="style.css?v=20261025-1">
-  <link rel="stylesheet" href="orders.css?v=20261026-6">
+  <link rel="stylesheet" href="orders.css?v=20261026-7">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
   <script src="../brand-logo.js?v=20261025-1" defer></script>
-  <script src="orders.js?v=20261026-7" defer></script>
+  <script src="orders.js?v=20261026-8" defer></script>
 </head>
 <body>
   <main class="shell">
@@ -25,6 +25,7 @@
         <button class="button ghost" type="button" id="refreshOrders">Refresh</button>
       </div>
       <div class="notice" id="ordersStatus" role="status">Checking admin access…</div>
+      <nav class="order-status-nav" id="ordersStatusNav" role="tablist" aria-label="Filter orders by status"></nav>
       <div class="orders-list" id="ordersList"></div>
       <p class="orders-footer" id="ordersFooter"></p>
     </section>
