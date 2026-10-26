@@ -1589,7 +1589,13 @@ a,
 }
 
 .home-page .hero-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: clamp(24px, 6vw, 80px);
+}
+
+.home-page .hero-inner.has-order-guide {
+    grid-template-columns: minmax(0, 1.08fr) minmax(280px, .92fr);
 }
 
 .home-page .eyebrow {
@@ -1614,9 +1620,12 @@ a,
 }
 
 .home-page .hero-order-guide {
-    width: min(100%, 540px);
-    margin-top: 22px;
+    width: 100%;
+    max-width: 560px;
+    margin: 0;
 }
+
+.home-page .hero-guide-column { min-width: 0; }
 
 .home-page .hero-order-guide[hidden] {
     display: none;
@@ -1657,6 +1666,9 @@ a,
 .home-page .hero-pill {
     flex: 0 0 auto;
     min-width: 205px;
+    width: fit-content;
+    max-width: 100%;
+    margin-top: 23px;
     padding: 19px 22px;
     border: 1px solid #00bfff88 !important;
     border-radius: 18px;
@@ -2057,6 +2069,10 @@ a,
 }
 
 @media (max-width: 720px) {
+    .home-page .hero-inner.has-order-guide {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
     .home-page .container {
         grid-template-columns: minmax(0, 1fr);
         max-width: 640px;

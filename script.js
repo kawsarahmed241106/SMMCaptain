@@ -16,7 +16,7 @@
         setText('.topnote', settings.topNote);
         setText('.eyebrow', settings.heroEyebrow);
         setText('.hero h1', settings.heroTitle);
-        setText('.hero-inner > div:first-child > p', settings.heroDescription);
+        setText('.hero-copy > p', settings.heroDescription);
         if (typeof settings.orderGuideVideo === 'string' && settings.orderGuideVideo.trim()) {
             const guide = document.querySelector('#heroOrderGuide');
             const media = document.querySelector('#heroOrderGuideMedia');
@@ -47,6 +47,7 @@
                         player.loading = 'lazy';
                         media.replaceChildren(player);
                         guide.hidden = false;
+                        document.querySelector('.hero-inner')?.classList.add('has-order-guide');
                     }
                 }
             } catch (error) {
