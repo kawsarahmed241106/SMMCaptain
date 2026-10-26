@@ -59,3 +59,7 @@ where jobname = 'campaign-order-duration-timers';
 ```
 
 The job must remain active for reminders and automatic completion to run. Supabase Cron supports sub-minute schedules on current PostgreSQL versions; the job polls every 10 seconds, then Make/UltraMsg network delivery time is additional.
+
+### Temporary Make test button
+
+To test the expiry route without changing the order timer or marking its real reminder as sent, run `supabase/test_expiry_reminder.sql` in SQL Editor. Admin orders then shows **Send test expiry reminder** on each paid order. It sends a real WhatsApp test through the existing Make `expiry_reminder` route. Remove the temporary UI button after testing; drop the helper RPC using the statement commented at the top of that SQL file.

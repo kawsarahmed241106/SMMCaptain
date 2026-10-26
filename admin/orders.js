@@ -264,6 +264,26 @@
     });
     card.append(statusControl);
     statusControl.append(statusLabel, statusSelect, saveMessage);
+    const testReminderButton = addText(statusControl, 'button', 'Send test expiry reminder', 'test-reminder-button');
+    testReminderButton.type = 'button';
+    testReminderButton.setAttribute('aria-label', `Send a test expiry reminder to ${order.order_number}`);
+    testReminderButton.addEventListener('click', async () => {
+      if (!window.confirm(`Send a real test WhatsApp expiry reminder to the customer for ${order.order_number}?`)) return;
+      testReminderButton.disabled = true;
+      saveMessage.textContent = 'Queueing test reminder…';
+      saveMessage.classList.remove('is-error');
+      try {
+        const { data, error } = await client.rpc('send_test_campaign_order_expiry_reminder', { p_order_id: order.id });
+        if (error) throw error;
+        saveMessage.textContent = `Test reminder queued for Make (${data?.request_id ?? 'request accepted'}). Check Make/UltraMsg delivery.`;
+      } catch (error) {
+        console.error(`Could not queue a test reminder for ${order.order_number}.`, error);
+        saveMessage.textContent = error.message || 'Could not queue the test reminder.';
+        saveMessage.classList.add('is-error');
+      } finally {
+        testReminderButton.disabled = false;
+      }
+    });
 
     const contact = document.createElement('div');
     contact.className = 'order-contact';
