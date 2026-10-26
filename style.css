@@ -2270,10 +2270,28 @@ a,
     display: none;
 }
 
-.site-notice marquee {
-    display: block;
-    max-width: 1240px;
-    margin: 0 auto;
+.site-notice-track {
+    display: flex;
+    width: max-content;
+    animation: site-notice-right-to-left var(--notice-duration, 30s) linear infinite;
+    will-change: transform;
+}
+
+.site-notice-copy {
+    flex: 0 0 auto;
+    padding-right: 3rem;
+    white-space: nowrap;
+}
+
+@keyframes site-notice-right-to-left {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+}
+
+/* The owner explicitly enables this ticker, so keep it moving even when the
+   browser's general reduced-motion rule shortens page animations. */
+.home-page .site-notice-track {
+    animation-duration: var(--notice-duration, 30s) !important;
 }
 
 .site-support-overlay {

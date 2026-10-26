@@ -2,8 +2,8 @@
   'use strict';
 
   const bar = document.querySelector('[data-site-notice]');
-  const marquee = bar?.querySelector('[data-site-notice-text]');
-  if (!bar || !marquee) return;
+  const track = bar?.querySelector('[data-site-notice-text]');
+  if (!bar || !track) return;
 
   async function loadNotice() {
     const client = window.smmSupabaseBootstrap;
@@ -20,9 +20,15 @@
       : '';
     if (!message) return;
 
-    marquee.textContent = message;
-    marquee.setAttribute('direction', 'left');
-    marquee.setAttribute('loop', '-1');
+    const primaryCopy = document.createElement('span');
+    primaryCopy.className = 'site-notice-copy';
+    primaryCopy.textContent = message;
+    const repeatedCopy = document.createElement('span');
+    repeatedCopy.className = 'site-notice-copy';
+    repeatedCopy.textContent = message;
+    repeatedCopy.setAttribute('aria-hidden', 'true');
+    track.replaceChildren(primaryCopy, repeatedCopy);
+    track.style.setProperty('--notice-duration', `${Math.max(18, Math.min(48, message.length * 0.4))}s`);
     bar.hidden = false;
   }
 
