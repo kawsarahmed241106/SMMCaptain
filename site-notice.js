@@ -21,10 +21,9 @@
     if (!message) return;
 
     marquee.textContent = message;
+    marquee.setAttribute('direction', 'left');
+    marquee.setAttribute('loop', '-1');
     bar.hidden = false;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      marquee.stop?.();
-    }
   }
 
   loadNotice().catch(error => console.warn('Website notice could not be loaded.', error));
