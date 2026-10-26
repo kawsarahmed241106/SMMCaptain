@@ -2196,6 +2196,31 @@ a,
     }
 }
 
+/* Admin-managed announcement ribbon. */
+.site-notice {
+    position: relative;
+    z-index: 2;
+    overflow: hidden;
+    padding: 11px 18px;
+    border-bottom: 1px solid #00bfff70;
+    background: linear-gradient(100deg, #071522, #0b2030 50%, #071522);
+    color: #e9f7ff;
+    font-family: 'DM Sans', 'Noto Sans Bengali', system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 650;
+    line-height: 1.6;
+}
+
+.site-notice[hidden] {
+    display: none;
+}
+
+.site-notice marquee {
+    display: block;
+    max-width: 1240px;
+    margin: 0 auto;
+}
+
 /* Keep the layered age range inputs transparent so they do not cover the track. */
 .home-page .age-range-row {
     grid-template-columns: 48px minmax(0, 1fr) 58px;

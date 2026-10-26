@@ -17,6 +17,7 @@
     instructionVideo: '',
     author_phone: '+8801843161825',
     author_country_code: '+880',
+    noticeText: '',
     supabasePublishableKey: window.smmSupabaseBootstrapKey
   };
   const $ = (id) => document.getElementById(id);
