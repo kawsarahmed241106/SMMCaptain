@@ -4,9 +4,18 @@
   const $ = id => document.getElementById(id);
   const reviewList = $('reviewList');
   const reviewForm = $('reviewForm');
+  const reviewToggle = $('reviewToggle');
   const reviewStatus = $('reviewStatus');
   const submitButton = $('submitReview');
   if (!reviewList || !reviewForm) return;
+
+  reviewToggle?.addEventListener('click', () => {
+    const willOpen = reviewForm.hidden;
+    reviewForm.hidden = !willOpen;
+    reviewToggle.setAttribute('aria-expanded', String(willOpen));
+    reviewToggle.textContent = willOpen ? 'রিভিউ ফর্ম বন্ধ করুন' : 'আপনার রিভিউ দিন';
+    if (willOpen) $('reviewWhatsapp').focus();
+  });
 
   async function getClient() {
     const bootstrap = window.smmSupabaseBootstrap;
