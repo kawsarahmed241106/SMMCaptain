@@ -10,6 +10,7 @@
     heroEyebrow: 'সহজ অনলাইন বিজ্ঞাপন',
     heroTitle: 'আপনার ব্যবসার জন্য বিজ্ঞাপন দিন, সহজ বাংলায়',
     heroDescription: 'পোস্ট বা ভিডিওর লিংক দিন, লক্ষ্য ও অডিয়েন্স বেছে নিন, বাজেট দেখুন—তারপর অর্ডারের তথ্য জমা দিন।',
+    orderGuideVideo: '',
     dollarRate: 150,
     exchangeRateNote: 'পেমেন্টের আগে যাচাই করুন',
     profileUrl: 'https://www.facebook.com/',
@@ -118,13 +119,19 @@
     }
     data.author_phone = `+${authorDigits}`;
     data.author_country_code = selectedCountryCode;
-    for (const key of ['profileUrl', 'logoImage', 'instructionVideo']) {
+    for (const key of ['profileUrl', 'logoImage', 'instructionVideo', 'orderGuideVideo']) {
       if (data[key] && !/^https?:\/\//i.test(data[key])) {
         form.elements.namedItem(key).setCustomValidity('Enter a valid URL starting with http:// or https://');
         form.elements.namedItem(key).reportValidity();
         form.elements.namedItem(key).setCustomValidity('');
         return;
       }
+    }
+    if (data.orderGuideVideo && !/^https:\/\//i.test(data.orderGuideVideo)) {
+      form.elements.namedItem('orderGuideVideo').setCustomValidity('Use a secure video link starting with https://');
+      form.elements.namedItem('orderGuideVideo').reportValidity();
+      form.elements.namedItem('orderGuideVideo').setCustomValidity('');
+      return;
     }
     if (!/^sb_publishable_[A-Za-z0-9_-]+$/.test(data.supabasePublishableKey || '')) {
       form.elements.namedItem('supabasePublishableKey').setCustomValidity('Use a Supabase publishable key (sb_publishable_…). Secret and service-role keys are not accepted.');

@@ -17,6 +17,42 @@
         setText('.eyebrow', settings.heroEyebrow);
         setText('.hero h1', settings.heroTitle);
         setText('.hero-inner > div:first-child > p', settings.heroDescription);
+        if (typeof settings.orderGuideVideo === 'string' && settings.orderGuideVideo.trim()) {
+            const guide = document.querySelector('#heroOrderGuide');
+            const media = document.querySelector('#heroOrderGuideMedia');
+            try {
+                const url = new URL(settings.orderGuideVideo.trim());
+                if (url.protocol === 'https:' && guide && media) {
+                    const host = url.hostname.toLowerCase().replace(/^www\./, '');
+                    const youtubeId = host === 'youtu.be'
+                        ? url.pathname.split('/').filter(Boolean)[0]
+                        : ['youtube.com', 'm.youtube.com', 'youtube-nocookie.com'].includes(host)
+                            ? url.searchParams.get('v') || url.pathname.match(/^\/(?:shorts|embed|live)\/([\w-]{11})/)?.[1]
+                            : null;
+                    let player;
+                    if (youtubeId && /^[\w-]{11}$/.test(youtubeId)) {
+                        player = document.createElement('iframe');
+                        player.src = `https://www.youtube-nocookie.com/embed/${youtubeId}`;
+                        player.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+                        player.allowFullscreen = true;
+                    } else if (/\.(?:mp4|webm|ogg)$/i.test(url.pathname)) {
+                        player = document.createElement('video');
+                        player.src = url.href;
+                        player.controls = true;
+                        player.playsInline = true;
+                        player.preload = 'metadata';
+                    }
+                    if (player) {
+                        player.title = 'অর্ডার করার নিয়ম';
+                        player.loading = 'lazy';
+                        media.replaceChildren(player);
+                        guide.hidden = false;
+                    }
+                }
+            } catch (error) {
+                console.warn('Order guide video URL is invalid.', error);
+            }
+        }
         if (Number(settings.dollarRate) >= 1) {
             const rateInput = document.querySelector('#dollarRate');
             if (rateInput) {
