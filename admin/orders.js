@@ -353,16 +353,14 @@
       if (!reloadSessionCleared && navigation?.type === 'reload') {
         reloadSessionCleared = true;
         const { error } = await client.auth.signOut({ scope: 'local' });
-        if (error) throw error;
-        setStatus('You were signed out after reloading. Sign in again to view orders.', true);
-        addText(list, 'a', 'Go to admin sign in →', 'orders-login-link').href = 'index.html';
+        if (error) console.warn('Could not clear the previous admin session before redirecting.', error);
+        window.location.replace('index.html?next=orders.html');
         return;
       }
       const { data: { session }, error: sessionError } = await client.auth.getSession();
       if (sessionError) throw sessionError;
       if (!session) {
-        setStatus('Sign in on the admin page first, then open this page again.', true);
-        addText(list, 'a', 'Go to admin sign in →', 'orders-login-link').href = 'index.html';
+        window.location.replace('index.html?next=orders.html');
         return;
       }
       adminEmail = session.user.email || '';

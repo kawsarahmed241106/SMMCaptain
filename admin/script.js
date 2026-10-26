@@ -86,6 +86,11 @@
       });
       if (error) throw error;
       loadedSettings = await loadSettings();
+      const nextPage = new URLSearchParams(window.location.search).get('next');
+      if (nextPage === 'orders.html') {
+        window.location.replace('orders.html');
+        return;
+      }
       showDashboard();
       if (keyWarning) showStatus(keyWarning, true);
     } catch (error) {
