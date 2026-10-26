@@ -13,6 +13,7 @@
   let adminEmail = '';
   let orderPendingDelete = null;
   let deleteButtonPending = null;
+  let orderGroups = new Map();
 
   const setStatus = (message, isError = false) => {
     status.textContent = message;
@@ -67,6 +68,45 @@
       const row = document.createElement('p');
       row.textContent = `${label}: ${formatDate(value)}`;
       section.append(row);
+    });
+  }
+
+  function updateOrderGroup(group) {
+    if (!group) return;
+    const count = group.orders.querySelectorAll('.order-card').length;
+    group.count.textContent = String(count);
+    group.section.hidden = count === 0;
+  }
+
+  function moveOrderToStatusGroup(card, value) {
+    const statusValue = orderStatuses.some(item => item.value === normaliseStatus(value))
+      ? normaliseStatus(value)
+      : 'pending';
+    const target = orderGroups.get(statusValue);
+    const previous = card.closest('.order-status-group');
+    if (!target) return;
+    target.orders.append(card);
+    updateOrderGroup(previous && Array.from(orderGroups.values()).find(group => group.section === previous));
+    updateOrderGroup(target);
+  }
+
+  function createOrderGroups() {
+    list.replaceChildren();
+    orderGroups = new Map();
+    orderStatuses.forEach(item => {
+      const section = document.createElement('section');
+      section.className = `order-status-group order-group-${item.value}`;
+      section.hidden = true;
+      const header = document.createElement('header');
+      header.className = 'order-status-group-header';
+      const title = addText(header, 'h2', item.label);
+      const count = addText(header, 'span', '0', 'order-group-count');
+      count.setAttribute('aria-label', `${item.label} order count`);
+      const orders = document.createElement('div');
+      orders.className = 'order-status-group-list';
+      section.append(header, orders);
+      list.append(section);
+      orderGroups.set(item.value, { section, title, count, orders });
     });
   }
 
@@ -178,7 +218,9 @@
       const { error } = await client.from('orders').delete().eq('id', order.id);
       if (error) throw error;
 
+      const groupSection = card.closest('.order-status-group');
       card.remove();
+      updateOrderGroup(Array.from(orderGroups.values()).find(group => group.section === groupSection));
       setStatus(`Order ${order.order_number} was deleted.`);
       $('ordersFooter').textContent = `${list.querySelectorAll('.order-card').length} order(s) shown.`;
       deleteDialog.close();
@@ -252,6 +294,7 @@
         Object.assign(order, data);
         updateStatusBadge(badge, nextStatus);
         renderOrderTimer(card, order);
+        moveOrderToStatusGroup(card, nextStatus);
         saveMessage.textContent = 'Status saved';
       } catch (error) {
         console.error(`Could not update ${order.order_number}.`, error);
@@ -330,7 +373,8 @@
         return;
       }
       setStatus(`Showing ${data.length} most recent order${data.length === 1 ? '' : 's'}.`);
-      data.forEach(order => list.append(renderOrder(order)));
+      createOrderGroups();
+      data.forEach(order => moveOrderToStatusGroup(renderOrder(order), order.status));
       $('ordersFooter').textContent = 'Showing up to 100 recent orders.';
     } catch (error) {
       console.error('Could not load campaign orders.', error);
