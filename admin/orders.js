@@ -19,6 +19,7 @@
 
   const setStatus = (message, isError = false) => {
     status.textContent = message;
+    status.hidden = !message;
     status.classList.toggle('notice-error', isError);
   };
   const addText = (parent, tag, text, className) => {
@@ -418,7 +419,7 @@
         setStatus('No orders have been submitted yet.');
         return;
       }
-      setStatus(`Showing ${data.length} most recent order${data.length === 1 ? '' : 's'}.`);
+      setStatus('');
       createOrderGroups();
       data.forEach(order => moveOrderToStatusGroup(renderOrder(order), order.status, false));
       const firstNonEmpty = Array.from(orderGroups.entries()).find(([, group]) => Number(group.count.textContent) > 0);
