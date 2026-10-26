@@ -25,19 +25,6 @@
     result.append(text);
   };
 
-  const addRow = (label, value) => {
-    const row = document.createElement('div');
-    row.className = 'track-result-row';
-    const key = document.createElement('span');
-    key.className = 'track-result-label';
-    key.textContent = label;
-    const data = document.createElement('span');
-    data.className = 'track-result-value';
-    data.textContent = value;
-    row.append(key, data);
-    result.append(row);
-  };
-
   async function getClient() {
     const bootstrap = window.smmSupabaseBootstrap;
     if (!bootstrap) throw new Error('Supabase সংযোগ পাওয়া যায়নি।');
@@ -55,9 +42,17 @@
   }
 
   async function lookupOrder(value) {
-    const orderNumber = value.trim().toUpperCase();
-    if (!/^SC-\d{8}-(?:\d{5}|[1-9]\d{3,})$/.test(orderNumber)) {
+    const searchValue = value.trim();
+    const orderNumber = searchValue.toUpperCase();
+    const isOrderId = /^SC-/i.test(searchValue);
+    const phoneDigits = searchValue.replace(/\D/g, '');
+    if (isOrderId && !/^SC-\d{8}-(?:\d{5}|[1-9]\d{3,})$/.test(orderNumber)) {
       showMessage('সঠিক অর্ডার আইডি লিখুন। উদাহরণ: SC-20261024-1041', true);
+      input.focus();
+      return;
+    }
+    if (!isOrderId && (phoneDigits.length < 8 || phoneDigits.length > 15)) {
+      showMessage('সঠিক অর্ডার আইডি অথবা ৮–১৫ সংখ্যার যোগাযোগ নম্বর লিখুন।', true);
       input.focus();
       return;
     }
@@ -67,11 +62,11 @@
     showMessage('অর্ডারের তথ্য খোঁজা হচ্ছে…');
     try {
       const client = await getClient();
-      const { data, error } = await client.rpc('track_campaign_order', { p_order_number: orderNumber });
+      const { data, error } = await client.rpc('track_campaign_orders', { p_search: searchValue });
       if (error) throw error;
-      const order = Array.isArray(data) ? data[0] : data;
-      if (!order?.order_number) {
-        showMessage('এই আইডিতে কোনো অর্ডার পাওয়া যায়নি। আইডিটি আবার যাচাই করুন।', true);
+      const orders = Array.isArray(data) ? data : data ? [data] : [];
+      if (!orders.length) {
+        showMessage(isOrderId ? 'এই আইডিতে কোনো পেইড অর্ডার পাওয়া যায়নি। আইডিটি আবার যাচাই করুন।' : 'এই নম্বরে কোনো পেইড অর্ডার পাওয়া যায়নি। নম্বরটি যাচাই করুন।', true);
         return;
       }
 
@@ -80,13 +75,29 @@
       result.hidden = false;
       const heading = document.createElement('p');
       heading.className = 'track-result-title';
-      heading.textContent = 'অর্ডার পাওয়া গেছে';
+      heading.textContent = orders.length === 1 ? 'অর্ডার পাওয়া গেছে' : `আপনার অর্ডারসমূহ (${orders.length})`;
       result.append(heading);
-      addRow('অর্ডার আইডি', order.order_number);
-      addRow('অবস্থা', statuses[order.status] || statuses.pending);
-      addRow('জমা দেওয়ার সময়', new Intl.DateTimeFormat('bn-BD', {
+      const formatter = new Intl.DateTimeFormat('bn-BD', {
         dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Dhaka'
-      }).format(new Date(order.created_at)) + ' (বাংলাদেশ সময়)');
+      });
+      orders.forEach(order => {
+        const card = document.createElement('article');
+        card.className = 'track-order-item';
+        const top = document.createElement('div');
+        top.className = 'track-order-top';
+        const id = document.createElement('strong');
+        id.className = 'track-order-number';
+        id.textContent = order.order_number;
+        const status = document.createElement('span');
+        status.className = `track-order-status status-${order.status || 'pending'}`;
+        status.textContent = statuses[order.status] || statuses.pending;
+        top.append(id, status);
+        const date = document.createElement('p');
+        date.className = 'track-order-date';
+        date.textContent = `জমা দেওয়ার সময়: ${formatter.format(new Date(order.created_at))} (বাংলাদেশ সময়)`;
+        card.append(top, date);
+        result.append(card);
+      });
     } catch (error) {
       console.error('Could not track the order.', error);
       showMessage('অর্ডারের তথ্য আনা যায়নি। কিছুক্ষণ পর আবার চেষ্টা করুন।', true);
@@ -101,9 +112,10 @@
     lookupOrder(input.value);
   });
 
-  const initialOrder = new URLSearchParams(window.location.search).get('order_id');
-  if (initialOrder) {
-    input.value = initialOrder;
-    lookupOrder(initialOrder);
+  const params = new URLSearchParams(window.location.search);
+  const initialSearch = params.get('order_id') || params.get('phone');
+  if (initialSearch) {
+    input.value = initialSearch;
+    lookupOrder(initialSearch);
   }
 })();
