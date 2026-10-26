@@ -18,6 +18,9 @@
     instructionVideo: '',
     author_phone: '+8801843161825',
     author_country_code: '+880',
+    supportWhatsapp: '8801300400618',
+    supportMessengerLink: 'https://m.me/Smmcaptainsite',
+    supportTelegramLink: 'https://t.me/Smmcaptainsite',
     noticeText: '',
     supabasePublishableKey: window.smmSupabaseBootstrapKey
   };
@@ -119,6 +122,33 @@
     }
     data.author_phone = `+${authorDigits}`;
     data.author_country_code = selectedCountryCode;
+    data.supportWhatsapp = (data.supportWhatsapp || '').replace(/\D/g, '');
+    if (data.supportWhatsapp && (data.supportWhatsapp.length < 8 || data.supportWhatsapp.length > 15)) {
+      form.elements.namedItem('supportWhatsapp').setCustomValidity('Enter an international WhatsApp number with 8 to 15 digits.');
+      form.elements.namedItem('supportWhatsapp').reportValidity();
+      form.elements.namedItem('supportWhatsapp').setCustomValidity('');
+      return;
+    }
+    for (const [key, hosts] of [
+      ['supportMessengerLink', ['m.me', 'facebook.com', 'messenger.com']],
+      ['supportTelegramLink', ['t.me', 'telegram.me']]
+    ]) {
+      const value = data[key];
+      if (!value) continue;
+      let valid = false;
+      try {
+        const url = new URL(value);
+        valid = url.protocol === 'https:' && hosts.some(host => url.hostname === host || url.hostname.endsWith(`.${host}`));
+      } catch {}
+      if (!valid) {
+        form.elements.namedItem(key).setCustomValidity(key === 'supportMessengerLink'
+          ? 'Enter a valid https://m.me or Facebook Messenger link.'
+          : 'Enter a valid https://t.me or telegram.me link.');
+        form.elements.namedItem(key).reportValidity();
+        form.elements.namedItem(key).setCustomValidity('');
+        return;
+      }
+    }
     for (const key of ['profileUrl', 'logoImage', 'instructionVideo', 'orderGuideVideo']) {
       if (data[key] && !/^https?:\/\//i.test(data[key])) {
         form.elements.namedItem(key).setCustomValidity('Enter a valid URL starting with http:// or https://');

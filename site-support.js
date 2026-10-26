@@ -53,15 +53,17 @@
   links.className = 'site-support-links';
   links.setAttribute('aria-label', 'Support channels');
   const channels = [
-    { title: 'WhatsApp Support', detail: 'Chat instantly', href: 'https://wa.me/8801300400618', icon: 'whatsapp' },
-    { title: 'Messenger Support', detail: 'Chat instantly', href: 'https://m.me/Smmcaptainsite', icon: 'messenger' },
-    { title: 'Telegram Support', detail: 'Chat instantly', href: 'https://t.me/Smmcaptainsite', icon: 'telegram' }
+    { key: 'whatsapp', title: 'WhatsApp Support', detail: 'Chat instantly', href: 'https://wa.me/8801300400618', icon: 'whatsapp' },
+    { key: 'messenger', title: 'Messenger Support', detail: 'Chat instantly', href: 'https://m.me/Smmcaptainsite', icon: 'messenger' },
+    { key: 'telegram', title: 'Telegram Support', detail: 'Chat instantly', href: 'https://t.me/Smmcaptainsite', icon: 'telegram' }
   ];
+  const channelLinks = {};
 
   for (const channel of channels) {
     const link = document.createElement('a');
     link.className = 'site-support-link';
     link.href = channel.href;
+    channelLinks[channel.key] = link;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
     link.append(makeIcon(channel.icon, 'site-support-icon'));
@@ -74,6 +76,44 @@
     copy.append(title, detail);
     link.append(copy);
     links.append(link);
+  }
+
+  async function applySavedSupportLinks() {
+    const client = window.smmSupabaseBootstrap;
+    if (!client) return;
+    const { data, error } = await client.from('site_settings').select('settings').eq('id', 1).maybeSingle();
+    if (error) throw error;
+    const settings = data?.settings || {};
+
+    const whatsappDigits = String(settings.supportWhatsapp ?? '8801300400618').replace(/\D/g, '');
+    if (whatsappDigits.length >= 8 && whatsappDigits.length <= 15) {
+      channelLinks.whatsapp.href = `https://wa.me/${whatsappDigits}`;
+      channelLinks.whatsapp.hidden = false;
+    } else {
+      channelLinks.whatsapp.hidden = true;
+    }
+
+    const applyHttpsLink = (link, value, allowedHosts, fallback) => {
+      if (value === '') {
+        link.hidden = true;
+        return;
+      }
+      try {
+        const url = new URL(value || fallback);
+        const allowed = allowedHosts.some(host => url.hostname === host || url.hostname.endsWith(`.${host}`));
+        if (url.protocol === 'https:' && allowed) {
+          link.href = url.href;
+          link.hidden = false;
+          return;
+        }
+      } catch {}
+      link.hidden = true;
+    };
+
+    applyHttpsLink(channelLinks.messenger, settings.supportMessengerLink,
+      ['m.me', 'facebook.com', 'messenger.com'], 'https://m.me/Smmcaptainsite');
+    applyHttpsLink(channelLinks.telegram, settings.supportTelegramLink,
+      ['t.me', 'telegram.me'], 'https://t.me/Smmcaptainsite');
   }
 
   const footer = document.createElement('div');
@@ -127,4 +167,6 @@
       first.focus();
     }
   });
+
+  applySavedSupportLinks().catch(error => console.warn('Support links could not be loaded.', error));
 })();
