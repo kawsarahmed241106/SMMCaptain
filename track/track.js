@@ -10,8 +10,8 @@
   const statuses = {
     new: 'Pending · অর্ডার জমা হয়েছে',
     pending: 'Pending · অর্ডার জমা হয়েছে',
-    processing: 'Processing · কাজ চলছে',
-    completed: 'Completed · সম্পন্ন হয়েছে',
+    processing: 'প্রক্রিয়াধীন · কাজ চলছে',
+    completed: 'সম্পন্ন · সম্পন্ন হয়েছে',
     cancelled: 'Cancelled · বাতিল হয়েছে'
   };
 
@@ -23,6 +23,14 @@
     text.className = 'track-result-title';
     text.textContent = message;
     result.append(text);
+  };
+
+  const addOrderTime = (card, label, value, formatter) => {
+    if (!value) return;
+    const row = document.createElement('p');
+    row.className = 'track-order-date';
+    row.textContent = `${label}: ${formatter.format(new Date(value))} (বাংলাদেশ সময়)`;
+    card.append(row);
   };
 
   async function getClient() {
@@ -92,10 +100,11 @@
         status.className = `track-order-status status-${order.status || 'pending'}`;
         status.textContent = statuses[order.status] || statuses.pending;
         top.append(id, status);
-        const date = document.createElement('p');
-        date.className = 'track-order-date';
-        date.textContent = `জমা দেওয়ার সময়: ${formatter.format(new Date(order.created_at))} (বাংলাদেশ সময়)`;
-        card.append(top, date);
+        card.append(top);
+        addOrderTime(card, 'জমা দেওয়ার সময়', order.created_at, formatter);
+        addOrderTime(card, 'কাজ শুরু হয়েছে', order.processing_started_at, formatter);
+        addOrderTime(card, 'সম্ভাব্য সম্পন্নের সময়', order.completion_at, formatter);
+        addOrderTime(card, 'সম্পন্ন হয়েছে', order.completed_at, formatter);
         result.append(card);
       });
     } catch (error) {

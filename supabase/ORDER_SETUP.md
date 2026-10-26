@@ -43,3 +43,19 @@ Order ID: {{order_id}}
 ```
 
 The Supabase trigger posts only the order number, customer and author WhatsApp numbers, event ID, and tracking URL. It queues the webhook after the order transaction commits, so a messaging outage does not undo a saved order.
+
+## 4. Order processing duration and automatic messages
+
+After the payment and order SQL above is installed, run `supabase/automated_order_duration_notifications.sql` once in Supabase Dashboard → SQL Editor. It adds timer fields, starts the countdown only when an admin changes an order to **Processing**, and schedules a database check every 10 seconds. Expected completion is the Processing start time plus the selected duration in days. When that time is reached, the status changes to **Completed** automatically. The `/track` page shows the processing start, expected completion, and actual completion timestamps.
+
+The migration adds three lifecycle events to the existing Make webhook. Add three routes/filters in Make for `processing_started`, `expiry_reminder`, and `order_completed`. On each route, send an UltraMsg WhatsApp message to `customer_phone` using the payload's `message` field. The messages are “Your order processing has started!”, “Your ad/order will expire in 24 hours.” (6 hours for a one-day order), and “Your order has been completed successfully.” A webhook acceptance from Make only confirms that Make accepted the request; check Make/UltraMsg delivery logs for final delivery. Use `event_id` to deduplicate retries if you add retries in Make.
+
+Confirm the scheduled job exists with:
+
+```sql
+select jobid, jobname, schedule, command
+from cron.job
+where jobname = 'campaign-order-duration-timers';
+```
+
+The job must remain active for reminders and automatic completion to run. Supabase Cron supports sub-minute schedules on current PostgreSQL versions; the job polls every 10 seconds, then Make/UltraMsg network delivery time is additional.

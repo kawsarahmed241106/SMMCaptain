@@ -45,6 +45,31 @@
     badge.setAttribute('aria-label', `Order status: ${selected?.label || 'Pending'}`);
   }
 
+  function renderOrderTimer(container, order) {
+    let section = container.querySelector('.order-timer');
+    if (!section) {
+      section = document.createElement('div');
+      section.className = 'order-timer';
+      container.append(section);
+    }
+    section.replaceChildren();
+    const items = [
+      ['Processing started', order.processing_started_at],
+      ['Expected completion', order.completion_at],
+      ['Completed', order.completed_at]
+    ].filter(([, value]) => value);
+    if (!items.length) {
+      section.hidden = true;
+      return;
+    }
+    section.hidden = false;
+    items.forEach(([label, value]) => {
+      const row = document.createElement('p');
+      row.textContent = `${label}: ${formatDate(value)}`;
+      section.append(row);
+    });
+  }
+
   const displayValue = value => {
     if (value === null || value === undefined || value === '') return '';
     if (typeof value === 'boolean') return value ? 'Yes' : 'No';
@@ -211,16 +236,22 @@
     const saveMessage = document.createElement('span');
     saveMessage.className = 'status-save-message';
     saveMessage.setAttribute('role', 'status');
+    renderOrderTimer(card, order);
     statusSelect.addEventListener('change', async () => {
       const nextStatus = statusSelect.value;
       statusSelect.disabled = true;
       saveMessage.textContent = 'Saving…';
       saveMessage.classList.remove('is-error');
       try {
-        const { error } = await client.from('orders').update({ status: nextStatus }).eq('id', order.id);
+        const { data, error } = await client.from('orders').update({ status: nextStatus })
+          .eq('id', order.id)
+          .select('status, processing_started_at, completion_at, completed_at')
+          .single();
         if (error) throw error;
         order.status = nextStatus;
+        Object.assign(order, data);
         updateStatusBadge(badge, nextStatus);
+        renderOrderTimer(card, order);
         saveMessage.textContent = 'Status saved';
       } catch (error) {
         console.error(`Could not update ${order.order_number}.`, error);
