@@ -29,4 +29,6 @@ jobs:
           fi
           supabase functions deploy create-uddoktapay-checkout --project-ref "$PROJECT_REF"
           supabase functions deploy verify-uddoktapay-payment --project-ref "$PROJECT_REF"
-          supabase functions deploy resolve-facebook-share --project-ref "$PROJECT_REF"
+          if supabase functions list --project-ref "$PROJECT_REF" | grep -q 'resolve-facebook-share'; then
+            supabase functions delete resolve-facebook-share --project-ref "$PROJECT_REF"
+          fi
