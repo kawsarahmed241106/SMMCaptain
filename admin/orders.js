@@ -311,7 +311,13 @@
     const head = document.createElement('div');
     head.className = 'order-head';
     const heading = document.createElement('div');
-    addText(heading, 'h2', order.order_number);
+    heading.className = 'order-heading-copy';
+    const titleRow = document.createElement('div');
+    titleRow.className = 'order-title-row';
+    addText(titleRow, 'h2', order.order_number);
+    const isOfflineOrder = order.details?.source === 'admin_offline' || order.payment_method === 'offline';
+    addText(titleRow, 'span', isOfflineOrder ? 'Offline' : 'Online', `order-type-badge ${isOfflineOrder ? 'order-type-offline' : 'order-type-online'}`);
+    heading.append(titleRow);
     addText(heading, 'p', formatDate(order.created_at), 'order-date');
     const initialStatus = normaliseStatus(order.status);
     const badge = addText(head, 'span', '', 'order-status');
