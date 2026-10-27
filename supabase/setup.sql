@@ -218,8 +218,8 @@ as $$
 declare
   make_webhook_url text;
   customer_digits text;
-  customer_phone_e164 text;
-  author_phone text;
+  customer_phone_digits text;
+  author_phone_digits text;
 begin
   select secret.decrypted_secret
     into make_webhook_url
@@ -233,17 +233,19 @@ begin
   end if;
 
   select nullif(pg_catalog.btrim(settings ->> 'author_phone'), '')
-    into author_phone
+    into author_phone_digits
     from public.site_settings
    where id = 1;
-  author_phone := coalesce(author_phone, '+8801843161825');
+  author_phone_digits := pg_catalog.regexp_replace(
+    coalesce(author_phone_digits, '+8801843161825'), '[^0-9]', '', 'g'
+  );
 
   customer_digits := pg_catalog.regexp_replace(new.customer_phone, '[^0-9]', '', 'g');
-  customer_phone_e164 := case
-    when pg_catalog.left(pg_catalog.btrim(new.customer_phone), 1) = '+' then '+' || customer_digits
-    when customer_digits like '880%' then '+' || customer_digits
-    when customer_digits like '0%' then '+880' || pg_catalog.substr(customer_digits, 2)
-    else '+880' || customer_digits
+  customer_phone_digits := case
+    when pg_catalog.left(pg_catalog.btrim(new.customer_phone), 1) = '+' then customer_digits
+    when customer_digits like '880%' then customer_digits
+    when customer_digits like '0%' then '880' || pg_catalog.substr(customer_digits, 2)
+    else '880' || customer_digits
   end;
 
   perform net.http_post(
@@ -252,8 +254,8 @@ begin
       'event', 'new_order',
       'event_id', new.id,
       'order_id', new.order_number,
-      'customer_phone', customer_phone_e164,
-      'author_phone', author_phone,
+      'customer_phone', customer_phone_digits,
+      'author_phone', author_phone_digits,
       'track_url', 'https://smmcaptain.xyz/track'
     ),
     headers := pg_catalog.jsonb_build_object('Content-Type', 'application/json'),

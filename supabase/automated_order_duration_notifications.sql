@@ -121,7 +121,7 @@ declare
   notification_row record;
   webhook_url text;
   customer_digits text;
-  customer_phone_e164 text;
+  customer_phone_digits text;
   v_request_id bigint;
   dispatch_body jsonb;
 begin
@@ -214,18 +214,18 @@ begin
      for update of q skip locked
   loop
     customer_digits := pg_catalog.regexp_replace(notification_row.customer_phone, '[^0-9]', '', 'g');
-    customer_phone_e164 := case
-      when pg_catalog.left(pg_catalog.btrim(notification_row.customer_phone), 1) = '+' then '+' || customer_digits
-      when customer_digits like '880%' then '+' || customer_digits
-      when customer_digits like '0%' then '+880' || pg_catalog.substr(customer_digits, 2)
-      else '+880' || customer_digits
+    customer_phone_digits := case
+      when pg_catalog.left(pg_catalog.btrim(notification_row.customer_phone), 1) = '+' then customer_digits
+      when customer_digits like '880%' then customer_digits
+      when customer_digits like '0%' then '880' || pg_catalog.substr(customer_digits, 2)
+      else '880' || customer_digits
     end;
 
     dispatch_body := pg_catalog.jsonb_build_object(
       'event', notification_row.event_type,
       'event_id', notification_row.order_id::text || ':' || notification_row.event_type,
       'order_id', notification_row.order_number,
-      'customer_phone', customer_phone_e164,
+      'customer_phone', customer_phone_digits,
       'message', notification_row.message,
       'completion_at', notification_row.completion_at,
       'track_url', 'https://smmcaptain.xyz/track/'

@@ -13,7 +13,7 @@ declare
   order_row record;
   webhook_url text;
   customer_digits text;
-  customer_phone_e164 text;
+  customer_phone_digits text;
   reminder_message text;
   dispatch_id text;
   request_id bigint;
@@ -41,11 +41,11 @@ begin
   end if;
 
   customer_digits := pg_catalog.regexp_replace(order_row.customer_phone, '[^0-9]', '', 'g');
-  customer_phone_e164 := case
-    when pg_catalog.left(pg_catalog.btrim(order_row.customer_phone), 1) = '+' then '+' || customer_digits
-    when customer_digits like '880%' then '+' || customer_digits
-    when customer_digits like '0%' then '+880' || pg_catalog.substr(customer_digits, 2)
-    else '+880' || customer_digits
+  customer_phone_digits := case
+    when pg_catalog.left(pg_catalog.btrim(order_row.customer_phone), 1) = '+' then customer_digits
+    when customer_digits like '880%' then customer_digits
+    when customer_digits like '0%' then '880' || pg_catalog.substr(customer_digits, 2)
+    else '880' || customer_digits
   end;
   reminder_message := case when order_row.details->>'days' = '1'
     then 'Your ad/order will expire in 6 hours.'
@@ -60,7 +60,7 @@ begin
       'event_id', dispatch_id,
       'test_mode', true,
       'order_id', order_row.order_number,
-      'customer_phone', customer_phone_e164,
+      'customer_phone', customer_phone_digits,
       'message', reminder_message,
       'track_url', 'https://smmcaptain.xyz/track/'
     ),
