@@ -6,11 +6,11 @@
   <meta name="theme-color" content="#101827">
   <title>Campaign orders | SMMCaptain Admin</title>
   <link rel="stylesheet" href="style.css?v=20261025-1">
-  <link rel="stylesheet" href="orders.css?v=20261026-7">
+  <link rel="stylesheet" href="orders.css?v=20261027-2">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
   <script src="../brand-logo.js?v=20261025-1" defer></script>
-  <script src="orders.js?v=20261026-8" defer></script>
+  <script src="orders.js?v=20261027-2" defer></script>
 </head>
 <body>
   <main class="shell">
@@ -23,7 +23,10 @@
     <section class="orders-page">
       <div class="page-heading">
         <div><p class="eyebrow">ORDER MANAGEMENT</p><h1>Campaign orders</h1><p class="muted">Review customer details and submitted campaign settings.</p></div>
-        <button class="button ghost" type="button" id="refreshOrders">Refresh</button>
+        <div class="orders-heading-actions">
+          <button class="button primary" type="button" id="openOfflineOrder">Add offline order</button>
+          <button class="button ghost" type="button" id="refreshOrders">Refresh</button>
+        </div>
       </div>
       <div class="notice" id="ordersStatus" role="status">Checking admin access…</div>
       <nav class="order-status-nav" id="ordersStatusNav" role="tablist" aria-label="Filter orders by status"></nav>
@@ -31,6 +34,28 @@
       <p class="orders-footer" id="ordersFooter"></p>
     </section>
   </main>
+  <dialog class="offline-order-dialog" id="offlineOrderDialog" aria-labelledby="offlineOrderTitle">
+    <form id="offlineOrderForm">
+      <p class="eyebrow">ADMIN ORDER ENTRY</p>
+      <h2 id="offlineOrderTitle">Add an offline order</h2>
+      <p class="offline-order-copy">Record an order placed offline. It will start as Pending, be marked paid, and use the same WhatsApp order and status notifications as online orders.</p>
+      <label for="offlineCustomerName">Customer name <span>(optional)</span></label>
+      <input id="offlineCustomerName" name="customer_name" type="text" maxlength="120" autocomplete="name" placeholder="Customer name">
+      <label for="offlineCustomerPhone">Customer WhatsApp number *</label>
+      <input id="offlineCustomerPhone" name="customer_phone" type="tel" inputmode="tel" maxlength="24" autocomplete="tel" placeholder="+8801XXXXXXXXX" required>
+      <label for="offlineOrderDescription">Order details *</label>
+      <textarea id="offlineOrderDescription" name="order_description" rows="4" maxlength="2000" placeholder="Briefly describe the service or order" required></textarea>
+      <label for="offlineFacebookVideo">Facebook video link <span>(optional)</span></label>
+      <input id="offlineFacebookVideo" name="facebook_video_link" type="url" inputmode="url" maxlength="2000" placeholder="https://www.facebook.com/...">
+      <label for="offlineOrderDays">Duration (days) *</label>
+      <input id="offlineOrderDays" name="duration_days" type="number" min="1" max="365" value="1" required>
+      <p class="offline-order-error" id="offlineOrderError" role="alert" hidden></p>
+      <div class="offline-order-actions">
+        <button class="button ghost" type="button" id="cancelOfflineOrder">Cancel</button>
+        <button class="button primary" id="saveOfflineOrder" type="submit">Create order</button>
+      </div>
+    </form>
+  </dialog>
   <dialog class="delete-order-dialog" id="deleteOrderDialog" aria-labelledby="deleteOrderTitle">
     <form id="deleteOrderForm">
       <p class="eyebrow">PERMANENT ACTION</p>

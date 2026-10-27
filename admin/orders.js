@@ -10,6 +10,10 @@
   const deletePassword = $('deleteOrderPassword');
   const deleteOrderLabel = $('deleteOrderLabel');
   const deleteError = $('deleteOrderError');
+  const offlineDialog = $('offlineOrderDialog');
+  const offlineForm = $('offlineOrderForm');
+  const offlineError = $('offlineOrderError');
+  const saveOfflineButton = $('saveOfflineOrder');
   let reloadSessionCleared = false;
   let adminEmail = '';
   let orderPendingDelete = null;
@@ -187,6 +191,17 @@
   function renderCampaignDetails(details = {}) {
     const container = document.createElement('div');
     container.className = 'order-details-content';
+
+    if (details.source === 'admin_offline') {
+      addDetailSection(container, 'Offline order details', details, [
+        ['customerName', 'Customer name'],
+        ['orderDescription', 'Order details'],
+        ['postLink', 'Facebook video link'],
+        ['days', 'Duration', value => `${value} days`],
+        ['paymentMethodLabel', 'Payment', value => value]
+      ]);
+      return container;
+    }
 
     // Keep these groups in the same sequence as sections 1–4 on the main form.
     addDetailSection(container, '1. Post information', details, [
@@ -432,6 +447,66 @@
       $('refreshOrders').disabled = false;
     }
   }
+
+  $('openOfflineOrder').addEventListener('click', () => {
+    offlineForm.reset();
+    offlineError.hidden = true;
+    offlineDialog.showModal();
+    $('offlineCustomerPhone').focus();
+  });
+  $('cancelOfflineOrder').addEventListener('click', () => offlineDialog.close());
+  offlineDialog.addEventListener('close', () => {
+    offlineForm.reset();
+    offlineError.hidden = true;
+    saveOfflineButton.disabled = false;
+    saveOfflineButton.textContent = 'Create order';
+  });
+  offlineForm.addEventListener('submit', async event => {
+    event.preventDefault();
+    offlineError.hidden = true;
+    const videoLink = $('offlineFacebookVideo').value.trim();
+    if (videoLink) {
+      let validFacebookLink = false;
+      try {
+        const url = new URL(videoLink);
+        const host = url.hostname.toLowerCase().replace(/^www\./, '');
+        validFacebookLink = url.protocol === 'https:' &&
+          (host === 'facebook.com' || host.endsWith('.facebook.com') || host === 'fb.watch');
+      } catch {}
+      if (!validFacebookLink) {
+        $('offlineFacebookVideo').setCustomValidity('Enter a valid HTTPS Facebook video or fb.watch link.');
+        $('offlineFacebookVideo').reportValidity();
+        $('offlineFacebookVideo').setCustomValidity('');
+        return;
+      }
+    }
+    saveOfflineButton.disabled = true;
+    saveOfflineButton.textContent = 'Creating…';
+    try {
+      const { data, error } = await client.rpc('admin_create_offline_order', {
+        p_customer_phone: $('offlineCustomerPhone').value.trim(),
+        p_customer_name: $('offlineCustomerName').value.trim() || null,
+        p_order_description: $('offlineOrderDescription').value.trim(),
+        p_duration_days: Number($('offlineOrderDays').value),
+        p_facebook_video_link: videoLink || null
+      });
+      if (error) throw error;
+      if (!data?.order_number) throw new Error('Supabase did not return an order number.');
+      offlineDialog.close();
+      await loadOrders();
+      activateOrderStatus('pending');
+      setStatus(`Offline order ${data.order_number} created successfully.`);
+    } catch (error) {
+      console.error('Could not create offline order.', error);
+      offlineError.textContent = error.message || 'Could not create the offline order.';
+      if (error.message?.includes('admin_create_offline_order')) {
+        offlineError.textContent = 'Offline order setup is not installed yet. Run supabase/offline_orders_setup.sql in the Supabase SQL Editor.';
+      }
+      offlineError.hidden = false;
+      saveOfflineButton.disabled = false;
+      saveOfflineButton.textContent = 'Create order';
+    }
+  });
 
   $('refreshOrders').addEventListener('click', loadOrders);
   loadOrders();
