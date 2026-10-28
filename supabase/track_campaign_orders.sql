@@ -3,8 +3,9 @@
 -- Only returns order ID, created time, and status; campaign and contact details
 -- remain private. Phone matches are returned newest first.
 
-create or replace function public.track_campaign_orders(p_search text)
-returns table (order_number text, created_at timestamptz, status text)
+drop function if exists public.track_campaign_orders(text);
+create function public.track_campaign_orders(p_search text)
+returns table (order_number text, created_at timestamptz, status text, cancellation_reason text)
 language plpgsql
 stable
 security definer
@@ -25,7 +26,7 @@ begin
     end if;
 
     return query
-      select o.order_number, o.created_at, o.status
+      select o.order_number, o.created_at, o.status, o.cancellation_reason
         from public.orders as o
        where o.order_number = pg_catalog.upper(search_value)
          and o.payment_status = 'paid'
@@ -52,7 +53,7 @@ begin
   end if;
 
   return query
-    select o.order_number, o.created_at, o.status
+    select o.order_number, o.created_at, o.status, o.cancellation_reason
       from public.orders as o
      where o.payment_status = 'paid'
        and pg_catalog.regexp_replace(o.customer_phone, '[^0-9]', '', 'g') = normalized_phone

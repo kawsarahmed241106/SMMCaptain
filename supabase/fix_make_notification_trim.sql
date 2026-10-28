@@ -49,6 +49,8 @@ begin
       'order_id', new.order_number,
       'customer_phone', customer_phone_digits,
       'author_phone', author_phone_digits,
+      'customer_message', E'✅ আপনার অর্ডার সফলভাবে সাবমিট হয়েছে।\n\n🆔 Order ID: ' || new.order_number || E'\n\n📦 অর্ডারের আপডেট দেখতে ভিজিট করুন:\nhttps://smmcaptain.xyz/track\n\nকোনো কিছু জানার থাকলে বা অন্য কোনো বিষয়ে সাহায্য লাগলে জানাবেন। 😊\n\nধন্যবাদ ❤️',
+      'author_message', E'Congrats, New Order Submitted\nOrder ID: ' || new.order_number || E'\nhttps://smmcaptain.xyz/admin/orders.html',
       'track_url', 'https://smmcaptain.xyz/track'
     ),
     headers := pg_catalog.jsonb_build_object('Content-Type', 'application/json'),
@@ -63,6 +65,8 @@ exception when others then
 end;
 $$;
 
--- Returns true when the live trigger includes the digits-only phone payload.
-select pg_get_functiondef('public.notify_make_new_order()'::regprocedure)
-  like '%customer_phone_digits%' as fixed;
+-- All three checks should return true before testing a fresh order.
+select
+  pg_get_functiondef('public.notify_make_new_order()'::regprocedure) like '%customer_phone_digits%' as phone_is_digits_only,
+  pg_get_functiondef('public.notify_make_new_order()'::regprocedure) like '%customer_message%' as customer_message_installed,
+  pg_get_functiondef('public.notify_make_new_order()'::regprocedure) like '%author_message%' as author_message_installed;

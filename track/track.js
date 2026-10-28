@@ -105,6 +105,12 @@
         addOrderTime(card, 'কাজ শুরু হয়েছে', order.processing_started_at, formatter);
         addOrderTime(card, 'সম্ভাব্য সম্পন্নের সময়', order.completion_at, formatter);
         addOrderTime(card, 'সম্পন্ন হয়েছে', order.completed_at, formatter);
+        if (order.status === 'cancelled' && order.cancellation_reason) {
+          const cancellation = document.createElement('p');
+          cancellation.className = 'track-cancellation-reason';
+          cancellation.textContent = `বাতিলের কারণ: ${order.cancellation_reason}`;
+          card.append(cancellation);
+        }
         result.append(card);
       });
     } catch (error) {

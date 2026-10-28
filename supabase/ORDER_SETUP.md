@@ -1,56 +1,28 @@
-# Order submission setup
+# Supabase order setup
 
-## 1. Create the order tables and RPC
+## Install or update the database
 
-Run `supabase/setup.sql` in the Supabase Dashboard SQL Editor. Then run `supabase/payment_setup.sql` and `supabase/payment_required_order_flow.sql` in the same SQL Editor. The payment-required migration adds:
+`supabase/setup.sql` is the consolidated setup file. Run the complete file in Supabase Dashboard → SQL Editor. It applies the base schema, payment-required UddoktaPay flow, order tracking, admin-created offline orders, Processing timers, cancellation reasons, Make webhook queue, and the temporary expiry-test RPC. It also updates the old trigger/RPC definitions. The SQL can be rerun to refresh the installed functions and policies; the scheduled order timer is rescheduled by the script.
 
-If the existing project has already run `setup.sql` and `payment_setup.sql`, run only `payment_required_order_flow.sql` to update it.
+Before running it, enable Supabase Vault if needed. The script enables `pg_net` and `pg_cron`. Add a Vault secret named `make_order_webhook_url` whose value is your Make custom webhook URL. Keep Green API credentials only in Make, never in SQL or this repository.
 
-- A private checkout-intent table for temporary payment sessions. These are not submitted orders and are not visible to the admin orders page or order tracker.
-- A `create_campaign_checkout_intent` RPC that validates the form and calculates the amount without inserting an order.
-- A server-only finalizer that creates the numbered order only after UddoktaPay verification confirms a completed payment. Order IDs start at 1041 each day.
-- Revoked browser access to the old `create_campaign_order` RPC, which inserted orders before payment.
+For current installations, run the entire updated `setup.sql` once in SQL Editor to add the cancellation-reason field, public tracker field, and cancellation notification event. Ensure the Make scenario routes include the new `order_cancelled` event after the SQL runs.
 
-The browser can create a temporary checkout intent, but it has no direct permission to read or edit checkout intents or order rows. Do not skip the payment-required migration; without it, the new checkout flow will not be available.
+## Admin orders and public tracking
 
-## 2. Use the admin orders page
+Sign in at `/admin/`, then open `/admin/orders.html`. Admin access is enforced with the `site_admin` app-metadata role and orders table RLS. When the status is changed to **Cancelled**, enter a cancellation reason and save it. The public tracker shows that reason on the cancelled order card.
 
-Sign in at `/admin/`, then open `/admin/orders.html` or choose **View orders** in the admin header. Order visibility is enforced by the `site_admin` app-metadata role and the table's row-level security policy.
+The tracker accepts an order ID or customer phone number. Phone searches return the customer's orders newest first. It returns only public tracking fields and never returns phone numbers or campaign details.
 
-## 3. Enable order tracking and WhatsApp alerts
+## Green API and Make
 
-The setup SQL creates the `/track` lookup RPC and an `orders` insert trigger. The tracker only returns paid orders' number, status, and submitted time; phone numbers are used only to match a search and are never returned. A phone-number search returns all matching orders newest first. If the live database has already been set up, run `supabase/track_campaign_orders.sql` in the Supabase SQL Editor to enable phone-number searches. The notification trigger runs when the paid order is finalized, not when a customer starts checkout. If you have already run the original setup script, run `supabase/fix_make_notification_trim.sql` once to update the existing trigger function.
+The Make webhook receives phone numbers as international digits without `+`: `01570284251` becomes `8801570284251`. Make appends `@c.us` when constructing Green API's `chatId`, such as `8801570284251@c.us`.
 
-Before running `supabase/setup.sql`, enable the **Vault** extension in the Supabase Dashboard if it is not already enabled. The SQL enables `pg_net`. Then add a Vault secret named `make_order_webhook_url` and set its value to the Make custom webhook URL. Do not put this URL or Green API credentials in the repository.
+Use [`MAKE_GREEN_API_SETUP.md`](MAKE_GREEN_API_SETUP.md) for exact event routes, Green API request URL/body mappings, and troubleshooting. New orders include separate `customer_message` and `author_message` fields. Processing, expiry, completion, and cancellation events include the customer `message` field. The order ID is inserted into the message text by Supabase.
 
-In Make, create a **Custom webhook** and use its URL as the Vault secret. Add a router with two HTTP request branches that call Green API's SendMessage endpoint. Set `chatId` to the digits-only phone plus `@c.us` (for example, `{{customer_phone}}@c.us`), and map the message text to `message`. Keep Green API credentials in Make's protected connection/secret storage.
+The database queues lifecycle events and retries explicit request failures. A `200 Accepted` response only means Make accepted the webhook; inspect its scenario history and Green API response/message logs for final delivery.
 
-Set the recipient for the author notification in Admin → **WhatsApp order alerts**. Enter the complete international number (for example, `+8801843161825`) and save. New order webhooks read this number from the `author_phone` setting in Supabase; the SQL keeps the existing number as a fallback until a value is saved. Make receives phone numbers as international digits only, without a leading plus (for example, `8801843161825`). For Green API, use `{{customer_phone}}@c.us` as the recipient `chatId` (and `{{author_phone}}@c.us` on the author route).
-
-Map `customer_phone` and this message on the customer branch:
-
-```text
-Your order was submitted successfully.
-Your Order ID: {{order_id}}
-Track your order: {{track_url}}
-```
-
-Map `author_phone` and this message on the author branch:
-
-```text
-New order submitted
-Order ID: {{order_id}}
-```
-
-The Supabase trigger posts only the order number, customer and author WhatsApp numbers, event ID, and tracking URL. It queues the webhook after the order transaction commits, so a messaging outage does not undo a saved order.
-
-## 4. Order processing duration and automatic messages
-
-After the payment and order SQL above is installed, run `supabase/automated_order_duration_notifications.sql` once in Supabase Dashboard → SQL Editor. It adds timer fields, starts the countdown only when an admin changes an order to **Processing**, and schedules a database check every 10 seconds. Expected completion is the Processing start time plus the selected duration in days. When that time is reached, the status changes to **Completed** automatically. The `/track` page shows the processing start, expected completion, and actual completion timestamps.
-
-The migration adds three lifecycle events to the existing Make webhook. Add three routes/filters in Make for `processing_started`, `expiry_reminder`, and `order_completed`. On each route, send a Green API WhatsApp message using `chatId` set to `{{customer_phone}}@c.us` and the payload's `message` field. The messages are “Your order processing has started!”, “Your ad/order will expire in 24 hours.” (6 hours for a one-day order), and “Your order has been completed successfully.” A webhook acceptance from Make only confirms that Make accepted the request; check Make/Green API delivery logs for final delivery. Use `event_id` to deduplicate retries if you add retries in Make.
-
-Confirm the scheduled job exists with:
+Confirm the automated completion/reminder job is active with:
 
 ```sql
 select jobid, jobname, schedule, command
@@ -58,8 +30,8 @@ from cron.job
 where jobname = 'campaign-order-duration-timers';
 ```
 
-The job must remain active for reminders and automatic completion to run. Supabase Cron supports sub-minute schedules on current PostgreSQL versions; the job polls every 10 seconds, then Make/Green API network delivery time is additional.
+The test reminder helper sends a real WhatsApp message. Remove the temporary test button after use and drop its RPC with:
 
-### Temporary Make test button
-
-To test the expiry route without changing the order timer or marking its real reminder as sent, run `supabase/test_expiry_reminder.sql` in SQL Editor. Admin orders then shows **Send test expiry reminder** on each paid order. It sends a real WhatsApp test through the existing Make `expiry_reminder` route. Remove the temporary UI button after testing; drop the helper RPC using the statement commented at the top of that SQL file.
+```sql
+drop function if exists public.send_test_campaign_order_expiry_reminder(uuid);
+```

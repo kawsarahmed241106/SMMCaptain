@@ -48,9 +48,13 @@ begin
     else '880' || customer_digits
   end;
   reminder_message := case when order_row.details->>'days' = '1'
-    then 'Your ad/order will expire in 6 hours.'
-    else 'Your ad/order will expire in 24 hours.'
-  end;
+    then 'আপনার Boost / Ad Campaign আগামী ৬ ঘণ্টার মধ্যে সম্পন্ন হয়ে যাবে।'
+    else 'আপনার Boost / Ad Campaign আগামী ২৪ ঘণ্টার মধ্যে সম্পন্ন হয়ে যাবে।'
+  end || E'\n\n' ||
+    'বুস্টের সময় বা বাজেট বাড়াতে চাইলে আমাদের জানাবেন অথবা ওয়েবসাইট থেকে আবার অর্ডার করতে পারেন।' || E'\n' ||
+    '🔗 https://smmcaptain.xyz/' || E'\n\n' ||
+    '🎬 বুস্টের রেজাল্ট দেখার ভিডিও: https://youtu.be/uJWi-3a5Iss' || E'\n\n' ||
+    'কোনো কিছু জানার থাকলে বা সাহায্যের প্রয়োজন হলে আমাদের মেসেজ করবেন। 😊';
   dispatch_id := 'test-expiry-' || pg_catalog.gen_random_uuid()::text;
 
   request_id := net.http_post(

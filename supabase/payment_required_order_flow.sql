@@ -221,8 +221,9 @@ grant execute on function public.track_campaign_order(text) to anon, authenticat
 
 -- Public tracker lookup by order ID or customer phone; return only minimal
 -- order information and sort phone matches newest first.
-create or replace function public.track_campaign_orders(p_search text)
-returns table (order_number text, created_at timestamptz, status text)
+drop function if exists public.track_campaign_orders(text);
+create function public.track_campaign_orders(p_search text)
+returns table (order_number text, created_at timestamptz, status text, cancellation_reason text)
 language plpgsql stable security definer set search_path = ''
 as $$
 declare
@@ -233,7 +234,7 @@ begin
   if search_value = '' or pg_catalog.length(search_value) > 64 then return; end if;
   if search_value ~* '^SC-' then
     if search_value !~* '^SC-[0-9]{8}-([0-9]{5}|[1-9][0-9]{3,})$' then return; end if;
-    return query select o.order_number, o.created_at, o.status
+    return query select o.order_number, o.created_at, o.status, o.cancellation_reason
       from public.orders as o
      where o.order_number = pg_catalog.upper(search_value) and o.payment_status = 'paid'
      order by o.created_at desc limit 1;
@@ -247,7 +248,7 @@ begin
   else normalized_phone := phone_digits;
   end if;
   if normalized_phone !~ '^[0-9]{8,15}$' then return; end if;
-  return query select o.order_number, o.created_at, o.status
+  return query select o.order_number, o.created_at, o.status, o.cancellation_reason
     from public.orders as o
    where o.payment_status = 'paid'
      and pg_catalog.regexp_replace(o.customer_phone, '[^0-9]', '', 'g') = normalized_phone

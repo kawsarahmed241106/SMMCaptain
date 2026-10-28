@@ -347,20 +347,38 @@
     const saveMessage = document.createElement('span');
     saveMessage.className = 'status-save-message';
     saveMessage.setAttribute('role', 'status');
+    const cancellationFields = document.createElement('div');
+    cancellationFields.className = 'cancellation-fields';
+    cancellationFields.hidden = initialStatus !== 'cancelled';
+    const cancellationLabel = document.createElement('label');
+    cancellationLabel.textContent = 'Cancellation reason';
+    const cancellationInput = document.createElement('textarea');
+    cancellationInput.rows = 3;
+    cancellationInput.maxLength = 1000;
+    cancellationInput.placeholder = 'Explain why this order is being cancelled';
+    cancellationInput.setAttribute('aria-label', `Cancellation reason for ${order.order_number}`);
+    cancellationInput.value = order.cancellation_reason || '';
+    cancellationLabel.append(cancellationInput);
+    const saveCancellationButton = addText(cancellationFields, 'button', 'Save cancellation', 'button primary');
+    saveCancellationButton.type = 'button';
+    cancellationFields.prepend(cancellationLabel);
     renderOrderTimer(card, order);
-    statusSelect.addEventListener('change', async () => {
-      const nextStatus = statusSelect.value;
+    const saveOrderStatus = async (nextStatus, cancellationReason = undefined) => {
       statusSelect.disabled = true;
+      saveCancellationButton.disabled = true;
       saveMessage.textContent = 'Saving…';
       saveMessage.classList.remove('is-error');
       try {
-        const { data, error } = await client.from('orders').update({ status: nextStatus })
+        const update = { status: nextStatus };
+        if (cancellationReason !== undefined) update.cancellation_reason = cancellationReason;
+        const { data, error } = await client.from('orders').update(update)
           .eq('id', order.id)
-          .select('status, processing_started_at, completion_at, completed_at')
+          .select('status, processing_started_at, completion_at, completed_at, cancellation_reason')
           .single();
         if (error) throw error;
         order.status = nextStatus;
         Object.assign(order, data);
+        cancellationInput.value = order.cancellation_reason || '';
         updateStatusBadge(badge, nextStatus);
         renderOrderTimer(card, order);
         moveOrderToStatusGroup(card, nextStatus);
@@ -372,10 +390,31 @@
         saveMessage.classList.add('is-error');
       } finally {
         statusSelect.disabled = false;
+        saveCancellationButton.disabled = false;
       }
+    };
+    statusSelect.addEventListener('change', () => {
+      if (statusSelect.value === 'cancelled') {
+        cancellationFields.hidden = false;
+        saveMessage.textContent = 'Enter the cancellation reason, then save.';
+        cancellationInput.focus();
+        return;
+      }
+      cancellationFields.hidden = true;
+      saveOrderStatus(statusSelect.value);
+    });
+    saveCancellationButton.addEventListener('click', () => {
+      const reason = cancellationInput.value.trim();
+      if (!reason) {
+        saveMessage.textContent = 'Enter a cancellation reason.';
+        saveMessage.classList.add('is-error');
+        cancellationInput.focus();
+        return;
+      }
+      saveOrderStatus('cancelled', reason);
     });
     card.append(statusControl);
-    statusControl.append(statusLabel, statusSelect, saveMessage);
+    statusControl.append(statusLabel, statusSelect, cancellationFields, saveMessage);
     const testReminderButton = addText(statusControl, 'button', 'Send test expiry reminder', 'test-reminder-button');
     testReminderButton.type = 'button';
     testReminderButton.setAttribute('aria-label', `Send a test expiry reminder to ${order.order_number}`);
@@ -387,7 +426,7 @@
       try {
         const { data, error } = await client.rpc('send_test_campaign_order_expiry_reminder', { p_order_id: order.id });
         if (error) throw error;
-        saveMessage.textContent = `Test reminder queued for Make (${data?.request_id ?? 'request accepted'}). Check Make/UltraMsg delivery.`;
+        saveMessage.textContent = `Test reminder queued for Make (${data?.request_id ?? 'request accepted'}). Check the Supabase response and Make/Green API run history for delivery.`;
       } catch (error) {
         console.error(`Could not queue a test reminder for ${order.order_number}.`, error);
         saveMessage.textContent = error.message || 'Could not queue the test reminder.';
