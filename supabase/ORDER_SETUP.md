@@ -4,6 +4,8 @@
 
 `supabase/setup.sql` is the consolidated setup file. Run the complete file in Supabase Dashboard → SQL Editor. It applies the base schema, payment-required UddoktaPay flow, order tracking, admin-created offline orders, Processing timers, cancellation reasons, Make webhook queue, and the temporary expiry-test RPC. It also updates the old trigger/RPC definitions. The SQL can be rerun to refresh the installed functions and policies; the scheduled order timer is rescheduled by the script.
 
+To publish the revised Bengali site copy and make campaign location mandatory in the checkout RPC, also run `supabase/update_bengali_site_copy.sql` in SQL Editor.
+
 Before running it, enable Supabase Vault if needed. The script enables `pg_net` and `pg_cron`. Add a Vault secret named `make_order_webhook_url` whose value is your Make custom webhook URL. Keep Green API credentials only in Make, never in SQL or this repository.
 
 For current installations, run the entire updated `setup.sql` once in SQL Editor to add the cancellation-reason field, public tracker field, and cancellation notification event. Ensure the Make scenario routes include the new `order_cancelled` event after the SQL runs.

@@ -2,6 +2,7 @@
   const message = document.getElementById('paymentMessage');
   const orderNumber = document.getElementById('paymentOrderNumber');
   const trackLink = document.getElementById('paymentTrackLink');
+  const successHelp = document.getElementById('paymentSuccessHelp');
   const retryButton = document.getElementById('retryPaymentButton');
   const params = new URLSearchParams(window.location.search);
   const orderId = params.get('order_id'); // compatibility for checkout links created before the rollout
@@ -13,13 +14,15 @@
   function show(text, number = '', mode = null) {
     message.textContent = text;
     if (number) {
-      orderNumber.textContent = number;
+      orderNumber.textContent = `অর্ডার আইডি: ${number}`;
       orderNumber.hidden = false;
+      successHelp.hidden = false;
       trackLink.href = `/track/?order_id=${encodeURIComponent(number)}`;
       trackLink.hidden = false;
     } else {
       orderNumber.textContent = '';
       orderNumber.hidden = true;
+      successHelp.hidden = true;
       trackLink.hidden = true;
     }
     retryMode = mode;
@@ -80,7 +83,7 @@
       return;
     }
     if (data?.payment_status === 'paid' && data.order_number) {
-      show('পেমেন্ট সফল হয়েছে এবং অর্ডার জমা হয়েছে। ধন্যবাদ!', data.order_number);
+      show('পেমেন্ট সফল হয়েছে এবং আপনার অর্ডার সফলভাবে সাবমিট হয়েছে। ধন্যবাদ!', data.order_number);
     } else if (data?.payment_status === 'pending') {
       show('পেমেন্ট যাচাই চলছে। নিশ্চিত না হওয়া পর্যন্ত অর্ডার জমা হবে না। কিছুক্ষণ পর আবার দেখুন।', '', 'verify');
     } else {

@@ -118,7 +118,7 @@
       showMessage('অর্ডারের তথ্য আনা যায়নি। কিছুক্ষণ পর আবার চেষ্টা করুন।', true);
     } finally {
       button.disabled = false;
-      button.textContent = 'অর্ডার খুঁজুন';
+      button.textContent = 'অর্ডার স্টেটাস দেখুন';
     }
   }
 

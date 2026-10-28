@@ -12,7 +12,7 @@
   <script src="site-notice.js?v=20261026-3" defer></script>
   <script src="site-support.js?v=20261026-2" defer></script>
   <script src="brand-logo.js?v=20261025-1" defer></script>
-  <script src="script.js?v=20261028-2" defer></script>
+  <script src="script.js?v=20261028-3" defer></script>
 </head>
 
 <body class="home-page">
@@ -22,16 +22,17 @@
         <div class="logo" data-brand-logo><span class="logo-fallback">S</span></div>
         <div>SMMCaptain<span>.xyz</span></div>
       </div>
-      <div class="topnote">আপনার বিজ্ঞাপন, আপনার নিয়ন্ত্রণে</div>
+      <div class="topnote">বুস্ট করুন খুব সহজে</div>
     </div>
   </header>
   <aside class="site-notice" data-site-notice aria-label="Website announcement" hidden><div class="site-notice-inner"><div class="site-notice-track" data-site-notice-text></div></div></aside>
   <section class="hero">
     <div class="hero-inner">
       <div class="hero-copy">
-        <h1>আপনার ব্যবসার জন্য বিজ্ঞাপন দিন, সহজ বাংলায়</h1>
-        <div class="hero-pill"><strong id="heroExchangeRate">৳১৫০ / $১</strong><span id="heroExchangeRateNote">পেমেন্টের আগে যাচাই করুন</span></div>
-        <p>পোস্ট বা ভিডিওর লিংক দিন, লক্ষ্য ও অডিয়েন্স বেছে নিন, বাজেট দেখুন—তারপর অর্ডারের তথ্য জমা দিন।</p>
+        <div class="eyebrow">সহজ অনলাইন বিজ্ঞাপন</div>
+        <h1>এখন আপনার বিজনেসের জন্য বুস্ট বা অ্যাড রান করুন আপনি নিজেই।</h1>
+        <div class="hero-pill"><strong id="heroExchangeRate">৳১৫০ / $১</strong><span id="heroExchangeRateNote">— এক্সট্রা কোনো সার্ভিস চার্জ নেই।</span></div>
+        <p>পোস্ট বা ভিডিওর লিংক দিয়ে আপনি নিজেই এখন বুস্ট করতে পারবেন। আপনার পছন্দমতো কাস্টমার বেছে নিতে পারবেন। বাজেট, দিনের সংখ্যা এবং অন্যান্য সেটিংস নিজেই ঠিক করতে পারবেন। সবকিছু সেট করা হয়ে গেলে নিজেই বুস্টের অর্ডার সাবমিট করতে পারবেন।</p>
         <a class="hero-track-link" href="/track/">অর্ডার স্টেটাস দেখুন<span aria-hidden="true">↗</span></a>
       </div>
       <div class="hero-guide-column">
@@ -49,8 +50,7 @@
           <div class="cardhead">
             <div class="num">১</div>
             <div>
-              <h2>পোস্টের তথ্য</h2>
-              <p class="sub">কোন প্ল্যাটফর্মে বুস্ট বা অ্যাড রান দিতে চান?</p>
+              <h2>বুস্ট বা অ্যাড রান করার জন্য নিচের তথ্যগুলো পূরণ করুন।</h2>
             </div>
           </div>
           <div class="platform selected">
@@ -61,7 +61,7 @@
           <div class="field"><label for="postLink">আপনার পোস্ট বা ভিডিওর লিংক দিন <span
                 style="color:#d94841">*</span></label><input class="input" id="postLink" type="url"
               placeholder="https://www.facebook.com/..." required>
-            <div class="hint">যে পোস্ট/ভিডিওটি বিজ্ঞাপন দিতে চান তার লিংক দিন।</div>
+            <div class="hint">যে পোস্ট বা ভিডিওটিতে বুস্ট বা অ্যাড রান দিতে চান, তার লিংক দিন।</div>
           </div>
           <div class="accessbox">
             <label class="existing-access-choice" for="alreadyHasPageAccess">
@@ -69,29 +69,22 @@
               <span><strong>আপনি কি ইতোমধ্যে Page Access দিয়েছেন?</strong><small>আগে থেকেই আমাদের Page Moderator / Access দিয়ে থাকলে টিক দিন। নতুন করে অ্যাক্সেস দেওয়ার দরকার নেই।</small></span>
             </label>
             <div id="accessInstructions">
-              <strong>১. প্রথমে এই Facebook আইডিতে Friend Request পাঠান</strong>
-              <div class="sub">নিচের বাটনে ক্লিক করলে Facebook প্রোফাইল খুলবে। সেখানে Friend Request পাঠান।</div>
+              <strong>যদি এখনো Facebook Page Access দেওয়া না থাকে, তাহলে প্রথমে এই Facebook আইডিতে Friend Request পাঠান।</strong>
+              <div class="sub">নিচের বাটনে ক্লিক করলে Facebook প্রোফাইল খুলবে। সেখানে Friend Request পাঠিয়ে দিন।</div>
               <a class="primary" style="display:block;text-align:center;text-decoration:none;padding:11px;margin-top:10px"
                 id="friendRequestBtn" href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">Facebook
                 প্রোফাইল খুলুন ও Friend Request পাঠান ↗</a>
               <div class="profile-copy"><button class="mini-btn" type="button" id="copyId">Facebook ID লিংক কপি করুন</button></div>
               <div class="access-divider"></div>
-              <strong>২. এরপর আপনার পেজ থেকে Moderator / Page Access Request পাঠান</strong>
-              <div class="sub">Friend Request গ্রহণ করার পর পেজের প্রয়োজনীয় অ্যাক্সেস রিকোয়েস্ট পাঠান। বাস্তব ব্যবহারের
-                আগে এখানে আপনার যাচাইকৃত প্রোফাইল লিংক বসাতে হবে।</div>
+              <strong>Friend Request গ্রহণ করার পরে আপনার Facebook Page থেকে Moderator / Page Access Request পাঠান।</strong>
               <div style="margin-top:13px">
-                <strong style="font-size:13px">কীভাবে রিকোয়েস্ট পাঠাবেন? ভিডিও দেখুন</strong>
+                <strong style="font-size:13px">কীভাবে মডারেটর রিকোয়েস্ট পাঠাবেন, ভিডিও দেখুন।</strong>
                 <div id="videoPreview"
                   style="margin-top:8px;border-radius:12px;overflow:hidden;background:#101827;min-height:150px;display:grid;place-items:center;color:white;text-align:center;padding:18px">
-                <div>
-                  <div style="font-size:30px">▶</div><strong style="display:block;margin:6px 0">ভিডিও
-                    প্রিভিউ</strong><small style="color:#d7e0ed">অ্যাডমিন প্যানেলে নির্দেশনামূলক ভিডিওর লিংক যোগ করলে
-                    এখানে ভিডিও প্লে হবে।</small>
-                </div>
+                <iframe src="https://www.youtube-nocookie.com/embed/O_YPBHqmFxQ" title="মডারেটর রিকোয়েস্ট পাঠানোর নিয়ম" loading="lazy" allowfullscreen style="width:100%;aspect-ratio:16/9;border:0;display:block"></iframe>
                 </div>
               </div>
-              <label class="inline access-confirm" style="margin-top:13px"><input type="checkbox" id="accessConfirm"> আমি Friend Request
-                পাঠিয়েছি এবং Moderator / Page Access Request-ও পাঠিয়েছি।</label>
+              <label class="inline access-confirm" style="margin-top:13px"><input type="checkbox" id="accessConfirm"> ✅ আমি Facebook পেজের মডারেটর রিকোয়েস্ট পাঠিয়েছি।</label>
               <div class="hint">পাসওয়ার্ড বা লগইন কোড কখনো শেয়ার করবেন না।</div>
             </div>
           </div>
@@ -100,31 +93,31 @@
       <div class="cardhead">
         <div class="num">২</div>
         <div>
-          <h2>আপনি বিজ্ঞাপনের মাধ্যমে কী পেতে চান?</h2>
+          <h2>আপনি বুস্টের মাধ্যমে কী পেতে চান?</h2>
           <p class="sub">আপনার ব্যবসার লক্ষ্য অনুযায়ী একটি অপশন বেছে নিন।</p>
         </div>
       </div>
-      <div class="field goal-field"><span class="field-label">লক্ষ্য নির্বাচন করুন</span>
+      <div class="field goal-field"><span class="field-label">বুস্টের লক্ষ্য নির্বাচন করুন।</span>
       <button class="goal-toggle" id="goalToggle" type="button" aria-expanded="false" aria-controls="goalOptions">
         <span id="goalCurrentIcon" class="goal-icon" aria-hidden="true">◎</span>
-        <span class="goal-copy"><strong id="goalCurrentTitle">ক্যাম্পেইনের লক্ষ্য নির্বাচন করুন</strong><small id="goalCurrentDescription">আপনার বিজ্ঞাপন দিয়ে কী ফল চান তা বেছে নিন।</small></span>
+        <span class="goal-copy"><strong id="goalCurrentTitle">বুস্টের লক্ষ্য নির্বাচন করুন।</strong><small id="goalCurrentDescription">আপনার বুস্ট দিয়ে কী রেজাল্ট চান বা কী পেতে চান, তা বেছে নিন।</small></span>
         <span class="goal-toggle-label" id="goalToggleLabel">লক্ষ্য বেছে নিন⌄</span>
       </button>
-      <div class="goal-options" id="goalOptions" role="radiogroup" aria-label="বিজ্ঞাপনের লক্ষ্য নির্বাচন" hidden>
+      <div class="goal-options" id="goalOptions" role="radiogroup" aria-label="বুস্টের লক্ষ্য নির্বাচন" hidden>
         <label class="goal-option">
           <span class="goal-icon icon-messages" aria-hidden="true">💬</span>
-          <span class="goal-copy"><strong>মেসেজ পান</strong><small>Messenger, WhatsApp বা Instagram-এ গ্রাহকদের কাছ থেকে মেসেজ পান।</small><span class="goal-good">ভালো: বিক্রয়</span></span>
+          <span class="goal-copy"><strong>মেসেজ পান</strong><small>মেসেঞ্জার, হোয়াটসঅ্যাপ বা ইনস্টাগ্রামে কাস্টমারের কাছ থেকে মেসেজ পান।</small><span class="goal-good">ভালো: বিক্রয়</span></span>
           <input type="radio" name="goalChoice" value="messages" aria-label="মেসেজ পান">
         </label>
         <label class="goal-option">
           <span class="goal-icon icon-leads" aria-hidden="true">📋</span>
-          <span class="goal-copy"><strong>লিড সংগ্রহ করুন</strong><small>সম্ভাব্য গ্রাহকদের যোগাযোগের তথ্য সংগ্রহ করুন।</small><span class="goal-good">ভালো: বিক্রয়</span></span>
+          <span class="goal-copy"><strong>লিড সংগ্রহ করুন</strong><small>কাস্টমারের ডাটা বা ইনফরমেশন সংগ্রহ করতে চাইলে এই অপশনটি সিলেক্ট করুন।</small><span class="goal-good">ভালো: বিক্রয়</span></span>
           <input type="radio" name="goalChoice" value="leads" aria-label="লিড সংগ্রহ করুন">
         </label>
         <label class="goal-option">
           <span class="goal-icon icon-sales" aria-hidden="true">🛍️</span>
-          <span class="goal-copy"><strong>বিক্রয় বাড়ান</strong><small>আপনার পণ্য বা সার্ভিসের জন্য ক্রেতা খুঁজুন।</small><span class="goal-good">ভালো: বিক্রয়</span></span>
-          <input type="radio" name="goalChoice" value="sales" aria-label="বিক্রয় বাড়ান">
+          <span class="goal-copy"><strong>সেলস বাড়ান</strong><small>আপনার যদি Landing Page বা Website থাকে, তাহলে এই অপশনের মাধ্যমে আপনার ওয়েবসাইটের সঙ্গে কানেক্ট করে Sales Campaign বা Sales Boost করতে পারবেন।</small><span class="goal-good">ভালো: বিক্রয়</span></span>
+          <input type="radio" name="goalChoice" value="sales" aria-label="সেলস বাড়ান">
         </label>
         <label class="goal-option">
           <span class="goal-icon icon-traffic" aria-hidden="true">➤</span>
@@ -143,7 +136,7 @@
         </label>
         <label class="goal-option">
           <span class="goal-icon icon-views" aria-hidden="true">▶</span>
-          <span class="goal-copy"><strong>ভিডিও ভিউ বাড়ান</strong><small>আপনার ভিডিওটি দেখতে আগ্রহী দর্শক খুঁজুন।</small><span class="goal-good">ভালো: ভিডিও</span></span>
+          <span class="goal-copy"><strong>ভিডিও ভিউ বাড়ান</strong><small>আপনার ভিডিওর ভিউজ বাড়ান।</small><span class="goal-good">ভালো: ভিডিও</span></span>
           <input type="radio" name="goalChoice" value="views" aria-label="ভিডিও ভিউ বাড়ান">
         </label>
         <label class="goal-option">
@@ -163,7 +156,7 @@
           <option value="app">অ্যাপ প্রোমোশন (App Promotion)</option>
         </select></div>
       <div id="messagingFields" class="hidden">
-        <div class="field"><label>আপনার বিজ্ঞাপনের মেসেজ কোথায় নিতে চান?</label>
+        <div class="field"><label>আপনার বুস্টের মেসেজ কোথায় নিতে চান?</label>
           <div class="pillgrid">
             <label class="choice"><input type="checkbox" name="channel" value="All" checked><span>✓ সব
                 জায়গায়</span></label>
@@ -174,14 +167,14 @@
             <label class="choice"><input type="checkbox" name="channel" value="Instagram"><span>📸
                 Instagram</span></label>
           </div>
-          <div class="hint">একাধিক নির্দিষ্ট চ্যানেল নির্বাচন করতে পারবেন। “সব জায়গায়” বাছলে উপলভ্য সব মেসেজ চ্যানেল ব্যবহৃত হবে। চ্যানেলগুলোর যোগ্যতা Meta অ্যাকাউন্টের সেটআপের ওপর নির্ভর করে।</div>
+          <div class="hint">আপনি চাইলে সব জায়গায় মেসেজ নিতে পারেন। এছাড়াও আলাদাভাবে শুধু Messenger, শুধু WhatsApp অথবা শুধু Instagram-এ কাস্টমারের মেসেজ নিতে পারবেন।<br><br>নোট: WhatsApp বা Instagram-এ মেসেজ নিতে চাইলে আপনার Facebook Page-এর সঙ্গে সংশ্লিষ্ট WhatsApp নম্বর বা Instagram অ্যাকাউন্ট কানেক্ট করা থাকতে হবে।</div>
           <div id="whatsappNumberField" class="field hidden">
-            <label for="adWhatsappNumber">গ্রাহকের মেসেজ যে WhatsApp নম্বরে পাবেন *</label>
+            <label for="adWhatsappNumber">কাস্টমারের মেসেজ যে WhatsApp নম্বরে নিতে চান, সেটি লিখুন।</label>
             <input class="input" id="adWhatsappNumber" type="tel" placeholder="যেমন: +8801XXXXXXXXX" autocomplete="tel">
-            <div class="hint">এই নম্বরেই বিজ্ঞাপন থেকে আসা গ্রাহকের WhatsApp মেসেজ যাবে।</div>
+            <div class="hint">এই নম্বরে বুস্ট থেকে আসা কাস্টমারের WhatsApp মেসেজ যাবে।</div>
           </div>
         </div>
-        <div class="field"><label>কাস্টমারকে কী মেসেজ বা Greeting Text দিতে চান? (ঐচ্ছিক)</label><select
+        <div class="field"><label>কাস্টমারকে কি কোনো মেসেজ বা Greeting Text দিতে চান?</label><select
             id="messageTemplate">
             <option value="">নিজের মেসেজ লিখব</option>
             <option>আমি কি আপনার পণ্য/সার্ভিস সম্পর্কে বিস্তারিত জানতে পারি?</option>
@@ -189,8 +182,8 @@
             <option>আমি জার্মান ভাষা শিখতে চাই। কোর্সের বিস্তারিত জানাবেন?</option>
             <option>ডেলিভারি ও পেমেন্ট সম্পর্কে জানতে চাই।</option>
           </select><div id="customMessageArea"><textarea id="customMessage"
-            placeholder="আপনার Greeting Text বা কাস্টমারের জন্য প্রশ্ন লিখুন (ঐচ্ছিক)"></textarea>
-          <div class="hint">কাস্টমারকে কী কথা বলবেন বা কী প্রশ্ন করতে চান, এখানে লিখতে পারেন।</div></div>
+            placeholder="আপনার Greeting Text বা কাস্টমারের জন্য প্রশ্ন লিখুন"></textarea>
+          <div class="hint">এটি দেওয়া বাধ্যতামূলক নয়। Greeting Text না দিলেও অর্ডার করা যাবে।</div></div>
         </div>
       </div>
       <div id="leadFields" class="hidden">
@@ -217,7 +210,7 @@
         <div class="num">৩</div>
         <div>
           <h2>অডিয়েন্স ডিটেইলস</h2>
-          <p class="sub">কোন ধরনের মানুষের কাছে বুস্ট বা বিজ্ঞাপন পৌঁছাতে চান?</p>
+          <p class="sub">আপনি কোন ধরনের মানুষের কাছে আপনার বুস্ট বা অ্যাড রান পৌঁছাতে চান? লোকেশন এবং বাকি তথ্য দিন।</p>
         </div>
       </div>
       <div class="field"><label for="country">দেশ নির্বাচন করুন</label><select id="country">
@@ -296,7 +289,7 @@
             </select></div>
         </div>
       </div>
-      <div class="field"><label for="location">এলাকা বা শহরের নাম (ঐচ্ছিক)</label><input class="input" id="location"
+      <div class="field"><label for="location">এলাকা বা শহরের নাম (বাধ্যতামূলক)</label><input class="input" id="location" required
           placeholder="যেমন: সাভার, আমিনবাজার, আশুলিয়া"></div>
       <div class="field audience-field">
         <label class="field-label">লিঙ্গ <span class="info-mark" title="যাদের কাছে বিজ্ঞাপন পৌঁছাবে">ⓘ</span></label>
@@ -322,9 +315,9 @@
         </div>
         <input type="hidden" id="ageMin" value="18"><input type="hidden" id="ageMax" value="65">
       </div>
-      <div class="field"><label for="interests">আগ্রহ / অডিয়েন্সের ধরন (ঐচ্ছিক)</label><input class="input"
-          id="interests" placeholder="যেমন: অনলাইন শপিং, শিক্ষা, রেস্টুরেন্ট">
-        <div class="hint">Meta-এর বিজ্ঞাপন নীতিমালা ও উপলব্ধ টার্গেটিং অনুযায়ী চূড়ান্ত অপশন নির্ধারিত হবে।</div>
+      <div class="field"><label for="interests">আপনি কী ধরনের কাস্টমার চান, সেটা লিখুন।</label><input class="input"
+          id="interests" placeholder="যেমন: যারা অনলাইনে শপিং করেন, অনলাইনে কেনাকাটা করতে পছন্দ করেন অথবা ট্রাভেলিং ভালোবাসেন।">
+        <div class="hint">আপনি কী ধরনের কাস্টমার চান, তা এখানে লিখুন। আপনার দেওয়া তথ্য অনুযায়ী আমরা উপযুক্ত টার্গেটিং অপশন নির্ধারণ করে দেব। চূড়ান্ত টার্গেটিং Meta-এর বিজ্ঞাপন নীতিমালা ও উপলভ্য অপশনের ওপর নির্ভর করবে।</div>
       </div>
     </section>
     <section class="card">
@@ -332,7 +325,7 @@
         <div class="num">৪</div>
         <div>
           <h2>সময় ও বাজেট</h2>
-          <p class="sub">দিন ও ডলারের পরিমাণ নির্বাচন করুন</p>
+          <p class="sub">দিন ও ডলারের পরিমাণ সেট করুন।</p>
         </div>
       </div>
       <div class="grid2">
@@ -366,9 +359,9 @@
         </div>
         <div class="moneyline"><span>দৈনিক বাজেট</span><strong id="dailyTaka">৳৭৫০</strong></div>
         <div class="moneyline"><span>মোট বিজ্ঞাপন বাজেট</span><strong id="totalUsd">$50</strong></div>
-        <div class="moneyline"><span>আনুমানিক মোট টাকা</span><strong id="totalTaka">৳৭,৫০০</strong></div>
-        <div class="moneyline"><span>সার্ভিস চার্জ</span><strong>পরবর্তীতে নির্ধারিত হবে</strong></div>
-        <div class="estimate" id="estimate">সম্ভাব্য ফলাফল একটি আনুমানিক ডেমো; ফলাফল নিশ্চিত নয়।</div>
+        <div class="moneyline"><span>মোট টাকা</span><strong id="totalTaka">৳৭,৫০০</strong></div>
+        <div class="moneyline"><span>এক্সট্রা কোনো সার্ভিস চার্জ নেই।</span></div>
+        <div class="estimate" id="estimate">আপনার এই বুস্ট ক্যাম্পেইন থেকে আনুমানিক ফলাফলের একটি ধারণা এখানে দেখানো হবে। ফলাফল আপনার কনটেন্ট, প্রোডাক্ট বা সার্ভিস, অডিয়েন্স এবং বিজ্ঞাপনের পারফরম্যান্সের ওপর নির্ভর করবে। এখানে দেখানো সংখ্যাটি আনুমানিক, কোনো নিশ্চয়তা নয়।</div>
         <div class="notice">ন্যূনতম মোট বাজেট $১০। দৈনিক বাজেট × দিনের সংখ্যা অনুযায়ী মোট বিজ্ঞাপন বাজেট হিসাব করা হয়।</div>
       </div>
     </section>
@@ -377,7 +370,7 @@
         <div class="num">৫</div>
         <div>
           <h2>যোগাযোগের তথ্য</h2>
-          <p class="sub">অর্ডার সম্পর্কে যোগাযোগের জন্য WhatsApp নম্বর দিন।</p>
+          <p class="sub">অর্ডার সম্পর্কে আপনার সঙ্গে যোগাযোগ করার জন্য আপনার WhatsApp নম্বর দিন।</p>
         </div>
       </div>
       <div class="field"><label for="phone">আপনার WhatsApp নম্বর দিন *</label>
@@ -464,8 +457,8 @@
           <div class="sumrow"><span>মোট বাজেট</span><strong id="sumTotalUsd">$50</strong></div>
           <div class="sumrow"><span>দেশ</span><strong id="sumCountry">🇧🇩 বাংলাদেশ</strong></div>
         </div>
-        <div class="total"><small>আনুমানিক মোট বিজ্ঞাপন বাজেট</small><strong
-            id="sumTotalTaka">৳৭,৫০০</strong><small>সার্ভিস চার্জ/ট্যাক্স প্রযোজ্য হলে আলাদা হতে পারে</small></div>
+        <div class="total"><small>মোট টাকা</small><strong
+            id="sumTotalTaka">৳৭,৫০০</strong><small>এক্সট্রা কোনো সার্ভিস চার্জ নেই।</small></div>
         <button type="button" class="secondary" style="width:100%" id="scrollBudget">বাজেট পরিবর্তন করুন</button>
       </section>
     </aside>
@@ -478,9 +471,9 @@
   <div id="modalBack" class="modalback hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal">
       <h2 id="modalTitle">অর্ডার জমা হয়েছে</h2>
-      <p class="sub" id="modalDescription">আপনার অর্ডার নম্বর:</p>
+      <p class="sub" id="modalDescription">আপনার অর্ডার আইডি:</p>
       <p class="order-number" id="successOrderNumber"></p>
-      <a class="track-order-link" id="successTrackLink" href="/track">অর্ডারের অবস্থা দেখুন →</a>
+      <a class="track-order-link" id="successTrackLink" href="/track/">অর্ডার স্টেটাস দেখুন →</a>
       <button class="primary hidden" type="button" id="retryPaymentBtn" style="width:100%;margin-top:12px">পেমেন্ট আবার চেষ্টা করুন</button>
       <button class="primary" type="button" id="closeModal" style="width:100%;margin-top:12px">ঠিক আছে</button>
     </div>

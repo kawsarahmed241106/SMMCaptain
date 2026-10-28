@@ -13,12 +13,6 @@ create table if not exists public.site_settings (
   updated_at timestamptz not null default now()
 );
 
--- Remove the retired hero eyebrow copy from the saved public settings.
-update public.site_settings
-set settings = settings - 'heroEyebrow',
-    updated_at = now()
-where settings ? 'heroEyebrow';
-
 alter table public.site_settings enable row level security;
 
 grant select on public.site_settings to anon;
@@ -322,6 +316,9 @@ begin
   end if;
   if p_details is null or jsonb_typeof(p_details) <> 'object' then
     raise exception 'Order details are required.' using errcode = '22023';
+  end if;
+  if nullif(btrim(coalesce(p_details->>'location', '')), '') is null then
+    raise exception 'A campaign location is required.' using errcode = '22023';
   end if;
   if octet_length(p_details::text) > 65536 then
     raise exception 'Order details are too large.' using errcode = '22023';
