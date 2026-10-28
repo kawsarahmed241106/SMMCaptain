@@ -18,8 +18,8 @@
     author_phone: '+8801843161825',
     author_country_code: '+880',
     supportWhatsapp: '8801300400618',
-    supportMessengerLink: 'https://m.me/Smmcaptainsite',
-    supportTelegramLink: 'https://t.me/Smmcaptainsite',
+    supportWhatsappCommunityLink: 'https://chat.whatsapp.com/IdRgMpDssqZDy68i29Iq2H',
+    supportCallNumber: '01300400618',
     noticeText: '',
     supabasePublishableKey: window.smmSupabaseBootstrapKey
   };
@@ -149,9 +149,15 @@
       form.elements.namedItem('supportWhatsapp').setCustomValidity('');
       return;
     }
+    data.supportCallNumber = (data.supportCallNumber || '').trim().replace(/[^\d+]/g, '');
+    if (data.supportCallNumber && !/^\+?\d{8,15}$/.test(data.supportCallNumber)) {
+      form.elements.namedItem('supportCallNumber').setCustomValidity('Enter a valid local or international phone number with 8 to 15 digits.');
+      form.elements.namedItem('supportCallNumber').reportValidity();
+      form.elements.namedItem('supportCallNumber').setCustomValidity('');
+      return;
+    }
     for (const [key, hosts] of [
-      ['supportMessengerLink', ['m.me', 'facebook.com', 'messenger.com']],
-      ['supportTelegramLink', ['t.me', 'telegram.me']]
+      ['supportWhatsappCommunityLink', ['chat.whatsapp.com']]
     ]) {
       const value = data[key];
       if (!value) continue;
@@ -161,9 +167,7 @@
         valid = url.protocol === 'https:' && hosts.some(host => url.hostname === host || url.hostname.endsWith(`.${host}`));
       } catch {}
       if (!valid) {
-        form.elements.namedItem(key).setCustomValidity(key === 'supportMessengerLink'
-          ? 'Enter a valid https://m.me or Facebook Messenger link.'
-          : 'Enter a valid https://t.me or telegram.me link.');
+        form.elements.namedItem(key).setCustomValidity('Enter a valid https://chat.whatsapp.com invitation link.');
         form.elements.namedItem(key).reportValidity();
         form.elements.namedItem(key).setCustomValidity('');
         return;

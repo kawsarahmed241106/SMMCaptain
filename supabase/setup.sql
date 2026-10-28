@@ -14,9 +14,11 @@ create table if not exists public.site_settings (
 );
 
 update public.site_settings
-set settings = settings - 'heroEyebrow',
+set settings = settings - 'heroEyebrow' - 'supportMessengerLink' - 'supportTelegramLink',
     updated_at = now()
-where settings ? 'heroEyebrow';
+where settings ? 'heroEyebrow'
+   or settings ? 'supportMessengerLink'
+   or settings ? 'supportTelegramLink';
 
 alter table public.site_settings enable row level security;
 
