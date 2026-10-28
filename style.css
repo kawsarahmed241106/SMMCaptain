@@ -2415,7 +2415,8 @@ a,
 }
 
 .site-support-icon svg,
-.site-support-button svg {
+.site-support-button svg,
+.site-support-close svg {
     width: 22px;
     height: 22px;
     fill: none;
