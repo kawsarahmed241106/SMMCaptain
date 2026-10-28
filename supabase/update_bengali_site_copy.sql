@@ -2,14 +2,13 @@
 insert into public.site_settings (id, settings)
 values (1, jsonb_build_object(
   'topNote', 'বুস্ট করুন খুব সহজে',
-  'heroEyebrow', 'সহজ অনলাইন বিজ্ঞাপন',
   'heroTitle', 'এখন আপনার বিজনেসের জন্য বুস্ট বা অ্যাড রান করুন আপনি নিজেই।',
   'heroDescription', 'পোস্ট বা ভিডিওর লিংক দিয়ে আপনি নিজেই এখন বুস্ট করতে পারবেন। আপনার পছন্দমতো কাস্টমার বেছে নিতে পারবেন। বাজেট, দিনের সংখ্যা এবং অন্যান্য সেটিংস নিজেই ঠিক করতে পারবেন। সবকিছু সেট করা হয়ে গেলে নিজেই বুস্টের অর্ডার সাবমিট করতে পারবেন।',
   'exchangeRateNote', '— এক্সট্রা কোনো সার্ভিস চার্জ নেই।',
   'instructionVideo', 'https://youtu.be/O_YPBHqmFxQ?si=zcvCkVSxzFRAY7DM'
 ))
 on conflict (id) do update
-set settings = public.site_settings.settings || excluded.settings,
+set settings = (public.site_settings.settings || excluded.settings) - 'heroEyebrow',
     updated_at = now();
 
 create or replace function public.create_campaign_checkout_intent(

@@ -13,6 +13,11 @@ create table if not exists public.site_settings (
   updated_at timestamptz not null default now()
 );
 
+update public.site_settings
+set settings = settings - 'heroEyebrow',
+    updated_at = now()
+where settings ? 'heroEyebrow';
+
 alter table public.site_settings enable row level security;
 
 grant select on public.site_settings to anon;
