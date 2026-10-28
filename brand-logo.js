@@ -4,6 +4,11 @@
   const applyLogo = (url) => {
     if (typeof url !== 'string' || !/^https?:\/\//i.test(url.trim())) return;
     const logoUrl = url.trim();
+    const favicon = document.querySelector('link[rel="icon"]');
+    if (favicon) {
+      favicon.href = logoUrl;
+      favicon.removeAttribute('type');
+    }
 
     document.querySelectorAll('[data-brand-logo]').forEach(container => {
       const image = document.createElement('img');
@@ -15,6 +20,10 @@
         fallback.textContent = 'S';
         if (container.classList.contains('logo')) fallback.className = 'logo-fallback';
         container.replaceChildren(fallback);
+        if (favicon) {
+          favicon.href = '/favicon.svg';
+          favicon.type = 'image/svg+xml';
+        }
       }, { once: true });
       container.replaceChildren(image);
     });
