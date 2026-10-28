@@ -14,7 +14,6 @@
         };
         setText('.brand > div:last-child', settings.brandName);
         setText('.topnote', settings.topNote);
-        setText('.eyebrow', settings.heroEyebrow);
         setText('.hero h1', settings.heroTitle);
         setText('.hero-copy > p', settings.heroDescription);
         if (typeof settings.orderGuideVideo === 'string' && settings.orderGuideVideo.trim()) {
