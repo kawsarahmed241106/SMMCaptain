@@ -9,7 +9,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../supabase-config.js"></script>
   <script src="../brand-logo.js?v=20261025-1" defer></script>
-  <script src="script.js?v=20261026-5" defer></script>
+  <script src="script.js?v=20261028-1" defer></script>
 </head>
 <body>
   <main class="shell">
@@ -75,7 +75,7 @@
         <section class="panel">
           <div class="panel-heading"><span class="step">05</span><div><h2>Website notice bar</h2><p>Show a scrolling announcement across public pages. Leave it empty to hide the bar.</p></div></div>
           <div class="fields">
-            <div class="field"><label for="noticeText">Notice text <span class="optional">optional</span></label><textarea id="noticeText" name="noticeText" rows="2" maxlength="240" placeholder="যেমন: নতুন অর্ডার দেওয়ার আগে মূল্য তালিকা দেখে নিন"></textarea><small>The notice appears above the public page content and updates after saving.</small></div>
+            <div class="field"><label for="noticeText">Notice text <span class="optional">optional</span></label><textarea id="noticeText" name="noticeText" rows="4" placeholder="যেমন: নতুন অর্ডার দেওয়ার আগে মূল্য তালিকা দেখে নিন"></textarea><small>The notice appears above the public page content and updates after saving. Maximum 500 words. <span id="noticeWordCount" aria-live="polite">0 / 500 words</span></small></div>
           </div>
         </section>
         <section class="panel">

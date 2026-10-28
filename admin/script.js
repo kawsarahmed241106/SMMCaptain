@@ -26,8 +26,21 @@
   };
   const $ = (id) => document.getElementById(id);
   const form = $('settingsForm');
+  const noticeInput = $('noticeText');
+  const noticeWordCount = $('noticeWordCount');
   let loadedSettings = { ...defaults };
   let keyWarning = '';
+
+  function countWords(text) {
+    const trimmed = text.trim();
+    return trimmed ? trimmed.split(/\s+/u).length : 0;
+  }
+  function updateNoticeWordCount() {
+    const count = countWords(noticeInput.value);
+    noticeWordCount.textContent = `${count} / 500 words`;
+    noticeInput.setCustomValidity(count > 500 ? 'Notice text can contain at most 500 words.' : '');
+  }
+  noticeInput.addEventListener('input', updateNoticeWordCount);
 
   function showStatus(message, error = false) {
     $('saveStatus').textContent = message;
@@ -57,6 +70,7 @@
       const input = form.elements.namedItem(key);
       if (input) input.value = value;
     });
+    updateNoticeWordCount();
     const phoneInput = $('author_phone');
     const countrySelect = $('authorCountryCode');
     const savedPhone = String(settings.author_phone || '').replace(/\D/g, '');
@@ -111,6 +125,8 @@
   });
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
+    updateNoticeWordCount();
+    if (!noticeInput.reportValidity()) return;
     const data = Object.fromEntries(new FormData(form).entries());
     const selectedCountryCode = $('authorCountryCode').value;
     const countryDigits = selectedCountryCode.replace(/\D/g, '');
@@ -193,6 +209,7 @@
   });
   $('resetButton').addEventListener('click', () => {
     Object.entries(defaults).forEach(([key, value]) => { form.elements.namedItem(key).value = value; });
+    updateNoticeWordCount();
     showStatus('Defaults loaded. Click Save changes to publish them.');
   });
 
