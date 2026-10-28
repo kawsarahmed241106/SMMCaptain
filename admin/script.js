@@ -204,7 +204,7 @@
     } catch (error) {
       const isPolicyError = error.code === '42501' || /row-level security policy/i.test(error.message || '');
       showStatus(isPolicyError
-        ? 'Save failed: Admin access is not active. Run supabase/setup.sql, then log out and sign in again.'
+        ? 'Save failed: this account is not an active site admin. Assign its role in Supabase (see supabase/SETUP.md), then log out and sign in again.'
         : `Save failed: ${error.message}`, true);
     } finally {
       saveButton.disabled = false;
