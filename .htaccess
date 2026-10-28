@@ -1,4 +1,11 @@
 RewriteEngine On
+Options -Indexes
 RewriteRule (^|/)\.git(/|$) - [F,L,NC]
 RewriteRule (^|/)\.github(/|$) - [F,L,NC]
+RewriteRule ^supabase(?:/|$) - [F,L,NC]
 RewriteRule ^track/?$ track/index.html [L]
+
+# Do not expose hidden files or private setup, backup, and source-map files.
+<FilesMatch "(?i)(^\.|.*\.(?:sql|md|yml|yaml|log|bak|old|orig|swp|tmp|dist|map)$)">
+  Require all denied
+</FilesMatch>
