@@ -324,9 +324,6 @@ begin
   if p_details is null or jsonb_typeof(p_details) <> 'object' then
     raise exception 'Order details are required.' using errcode = '22023';
   end if;
-  if nullif(btrim(coalesce(p_details->>'location', '')), '') is null then
-    raise exception 'A campaign location is required.' using errcode = '22023';
-  end if;
   if octet_length(p_details::text) > 65536 then
     raise exception 'Order details are too large.' using errcode = '22023';
   end if;
