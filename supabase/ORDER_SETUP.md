@@ -2,7 +2,7 @@
 
 ## Install or update the database
 
-`supabase/setup.sql` is the consolidated setup file. Run the complete file in Supabase Dashboard → SQL Editor. It applies the base schema, payment-required UddoktaPay flow, order tracking, admin-created offline orders, Processing timers, cancellation reasons, Make webhook queue, and the temporary expiry-test RPC. It also updates the old trigger/RPC definitions. The SQL can be rerun to refresh the installed functions and policies; the scheduled order timer is rescheduled by the script.
+`supabase/setup.sql` is the consolidated setup file. Run the complete file in Supabase Dashboard → SQL Editor. It applies the base schema, payment-required UddoktaPay flow, order tracking, admin-created offline orders, Processing timers, cancellation reasons, and Make webhook queue. It also updates the old trigger/RPC definitions and removes the temporary expiry-test RPC from earlier installs. The SQL can be rerun to refresh the installed functions and policies; the scheduled order timer is rescheduled by the script.
 
 To publish the revised Bengali site copy and support-menu defaults, and allow campaign location to be left blank, also run `supabase/update_bengali_site_copy.sql` in SQL Editor.
 
@@ -30,10 +30,4 @@ Confirm the automated completion/reminder job is active with:
 select jobid, jobname, schedule, command
 from cron.job
 where jobname = 'campaign-order-duration-timers';
-```
-
-The test reminder helper sends a real WhatsApp message. Remove the temporary test button after use and drop its RPC with:
-
-```sql
-drop function if exists public.send_test_campaign_order_expiry_reminder(uuid);
 ```
